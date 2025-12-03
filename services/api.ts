@@ -1,0 +1,46 @@
+
+import { User } from '../types';
+
+const API_BASE = '/api';
+
+export const api = {
+    async register(email: string, password: string, name: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, name }),
+        });
+        if (!res.ok) throw new Error((await res.json()).message || 'Registration failed');
+        return res.json();
+    },
+
+    async login(email: string, password: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+        if (!res.ok) throw new Error((await res.json()).message || 'Login failed');
+        return res.json();
+    },
+
+    async markMastered(userId: string, masteredId: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/user/progress`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, masteredId }),
+        });
+        if (!res.ok) throw new Error('Failed to update progress');
+        return res.json();
+    },
+
+    async processPaymentSuccess(userId: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/payment/success`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId }),
+        });
+        if (!res.ok) throw new Error('Payment processing failed');
+        return res.json();
+    }
+};

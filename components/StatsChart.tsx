@@ -21,26 +21,27 @@ export const StatsChart: React.FC<StatsChartProps> = ({ progress, totalQuestions
   const completionRate = Math.round((mastered / totalQuestions) * 100) || 0;
 
   return (
-    <div className="w-full bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
-      <div className="mb-4">
+    <div className="w-full bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col">
+      <div className="mb-2">
         <h3 className="text-lg font-bold text-slate-800">Progress Overview</h3>
         <p className="text-sm text-slate-500">Your mastery journey</p>
       </div>
       
-      <div className="flex-1 min-h-[250px] relative">
+      <div className="h-[300px] relative w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
-              cy="50%"
-              innerRadius={65}
-              outerRadius={85}
-              paddingAngle={4}
+              cy="45%" 
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={5}
               dataKey="value"
               stroke="none"
               startAngle={90}
               endAngle={-270}
+              cornerRadius={5}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
@@ -55,17 +56,17 @@ export const StatsChart: React.FC<StatsChartProps> = ({ progress, totalQuestions
               height={36}
               iconType="circle"
               iconSize={8}
-              wrapperStyle={{ paddingTop: '24px', fontSize: '14px' }}
+              wrapperStyle={{ fontSize: '12px', color: '#64748b', bottom: '10px' }}
             />
           </PieChart>
         </ResponsiveContainer>
         
-        {/* Absolute Centered Text */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none pb-8">
-          <div className="text-4xl font-extrabold text-slate-900 leading-none">
+        {/* Absolute Centered Text - Adjusted to match cy="45%" */}
+        <div className="absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+          <div className="text-3xl font-extrabold text-slate-900 leading-none">
             {completionRate}%
           </div>
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mt-1">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-1">
             Complete
           </div>
         </div>

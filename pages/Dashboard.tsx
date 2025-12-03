@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserProgress, Question, Category } from '../types';
 import { StatsChart } from '../components/StatsChart';
+import { AdBanner } from '../components/AdBanner';
 import { PlayCircle, Award, Target } from 'lucide-react';
 
 interface DashboardProps {
@@ -81,15 +82,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ progress, questions, onSta
         </div>
 
         {/* Chart Column */}
-        <div className="col-span-1">
+        <div className="col-span-1 space-y-6">
           <StatsChart progress={progress} totalQuestions={questions.length} />
           
-          <div className="mt-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white shadow-lg">
             <h3 className="font-bold text-lg mb-2">Pro Tip</h3>
             <p className="text-slate-300 text-sm leading-relaxed">
               Don't just memorize the answers. Try to explain the concepts out loud as if you were teaching a junior developer. This reinforces deep learning.
             </p>
           </div>
+
+          <AdBanner slotId="dashboard-sidebar" />
         </div>
       </div>
     </div>

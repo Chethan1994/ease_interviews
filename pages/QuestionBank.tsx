@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Question, Category, Difficulty } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../services/api';
 import { Badge } from '../components/ui/Badge';
 import { PaymentModal } from '../components/PaymentModal';
+import { AdBanner } from '../components/AdBanner';
 import { Search, CheckCircle, Lock, Star, ChevronRight, Zap, BookOpen, Code, Terminal, Layers, Hash, Layout, ArrowLeft } from 'lucide-react';
 
 interface QuestionBankProps {
   questions: Question[];
-  masteredIds: string[];
-  isPremium: boolean;
-  onUnlockPremium: () => void;
+  onNavigateToLogin: () => void;
 }
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
@@ -20,17 +21,20 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.HTML]: Hash,
 };
 
-export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredIds, isPremium, onUnlockPremium }) => {
+export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigateToLogin }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [search, setSearch] = useState('');
   const [showPayment, setShowPayment] = useState(false);
+  const { user, updateUser } = useAuth();
   
   const categories = Object.values(Category);
   
-  // If user is premium, show all. If not, show limit.
-  const VISIBLE_LIMIT = isPremium ? 1000 : 30; // 1000 acts as "infinity" here
+  // Use Auth user state for premium and mastery status
+  const isPremium = user?.isPremium || false;
+  const masteredIds = user?.masteredIds || [];
 
-  // Filter questions based on selection and search
+  const VISIBLE_LIMIT = isPremium ? 1000 : 30;
+
   const currentQuestions = selectedCategory 
     ? questions.filter(q => q.category === selectedCategory) 
     : [];
@@ -44,7 +48,27 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
   const visibleQuestions = filteredQuestions.slice(0, VISIBLE_LIMIT);
   const hiddenCount = Math.max(0, filteredQuestions.length - VISIBLE_LIMIT);
 
-  // VIEW 1: TOPIC SELECTION (Grid)
+  const handleUnlockClick = () => {
+      if (!user) {
+          onNavigateToLogin();
+      } else {
+          setShowPayment(true);
+      }
+  };
+
+  const handlePaymentSuccess = async () => {
+      if (user) {
+          try {
+            const updatedUser = await api.processPaymentSuccess(user.id);
+            updateUser(updatedUser);
+          } catch (e) {
+              console.error("Payment sync failed", e);
+              // Fallback optimistic update
+              updateUser({ ...user, isPremium: true });
+          }
+      }
+  };
+
   if (!selectedCategory) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-in fade-in duration-500">
@@ -60,12 +84,12 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
            )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {categories.map(cat => {
             const Icon = CATEGORY_ICONS[cat];
             const count = questions.filter(q => q.category === cat).length;
             const masteredCount = questions.filter(q => q.category === cat && masteredIds.includes(q.id)).length;
-            const progress = Math.round((masteredCount / count) * 100);
+            const progress = count > 0 ? Math.round((masteredCount / count) * 100) : 0;
 
             return (
               <button
@@ -102,15 +126,15 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
             );
           })}
         </div>
+        
+        <AdBanner slotId="category-footer" />
       </div>
     );
   }
 
-  // VIEW 2: QUESTION LIST (Detail)
   return (
     <>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-80px)] flex flex-col animate-in slide-in-from-right-8 duration-300">
-      {/* Header & Back Button */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 flex-shrink-0">
         <div className="flex items-center gap-4">
             <button 
@@ -139,7 +163,6 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
         </div>
       </div>
 
-      {/* Scrollable Question List */}
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 pb-12">
         {visibleQuestions.length > 0 ? (
           visibleQuestions.map((q, idx) => {
@@ -150,7 +173,6 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
                 className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
               >
                 <div className="p-6">
-                  {/* Header: Question + Badges */}
                   <div className="flex justify-between items-start mb-4 gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -168,14 +190,12 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
                     </div>
                   </div>
 
-                  {/* Answer Section */}
                   <div className="relative pl-4 border-l-2 border-primary-500/30">
                      <p className="text-slate-700 leading-relaxed whitespace-pre-line text-sm md:text-base">
                        {q.answer}
                      </p>
                   </div>
 
-                  {/* Code Snippet */}
                   {q.codeSnippet && (
                     <div className="mt-5">
                       <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
@@ -205,10 +225,8 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
           </div>
         )}
 
-        {/* Locked State / Pricing Model */}
         {hiddenCount > 0 && !search && !isPremium && (
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl mx-auto max-w-4xl mt-8 mb-8">
-              {/* Background FX */}
               <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl"></div>
               <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
               
@@ -220,7 +238,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
                         </div>
                         <h3 className="text-3xl font-bold tracking-tight">Unlock {hiddenCount} more {selectedCategory} questions</h3>
                         <p className="text-slate-400 text-lg leading-relaxed max-w-lg">
-                            Go beyond the basics. Get access to advanced scenarios, system design deep dives, and company-specific question banks.
+                            {user ? 'Go beyond the basics.' : 'Log in to upgrade.'} Get access to advanced scenarios, system design deep dives, and company-specific question banks.
                         </p>
                       </div>
                       
@@ -229,22 +247,11 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
                             <span className="text-4xl font-bold text-white tracking-tight">$12</span>
                             <span className="text-slate-400 font-medium">/month</span>
                         </div>
-                        <ul className="space-y-3 mb-6">
-                            <li className="flex items-center gap-3 text-sm text-slate-300">
-                                <Zap className="w-4 h-4 text-yellow-400 shrink-0" /> Full Question Bank
-                            </li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300">
-                                <Zap className="w-4 h-4 text-yellow-400 shrink-0" /> Curated Career Paths
-                            </li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300">
-                                <Zap className="w-4 h-4 text-yellow-400 shrink-0" /> Weekly Updates
-                            </li>
-                        </ul>
                         <button 
-                            onClick={() => setShowPayment(true)}
+                            onClick={handleUnlockClick}
                             className="w-full py-3 bg-primary-600 hover:bg-primary-500 text-white rounded-lg font-bold transition-all shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40 flex items-center justify-center gap-2 group"
                         >
-                            Unlock Now <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            {user ? 'Unlock Now' : 'Log In to Upgrade'} <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                       </div>
                   </div>
@@ -255,13 +262,15 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
               </div>
             </div>
         )}
+
+        <AdBanner slotId="questions-list-footer" />
       </div>
     </div>
     
     <PaymentModal 
         isOpen={showPayment} 
         onClose={() => setShowPayment(false)}
-        onSuccess={onUnlockPremium}
+        onSuccess={handlePaymentSuccess}
         price="$12.00"
     />
     </>

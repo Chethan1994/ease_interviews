@@ -1,45 +1,40 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
 import { QuestionBank } from './pages/QuestionBank';
 import { CodingChallenges } from './pages/CodingChallenges';
 import { StudyMode } from './pages/StudyMode';
 import { AIQuiz } from './pages/AIQuiz';
-import { ViewState, UserProgress } from './types';
+import { AuthPage } from './pages/AuthPage';
+import { ViewState } from './types';
 import { ALL_QUESTIONS } from './data/questions';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { api } from './services/api';
 
-const STORAGE_KEY = 'devprep_progress_v1';
-
-const App: React.FC = () => {
+const MainContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('dashboard');
-  const [progress, setProgress] = useState<UserProgress>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : { masteredIds: [], reviewedIds: [], isPremium: false };
-  });
+  const { user, updateUser } = useAuth();
 
-  // Persist progress
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }, [progress]);
-
-  const handleMarkMastered = (id: string) => {
-    setProgress(prev => {
-        // Add to reviewed if not there
-        const reviewedIds = prev.reviewedIds.includes(id) 
-            ? prev.reviewedIds 
-            : [...prev.reviewedIds, id];
-            
-        // Add to mastered if not there
-        const masteredIds = prev.masteredIds.includes(id) 
-            ? prev.masteredIds 
-            : [...prev.masteredIds, id];
-
-        return { ...prev, reviewedIds, masteredIds };
-    });
+  // Create a progress adapter for the Dashboard
+  const progressAdapter = {
+      masteredIds: user?.masteredIds || [],
+      reviewedIds: [], // Keep simplified for now or sync with DB
+      isPremium: user?.isPremium || false
   };
 
-  const handleUnlockPremium = () => {
-    setProgress(prev => ({ ...prev, isPremium: true }));
+  const handleMarkMastered = async (id: string) => {
+    if (user) {
+        try {
+            // Optimistic update
+            const newMastered = [...user.masteredIds, id];
+            updateUser({ ...user, masteredIds: newMastered });
+            // Sync
+            await api.markMastered(user.id, id);
+        } catch (e) {
+            console.error(e);
+        }
+    }
   };
 
   const renderView = () => {
@@ -47,7 +42,7 @@ const App: React.FC = () => {
       case 'dashboard':
         return (
           <Dashboard 
-            progress={progress} 
+            progress={progressAdapter} 
             questions={ALL_QUESTIONS} 
             onStartStudy={() => setCurrentView('study')} 
           />
@@ -56,9 +51,7 @@ const App: React.FC = () => {
         return (
           <QuestionBank 
             questions={ALL_QUESTIONS} 
-            masteredIds={progress.masteredIds} 
-            isPremium={progress.isPremium}
-            onUnlockPremium={handleUnlockPremium}
+            onNavigateToLogin={() => setCurrentView('auth')}
           />
         );
       case 'coding-challenges':
@@ -69,7 +62,7 @@ const App: React.FC = () => {
         return (
           <StudyMode 
             questions={ALL_QUESTIONS} 
-            masteredIds={progress.masteredIds}
+            masteredIds={progressAdapter.masteredIds}
             onMarkMastered={handleMarkMastered}
           />
         );
@@ -77,6 +70,10 @@ const App: React.FC = () => {
         return (
           <AIQuiz />
         );
+      case 'auth':
+          return (
+              <AuthPage onSuccess={() => setCurrentView('dashboard')} />
+          );
       default:
         return <div>View not found</div>;
     }
@@ -90,6 +87,14 @@ const App: React.FC = () => {
       </main>
     </div>
   );
+};
+
+const App: React.FC = () => {
+    return (
+        <AuthProvider>
+            <MainContent />
+        </AuthProvider>
+    );
 };
 
 export default App;

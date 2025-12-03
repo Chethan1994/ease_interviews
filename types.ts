@@ -19,18 +19,27 @@ export interface Question {
   category: Category;
   difficulty: Difficulty;
   question: string;
-  answer: string; // Markdown supported
+  answer: string;
   codeSnippet?: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  isPremium: boolean;
+  masteredIds: string[];
 }
 
 export interface UserProgress {
   masteredIds: string[];
-  reviewedIds: string[]; // Questions seen but not mastered
-  isPremium: boolean; // Tracks if user has paid
+  reviewedIds: string[];
+  isPremium: boolean;
 }
 
 export interface CodingChallenge {
   id: string;
+  category: Category;
   title: string;
   difficulty: Difficulty;
   description: string;
@@ -39,4 +48,4 @@ export interface CodingChallenge {
   tags: string[];
 }
 
-export type ViewState = 'dashboard' | 'browse' | 'study' | 'ai-quiz' | 'coding-challenges';
+export type ViewState = 'dashboard' | 'browse' | 'study' | 'ai-quiz' | 'coding-challenges' | 'auth';
