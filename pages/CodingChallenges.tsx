@@ -5,10 +5,11 @@ import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
-import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server } from 'lucide-react';
+import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
+  [Category.NextJS]: Zap,
   [Category.JavaScript]: Terminal,
   [Category.NodeJS]: Server,
   [Category.CSS]: Layout,
@@ -174,6 +175,9 @@ export const CodingChallenges: React.FC = () => {
             {visibleChallenges.map((challenge, idx) => {
                 const isRunning = runningId === challenge.id;
                 const isNode = challenge.category === Category.NodeJS;
+                const isNext = challenge.category === Category.NextJS;
+                // Treat Next.js similar to Node.js for simplicity regarding build steps needed for running
+                const isServerSide = isNode || isNext;
 
                 return (
                     <div key={challenge.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
@@ -238,10 +242,10 @@ export const CodingChallenges: React.FC = () => {
                         {/* Footer Actions */}
                         <div className="p-4 bg-slate-50 border-t border-slate-200">
                             <div className="flex flex-wrap gap-2 justify-end items-center">
-                                {isNode ? (
+                                {isServerSide ? (
                                     <span className="text-sm text-slate-400 italic flex items-center gap-2">
                                         <Terminal className="w-4 h-4" />
-                                        Execution requires local Node.js environment.
+                                        Execution requires local environment.
                                     </span>
                                 ) : (
                                     <>
@@ -270,7 +274,7 @@ export const CodingChallenges: React.FC = () => {
                                 )}
                             </div>
                             
-                            {!isNode && (
+                            {!isServerSide && (
                                 <div className="mt-3 text-right">
                                     <span className="text-[10px] text-slate-400 font-medium flex items-center justify-end gap-1.5 opacity-80">
                                         <Clock className="w-3 h-3" />

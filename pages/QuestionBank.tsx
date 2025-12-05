@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Badge } from '../components/ui/Badge';
 import { CopyButton } from '../components/ui/CopyButton';
 import { AdBanner } from '../components/AdBanner';
-import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server } from 'lucide-react';
+import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, ArrowUpDown } from 'lucide-react';
 
 interface QuestionBankProps {
   questions: Question[];
@@ -14,6 +14,7 @@ interface QuestionBankProps {
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code,
+  [Category.NextJS]: Zap,
   [Category.JavaScript]: Terminal,
   [Category.NodeJS]: Server,
   [Category.CSS]: Layout,
@@ -23,6 +24,8 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
 export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigateToLogin }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [search, setSearch] = useState('');
+  const [sortOrder, setSortOrder] = useState<'default' | 'easy' | 'hard'>('default');
+  
   const { user } = useAuth();
   
   const categories = Object.values(Category);
@@ -45,8 +48,25 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigat
     q.answer.toLowerCase().includes(search.toLowerCase())
   );
 
-  const visibleQuestions = filteredQuestions.slice(0, VISIBLE_LIMIT);
-  const hiddenCount = Math.max(0, filteredQuestions.length - VISIBLE_LIMIT);
+  // Sorting Logic
+  const difficultyWeight: Record<Difficulty, number> = {
+    [Difficulty.Easy]: 1,
+    [Difficulty.Medium]: 2,
+    [Difficulty.Hard]: 3,
+  };
+
+  const sortedQuestions = [...filteredQuestions].sort((a, b) => {
+    if (sortOrder === 'easy') {
+      return difficultyWeight[a.difficulty] - difficultyWeight[b.difficulty];
+    }
+    if (sortOrder === 'hard') {
+      return difficultyWeight[b.difficulty] - difficultyWeight[a.difficulty];
+    }
+    return 0; // Default order (as defined in data file)
+  });
+
+  const visibleQuestions = sortedQuestions.slice(0, VISIBLE_LIMIT);
+  const hiddenCount = Math.max(0, sortedQuestions.length - VISIBLE_LIMIT);
 
   if (!selectedCategory) {
     return (
@@ -137,15 +157,34 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigat
             </div>
         </div>
         
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder={`Search ${selectedCategory}...`}
-            className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full shadow-sm"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex items-center gap-2 w-full md:w-auto">
+            {/* Sort Dropdown */}
+            <div className="relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <ArrowUpDown className="w-4 h-4" />
+                </div>
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as 'default' | 'easy' | 'hard')}
+                    className="pl-9 pr-8 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white shadow-sm appearance-none cursor-pointer"
+                >
+                    <option value="default">Default</option>
+                    <option value="easy">Easy First</option>
+                    <option value="hard">Hard First</option>
+                </select>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <input
+                    type="text"
+                    placeholder={`Search ${selectedCategory}...`}
+                    className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full shadow-sm"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
         </div>
       </div>
 

@@ -77,6 +77,78 @@ const BASE_QUESTIONS: Question[] = [
     answer: 'SyntheticEvent is a cross-browser wrapper around the browser’s native event. It has the same interface as the native event, including `stopPropagation()` and `preventDefault()`, except the events work identically across all browsers.',
   },
 
+  // --- Next.js ---
+  {
+    id: 'next-1',
+    category: Category.NextJS,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between getStaticProps and getServerSideProps?',
+    answer: '`getStaticProps` runs at build time to pre-render a page. It is used for Static Site Generation (SSG). `getServerSideProps` runs on every request to render the page on the server. It is used for Server-Side Rendering (SSR) when data must be up-to-date for every request.',
+  },
+  {
+    id: 'next-2',
+    category: Category.NextJS,
+    difficulty: Difficulty.Medium,
+    question: 'Explain the difference between the App Router and Pages Router.',
+    answer: 'The Pages Router uses a file-system based router built on the `pages` directory. The App Router (introduced in v13) uses the `app` directory and features Server Components by default, nested layouts, streaming, and better support for data fetching co-location.',
+  },
+  {
+    id: 'next-3',
+    category: Category.NextJS,
+    difficulty: Difficulty.Hard,
+    question: 'What are React Server Components (RSC) in Next.js?',
+    answer: 'Server Components allow you to render components on the server, reducing the amount of JavaScript sent to the client. They have direct access to the backend infrastructure (databases, files) and do not support client-side hooks like useState or useEffect unless marked with "use client".',
+  },
+  {
+    id: 'next-4',
+    category: Category.NextJS,
+    difficulty: Difficulty.Easy,
+    question: 'How does the Image component in Next.js optimize images?',
+    answer: 'The `next/image` component automatically serves correctly sized images for each device, uses modern formats like WebP/AVIF, prevents Layout Shift, and lazy loads images by default.',
+  },
+  {
+    id: 'next-5',
+    category: Category.NextJS,
+    difficulty: Difficulty.Medium,
+    question: 'What is ISR (Incremental Static Regeneration)?',
+    answer: 'ISR allows you to create or update static pages after you’ve built your site. By setting a `revalidate` time in `getStaticProps`, Next.js can regenerate the page in the background when a request comes in, allowing static content to be dynamic.',
+  },
+  {
+    id: 'next-6',
+    category: Category.NextJS,
+    difficulty: Difficulty.Medium,
+    question: 'How do Dynamic Routes work in Next.js?',
+    answer: 'Dynamic routes are defined by wrapping a folder or file name in brackets, e.g., `pages/post/[id].js` or `app/blog/[slug]/page.js`. The parameters are then accessible via the router query object or props.',
+  },
+  {
+    id: 'next-7',
+    category: Category.NextJS,
+    difficulty: Difficulty.Easy,
+    question: 'What is the purpose of the "use client" directive?',
+    answer: 'The "use client" directive declares a boundary between Server and Client Component modules graph. When placed at the top of a file, it tells Next.js that this module and its dependencies should be run on the client, enabling hooks like `useState` and event listeners.',
+  },
+  {
+    id: 'next-8',
+    category: Category.NextJS,
+    difficulty: Difficulty.Medium,
+    question: 'What is Middleware in Next.js?',
+    answer: 'Middleware allows you to run code before a request is completed. Based on the incoming request, you can rewrite, redirect, modify the request or response headers, or respond directly. It runs on the Edge runtime.',
+  },
+  {
+    id: 'next-9',
+    category: Category.NextJS,
+    difficulty: Difficulty.Hard,
+    question: 'How does Next.js handle API Routes?',
+    answer: 'Next.js allows you to build a public API within the application using the `pages/api` directory (Pages Router) or Route Handlers in `app/api/.../route.js` (App Router). These run as serverless functions (Lambdas) in production.',
+  },
+  {
+    id: 'next-10',
+    category: Category.NextJS,
+    difficulty: Difficulty.Easy,
+    question: 'How do you navigate between pages in Next.js?',
+    answer: 'You use the `<Link>` component from `next/link`. It enables client-side transitions between routes, meaning the browser does not reload the page. For programmatic navigation, you use the `useRouter` hook.',
+  },
+
   // --- Node.js ---
   {
     id: 'node-1',
@@ -253,6 +325,15 @@ const TOPIC_POOLS = {
         'Proptypes vs TypeScript', 'Functional vs Class components', 'Component Lifecycle', 'PureComponent',
         'Ref forwarding', 'DOM Refs', 'Portals use cases', 'Suspense for data fetching', 'Concurrent Mode',
         'Flux architecture', 'State immutability', 'React DevTools', 'Performance optimization', 'Re-renders causes'
+    ],
+    [Category.NextJS]: [
+        'App Router Directory Structure', 'Loading UI', 'Streaming', 'Data Fetching Caching',
+        'Static Site Generation (SSG)', 'Dynamic Routes', 'API Routes', 'Middleware Matchers',
+        'Next.js Config', 'Environment Variables', 'Image Component Props', 'Font Optimization',
+        'Script Component', 'Metadata API (SEO)', 'Route Handlers', 'Edge Runtime',
+        'Server Actions', 'TurboPack', 'Client vs Server Components', 'Hydration',
+        'Parallel Routes', 'Intercepting Routes', 'Internationalization (i18n)', 'Deployment on Vercel',
+        'next/navigation hooks', 'Global CSS vs CSS Modules', 'Tailwind with Next.js'
     ],
     [Category.JavaScript]: [
         'Prototypal Inheritance', 'ES6 Classes', 'Arrow Functions', 'Destructuring assignment',
