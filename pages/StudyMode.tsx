@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Difficulty, Category } from '../types';
 import { Badge } from '../components/ui/Badge';
+import { CopyButton } from '../components/ui/CopyButton';
 import { RefreshCw, Check, X, Eye, EyeOff } from 'lucide-react';
 
 interface StudyModeProps {
@@ -138,8 +139,11 @@ export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered,
                             {currentQuestion.answer}
                         </p>
                         {currentQuestion.codeSnippet && (
-                            <div className="mt-4 bg-black/50 rounded-lg p-4 border border-slate-700">
-                                <pre className="text-sm font-mono text-emerald-400 overflow-x-auto">
+                            <div className="mt-4 bg-black/50 rounded-lg border border-slate-700 overflow-hidden">
+                                <div className="flex justify-end p-2 bg-white/5 border-b border-white/5">
+                                    <CopyButton text={currentQuestion.codeSnippet} />
+                                </div>
+                                <pre className="p-4 text-sm font-mono text-emerald-400 overflow-x-auto">
                                     <code>{currentQuestion.codeSnippet}</code>
                                 </pre>
                             </div>

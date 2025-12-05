@@ -4,6 +4,7 @@ import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
+import { CopyButton } from '../components/ui/CopyButton';
 import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
@@ -172,6 +173,8 @@ export const CodingChallenges: React.FC = () => {
         <div className="space-y-12 pb-12">
             {visibleChallenges.map((challenge, idx) => {
                 const isRunning = runningId === challenge.id;
+                const isNode = challenge.category === Category.NodeJS;
+
                 return (
                     <div key={challenge.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
                         <div className="absolute top-4 right-4 text-slate-200 font-black text-4xl opacity-20 pointer-events-none select-none">
@@ -203,7 +206,10 @@ export const CodingChallenges: React.FC = () => {
                                     <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
                                         <CheckCircle2 className="w-4 h-4" /> Solution
                                     </div>
-                                    <span className="text-[10px] bg-emerald-900/40 text-emerald-300 border border-emerald-900/50 px-2 py-0.5 rounded font-mono">Recommended</span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] bg-emerald-900/40 text-emerald-300 border border-emerald-900/50 px-2 py-0.5 rounded font-mono">Recommended</span>
+                                        <CopyButton text={challenge.solutionCode} />
+                                    </div>
                                 </div>
                                 <pre className="flex-1 p-6 overflow-x-auto text-sm font-mono text-emerald-100 leading-relaxed custom-scrollbar">
                                     <code>{challenge.solutionCode}</code>
@@ -230,43 +236,48 @@ export const CodingChallenges: React.FC = () => {
                         </div>
 
                         {/* Footer Actions */}
-                        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap gap-2 justify-end items-center">
-                            <button
-                                onClick={() => setRunningId(isRunning ? null : challenge.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-bold shadow-sm ${
-                                    isRunning 
-                                    ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
-                                    : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-green-500/25'
-                                }`}
-                            >
-                                {isRunning ? <RefreshCw className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                                {isRunning ? 'Reset / Close' : 'Run Preview'}
-                            </button>
+                        <div className="p-4 bg-slate-50 border-t border-slate-200">
+                            <div className="flex flex-wrap gap-2 justify-end items-center">
+                                {isNode ? (
+                                    <span className="text-sm text-slate-400 italic flex items-center gap-2">
+                                        <Terminal className="w-4 h-4" />
+                                        Execution requires local Node.js environment.
+                                    </span>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => setRunningId(isRunning ? null : challenge.id)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-bold shadow-sm ${
+                                                isRunning 
+                                                ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+                                                : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-green-500/25'
+                                            }`}
+                                        >
+                                            {isRunning ? <RefreshCw className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                            {isRunning ? 'Reset / Close' : 'Run Preview'}
+                                        </button>
+                                        
+                                        <button disabled className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed text-sm font-medium opacity-60">
+                                            <Play className="w-4 h-4" /> StackBlitz
+                                        </button>
+                                        <button disabled className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed text-sm font-medium opacity-60">
+                                            <Box className="w-4 h-4" /> CodeSandbox
+                                        </button>
+                                        <button disabled className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed text-sm font-medium opacity-60">
+                                            <ExternalLink className="w-4 h-4" /> Plunker
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                             
-                            <a 
-                                href={getStackBlitzUrl(challenge.solutionCode, challenge.title)}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-bold shadow-sm hover:shadow-indigo-500/25"
-                            >
-                                <Play className="w-4 h-4" /> StackBlitz
-                            </a>
-                            <a 
-                                href="https://codesandbox.io/s/new"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-medium"
-                            >
-                                <Box className="w-4 h-4" /> CodeSandbox
-                            </a>
-                            <a 
-                                href="http://plnkr.co/edit/?p=preview"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
-                            >
-                                <ExternalLink className="w-4 h-4" /> Plunker
-                            </a>
+                            {!isNode && (
+                                <div className="mt-3 text-right">
+                                    <span className="text-[10px] text-slate-400 font-medium flex items-center justify-end gap-1.5 opacity-80">
+                                        <Clock className="w-3 h-3" />
+                                        Direct integration with StackBlitz, CodeSandbox, and Plunker coming in the next release.
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 );

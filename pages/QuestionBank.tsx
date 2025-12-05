@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Question, Category, Difficulty } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { Badge } from '../components/ui/Badge';
+import { CopyButton } from '../components/ui/CopyButton';
 import { AdBanner } from '../components/AdBanner';
 import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server } from 'lucide-react';
 
@@ -186,11 +187,14 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigat
                       <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                           <Code className="w-3 h-3" /> Example
                       </div>
-                      <div className="bg-[#1e1e1e] rounded-lg border border-slate-800 overflow-hidden shadow-inner">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border-b border-white/5">
-                            <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
-                            <div className="w-2 h-2 rounded-full bg-yellow-500/50"></div>
-                            <div className="w-2 h-2 rounded-full bg-green-500/50"></div>
+                      <div className="bg-[#1e1e1e] rounded-lg border border-slate-800 overflow-hidden shadow-inner group">
+                        <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/5">
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
+                                <div className="w-2 h-2 rounded-full bg-yellow-500/50"></div>
+                                <div className="w-2 h-2 rounded-full bg-green-500/50"></div>
+                            </div>
+                            <CopyButton text={q.codeSnippet} />
                         </div>
                         <pre className="p-3 overflow-x-auto">
                           <code className="text-xs font-mono text-emerald-400 leading-relaxed">
