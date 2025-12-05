@@ -4,10 +4,7 @@ import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
-import { PaymentModal } from '../components/PaymentModal';
-import { useAuth } from '../contexts/AuthContext';
-import { api } from '../services/api';
-import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Layers, BookOpen, Hash, ArrowLeft, Star, Lock, ChevronRight } from 'lucide-react';
+import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Layers, BookOpen, Hash, ArrowLeft, Clock } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
@@ -21,33 +18,9 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
 export const CodingChallenges: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [runningId, setRunningId] = useState<string | null>(null);
-  const [showPayment, setShowPayment] = useState(false);
   
-  const { user, updateUser } = useAuth();
-  const isPremium = user?.isPremium || false;
-
-  const handleUnlockClick = () => {
-    // If not logged in, Auth flow handles it elsewhere, but assuming user exists or we show login prompt
-    if (!user) {
-        // In a real app, redirect to login. For now, we just open payment if they click unlock
-        // but typically we'd want them logged in first.
-        alert("Please log in to upgrade.");
-        return;
-    }
-    setShowPayment(true);
-  };
-
-  const handlePaymentSuccess = async () => {
-    if (user) {
-        try {
-            const updatedUser = await api.processPaymentSuccess(user.id);
-            updateUser(updatedUser);
-        } catch (e) {
-            console.error("Payment sync failed", e);
-            updateUser({ ...user, isPremium: true });
-        }
-    }
-  };
+  // Release 1: Premium disabled
+  const isPremium = false;
 
   const getStackBlitzUrl = (code: string, title: string) => {
     const files = {
@@ -122,11 +95,6 @@ export const CodingChallenges: React.FC = () => {
                 <p className="text-lg text-slate-600 max-w-2xl mx-auto">
                     Master frontend coding interviews with interactive challenges. Run code directly in the browser.
                 </p>
-                {isPremium && (
-                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-sm font-bold border border-yellow-200">
-                        <Star className="w-4 h-4 fill-yellow-600 text-yellow-600" /> Premium Active
-                    </div>
-                )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -163,7 +131,7 @@ export const CodingChallenges: React.FC = () => {
 
   // --- View: List of Challenges (Filtered) ---
   const filteredChallenges = CODING_CHALLENGES.filter(c => c.category === selectedCategory);
-  const visibleLimit = isPremium ? 100 : 5;
+  const visibleLimit = 5;
   const visibleChallenges = filteredChallenges.slice(0, visibleLimit);
   const hiddenCount = Math.max(0, filteredChallenges.length - visibleLimit);
 
@@ -180,7 +148,6 @@ export const CodingChallenges: React.FC = () => {
             <div>
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                     {selectedCategory} <span className="text-slate-300">/</span> Challenges
-                    {isPremium && <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 ml-2" />}
                 </h1>
             </div>
         </div>
@@ -288,35 +255,20 @@ export const CodingChallenges: React.FC = () => {
                 );
             })}
 
-            {/* Premium Lock Banner */}
+            {/* Coming Soon Banner */}
             {hiddenCount > 0 && !isPremium && (
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-900 text-white shadow-2xl mx-auto max-w-4xl mt-12">
                     <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
                     <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl"></div>
                     
-                    <div className="relative p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="space-y-4 max-w-lg">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-400/10 text-indigo-300 border border-indigo-400/20 text-xs font-bold uppercase tracking-wider">
-                                <Lock className="w-3 h-3" /> Pro Content
-                            </div>
-                            <h3 className="text-3xl font-bold tracking-tight">Unlock {hiddenCount}+ Advanced {selectedCategory} Challenges</h3>
-                            <p className="text-slate-400 text-lg leading-relaxed">
-                                Gain access to real-world interview tasks, complex system components, and architectural patterns used by top tech companies.
-                            </p>
-                        </div>
-                        
-                        <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 w-full md:w-72 flex-shrink-0 shadow-xl">
-                            <div className="text-center mb-6 pb-6 border-b border-white/10">
-                                <span className="text-4xl font-bold text-white tracking-tight">$12</span>
-                                <span className="text-slate-400 font-medium">/month</span>
-                            </div>
-                            <button 
-                                onClick={handleUnlockClick}
-                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 flex items-center justify-center gap-2 group"
-                            >
-                                {user ? 'Unlock Full Access' : 'Log In to Upgrade'} <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                        </div>
+                    <div className="relative p-12 text-center">
+                         <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+                              <Clock className="w-8 h-8 text-indigo-300" />
+                          </div>
+                        <h3 className="text-3xl font-bold tracking-tight mb-4">More Challenges Coming Soon</h3>
+                        <p className="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
+                            We are preparing {hiddenCount} more advanced {selectedCategory} coding challenges, including complex system components and architectural patterns used by top tech companies. Check back in our next release!
+                        </p>
                     </div>
                 </div>
             )}
@@ -324,13 +276,6 @@ export const CodingChallenges: React.FC = () => {
         
         <AdBanner slotId="challenges-list-footer" />
     </div>
-
-    <PaymentModal 
-        isOpen={showPayment} 
-        onClose={() => setShowPayment(false)}
-        onSuccess={handlePaymentSuccess}
-        price="$12.00"
-    />
     </>
   );
 };

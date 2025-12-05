@@ -5,8 +5,6 @@ import { Dashboard } from './pages/Dashboard';
 import { QuestionBank } from './pages/QuestionBank';
 import { CodingChallenges } from './pages/CodingChallenges';
 import { StudyMode } from './pages/StudyMode';
-import { AIQuiz } from './pages/AIQuiz';
-import { AuthPage } from './pages/AuthPage';
 import { ViewState } from './types';
 import { ALL_QUESTIONS } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -15,11 +13,16 @@ import { api } from './services/api';
 const MainContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('browse');
   const { user, updateUser } = useAuth();
+  
+  // Local state for Release 1 "Guest" progress (since auth is disabled)
+  const [guestMasteredIds, setGuestMasteredIds] = useState<string[]>([]);
 
-  // Create a progress adapter for the Dashboard
+  // Adapter to switch between real user data and guest local state
+  const masteredIds = user ? user.masteredIds : guestMasteredIds;
+  
   const progressAdapter = {
-      masteredIds: user?.masteredIds || [],
-      reviewedIds: [], // Keep simplified for now or sync with DB
+      masteredIds: masteredIds,
+      reviewedIds: [], 
       isPremium: user?.isPremium || false
   };
 
@@ -33,6 +36,11 @@ const MainContent: React.FC = () => {
             await api.markMastered(user.id, id);
         } catch (e) {
             console.error(e);
+        }
+    } else {
+        // Guest mode
+        if (!guestMasteredIds.includes(id)) {
+            setGuestMasteredIds(prev => [...prev, id]);
         }
     }
   };
@@ -66,6 +74,8 @@ const MainContent: React.FC = () => {
             onMarkMastered={handleMarkMastered}
           />
         );
+      // AI Quiz and Auth pages removed for Release 1
+      /*
       case 'ai-quiz':
         return (
           <AIQuiz />
@@ -74,8 +84,15 @@ const MainContent: React.FC = () => {
           return (
               <AuthPage onSuccess={() => setCurrentView('dashboard')} />
           );
+      */
       default:
-        return <div>View not found</div>;
+        // Fallback to browse if a disabled view is requested
+        return (
+          <QuestionBank 
+            questions={ALL_QUESTIONS} 
+            onNavigateToLogin={() => {}}
+          />
+        );
     }
   };
 

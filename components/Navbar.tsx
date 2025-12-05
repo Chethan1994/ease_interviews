@@ -27,12 +27,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
 
-  const handleLogout = () => {
-    logout();
-    setView('dashboard');
-    setIsMobileMenuOpen(false);
-  };
-
   const handleNavClick = (view: ViewState) => {
     setView(view);
     setIsMobileMenuOpen(false);
@@ -65,12 +59,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
                     <Code2 className="w-4 h-4" />
                     <span>Coding</span>
                 </button>
+                {/* AI Quiz commented out for Release 1 */}
+                {/* 
                 <button onClick={() => setView('ai-quiz')} className={navItemClass('ai-quiz')}>
                     <Sparkles className="w-4 h-4" />
                     <span>AI Quiz</span>
-                </button>
+                </button> 
+                */}
             </div>
 
+            {/* Auth section commented out for Release 1 */}
+            {/* 
             <div className="h-6 w-px bg-slate-200 mx-2"></div>
 
             {user ? (
@@ -96,6 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
                     Sign In
                 </button>
             )}
+            */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -126,11 +126,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
                       <Code2 className="w-5 h-5" />
                       Coding Challenges
                   </button>
+                  {/* AI Quiz commented out for Release 1 */}
+                  {/* 
                   <button onClick={() => handleNavClick('ai-quiz')} className={mobileNavItemClass('ai-quiz')}>
                       <Sparkles className="w-5 h-5" />
                       AI Quiz
                   </button>
+                  */}
 
+                  {/* Auth commented out for Release 1 */}
+                  {/*
                   <div className="border-t border-slate-100 my-2 pt-2">
                     {user ? (
                         <div className="space-y-3">
@@ -161,6 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
                         </button>
                     )}
                   </div>
+                  */}
               </div>
           </div>
       )}
