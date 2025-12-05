@@ -27,15 +27,15 @@ export const StatsChart: React.FC<StatsChartProps> = ({ progress, totalQuestions
         <p className="text-sm text-slate-500">Your mastery journey</p>
       </div>
       
-      <div className="h-[300px] relative w-full">
+      <div className="h-[215px] relative w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
-              cy="45%" 
-              innerRadius={60}
-              outerRadius={80}
+              cy="50%" 
+              innerRadius={55}
+              outerRadius={75}
               paddingAngle={5}
               dataKey="value"
               stroke="none"
@@ -56,13 +56,13 @@ export const StatsChart: React.FC<StatsChartProps> = ({ progress, totalQuestions
               height={36}
               iconType="circle"
               iconSize={8}
-              wrapperStyle={{ fontSize: '12px', color: '#64748b', bottom: '10px' }}
+              wrapperStyle={{ fontSize: '12px', color: '#64748b', bottom: '0px' }}
             />
           </PieChart>
         </ResponsiveContainer>
         
-        {/* Absolute Centered Text - Adjusted to match cy="45%" */}
-        <div className="absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+        {/* Absolute Centered Text - Adjusted for new height */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none -mt-4">
           <div className="text-3xl font-extrabold text-slate-900 leading-none">
             {completionRate}%
           </div>

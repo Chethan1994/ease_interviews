@@ -13,7 +13,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { api } from './services/api';
 
 const MainContent: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewState>('dashboard');
+  const [currentView, setCurrentView] = useState<ViewState>('browse');
   const { user, updateUser } = useAuth();
 
   // Create a progress adapter for the Dashboard
