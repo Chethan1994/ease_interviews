@@ -1,3 +1,4 @@
+
 import { CodingChallenge, Difficulty, Category } from '../types';
 
 const BASE_CHALLENGES: CodingChallenge[] = [
