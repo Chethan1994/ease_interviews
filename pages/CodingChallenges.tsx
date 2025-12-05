@@ -4,14 +4,13 @@ import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
-import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Layers, BookOpen, Hash, ArrowLeft, Clock } from 'lucide-react';
+import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
   [Category.JavaScript]: Terminal,
+  [Category.NodeJS]: Server,
   [Category.CSS]: Layout,
-  [Category.SystemDesign]: Layers,
-  [Category.Behavioral]: BookOpen,
   [Category.HTML]: Hash,
 };
 
@@ -31,7 +30,7 @@ export const CodingChallenges: React.FC = () => {
     
     const params = new URLSearchParams();
     params.append('project[template]', 'create-react-app');
-    params.append('project[title]', `DevPrep - ${title}`);
+    params.append('project[title]', `InterviewPrep - ${title}`);
     params.append('project[files][src/App.js]', files['App.js']);
     params.append('project[files][src/index.js]', files['index.js']);
     params.append('project[files][public/index.html]', files['index.html']);
@@ -40,6 +39,24 @@ export const CodingChallenges: React.FC = () => {
   };
 
   const generateSrcDoc = (code: string) => {
+    // Basic detection for Node.js code which won't run in browser
+    if (code.includes("require('http')") || code.includes("require('fs')") || code.includes("process.")) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>body { font-family: sans-serif; padding: 20px; color: #334155; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh; } .icon { font-size: 40px; margin-bottom: 20px; }</style>
+            </head>
+            <body>
+                <div class="icon">⚠️</div>
+                <h3>Backend Environment Required</h3>
+                <p>This challenge uses Node.js modules (fs, http, etc.) which cannot run directly in the browser.</p>
+                <p>Please review the logic in the Solution tab or run this code locally.</p>
+            </body>
+            </html>
+        `;
+    }
+
     let cleanCode = code
         .replace(/import\s+React.*?;/g, '')
         .replace(/import\s+.*?from\s+['"].*?['"];/g, '');

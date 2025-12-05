@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
             <div className="bg-primary-600 p-2 rounded-lg">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">DevPrep</span>
+            <span className="text-xl font-bold text-slate-900 tracking-tight">InterviewPrep</span>
           </div>
           
           {/* Desktop Navigation */}

@@ -4,7 +4,7 @@ import { Question, Category, Difficulty } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
-import { Search, CheckCircle, Code, Terminal, Layers, BookOpen, Hash, Layout, ArrowLeft, Clock } from 'lucide-react';
+import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server } from 'lucide-react';
 
 interface QuestionBankProps {
   questions: Question[];
@@ -14,9 +14,8 @@ interface QuestionBankProps {
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code,
   [Category.JavaScript]: Terminal,
+  [Category.NodeJS]: Server,
   [Category.CSS]: Layout,
-  [Category.SystemDesign]: Layers,
-  [Category.Behavioral]: BookOpen,
   [Category.HTML]: Hash,
 };
 
