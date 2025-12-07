@@ -8,6 +8,7 @@ export enum Difficulty {
 export enum Category {
   React = 'React',
   NextJS = 'Next.js',
+  TypeScript = 'TypeScript',
   JavaScript = 'JavaScript',
   NodeJS = 'Node.js',
   CSS = 'CSS',

@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Badge } from '../components/ui/Badge';
 import { CopyButton } from '../components/ui/CopyButton';
 import { AdBanner } from '../components/AdBanner';
-import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, ArrowUpDown } from 'lucide-react';
+import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, ArrowUpDown, FileCode } from 'lucide-react';
 
 interface QuestionBankProps {
   questions: Question[];
@@ -15,6 +15,7 @@ interface QuestionBankProps {
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code,
   [Category.NextJS]: Zap,
+  [Category.TypeScript]: FileCode,
   [Category.JavaScript]: Terminal,
   [Category.NodeJS]: Server,
   [Category.CSS]: Layout,

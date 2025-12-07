@@ -5,11 +5,12 @@ import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
-import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap } from 'lucide-react';
+import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
   [Category.NextJS]: Zap,
+  [Category.TypeScript]: FileCode,
   [Category.JavaScript]: Terminal,
   [Category.NodeJS]: Server,
   [Category.CSS]: Layout,

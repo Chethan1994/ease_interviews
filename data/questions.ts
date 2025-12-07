@@ -149,6 +149,177 @@ const BASE_QUESTIONS: Question[] = [
     answer: 'You use the `<Link>` component from `next/link`. It enables client-side transitions between routes, meaning the browser does not reload the page. For programmatic navigation, you use the `useRouter` hook.',
   },
 
+  // --- TypeScript ---
+  {
+    id: 'ts-1',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'When would you use an interface over a type, and vice-versa, in a large-scale application?',
+    answer: 'Use `interface` for defining public APIs of libraries or when you need declaration merging (extending existing types). Use `type` for unions, intersections, primitives, tuples, or complex computed types. In general, `type` is more flexible, while `interface` is better for OOP-style class implementation.',
+  },
+  {
+    id: 'ts-2',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you merge two interfaces? Can you merge two types?',
+    answer: 'Interfaces with the same name in the same scope automatically merge (Declaration Merging). Types cannot be merged this way; attempting to define the same type name twice throws an error. However, types can be combined using Intersection (`&`).',
+    codeSnippet: `// Interface Merging\ninterface User { name: string }\ninterface User { age: number }\n// User now has both name and age\n\n// Type Intersection\ntype A = { x: number };\ntype B = { y: number };\ntype C = A & B;`
+  },
+  {
+    id: 'ts-3',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'What are Partial<T>, Pick<T>, Omit<T>, and Record<K,T>?',
+    answer: '`Partial<T>` makes all properties optional. `Pick<T, K>` selects specific keys. `Omit<T, K>` removes specific keys. `Record<K, T>` creates an object type with keys K and values T.',
+    codeSnippet: `interface User { id: number; name: string; email: string; }\n\ntype UpdateUser = Partial<User>; // For patch requests\ntype UserSummary = Pick<User, 'id' | 'name'>; // For lists\ntype UserWithoutSensitive = Omit<User, 'email'>;\ntype UserCache = Record<number, User>; // ID -> User map`
+  },
+  {
+    id: 'ts-4',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Hard,
+    question: 'How do you create a type-safe API response model for nested objects?',
+    answer: 'You can use generics to define a standard wrapper around variable data types.',
+    codeSnippet: `interface ApiResponse<T> {\n  status: 'success' | 'error';\n  code: number;\n  data: T;\n  error?: string;\n}\n\n// Usage\ntype UserResponse = ApiResponse<{ user: User }>;`
+  },
+  {
+    id: 'ts-5',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you create a type for a dynamic object where keys come from an enum?',
+    answer: 'You can use a Mapped Type with the `in` operator iterating over the keys of the enum.',
+    codeSnippet: `enum Status { Pending, Active, Inactive }\n\ntype StatusLabels = {\n  [key in Status]: string;\n};\n\nconst labels: StatusLabels = {\n  [Status.Pending]: 'Waiting...',\n  [Status.Active]: 'Online',\n  [Status.Inactive]: 'Offline',\n};`
+  },
+  {
+    id: 'ts-6',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Hard,
+    question: 'How do you define a type that ensures at least one property is required from a set?',
+    answer: 'You can use a utility type that intersects `Partial<T>` with a union of types where at least one key is required.',
+    codeSnippet: `type RequireAtLeastOne<T> = {\n  [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>>\n}[keyof T];\n\ninterface Config { text: string; color: string; }\ntype ValidConfig = RequireAtLeastOne<Config>;`
+  },
+  {
+    id: 'ts-7',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you create a type that excludes null and undefined?',
+    answer: 'The `NonNullable<T>` utility type removes `null` and `undefined` from a type T.',
+    codeSnippet: `type MaybeString = string | null | undefined;\ntype DefinitelyString = NonNullable<MaybeString>; // string`
+  },
+  {
+    id: 'ts-8',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Easy,
+    question: 'What are generics and why are they useful? Provide a practical example.',
+    answer: 'Generics allow you to create reusable components/functions that work with a variety of types while retaining type safety.',
+    codeSnippet: `// API Service\nasync function get<T>(url: string): Promise<T> {\n  const res = await fetch(url);\n  return res.json();\n}\n\n// React Component\ninterface Props<T> { items: T[], render: (item: T) => React.ReactNode }\nfunction List<T>({ items, render }: Props<T>) { ... }`
+  },
+  {
+    id: 'ts-9',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you create a generic constraint?',
+    answer: 'Use the `extends` keyword to restrict the types a generic can accept.',
+    codeSnippet: `interface HasId { id: number; }\n\nfunction getKey<T extends HasId>(item: T): number {\n  return item.id;\n}`
+  },
+  {
+    id: 'ts-10',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you write a generic function that accepts an array and returns the first element with the correct type?',
+    answer: 'Define the generic type `T` for the array elements and return type.',
+    codeSnippet: `function first<T>(arr: T[]): T | undefined {\n  return arr[0];\n}\n\nconst n = first([1, 2, 3]); // number`
+  },
+  {
+    id: 'ts-11',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Easy,
+    question: 'What is type narrowing? Show examples.',
+    answer: 'Type narrowing is the process of moving from a less precise type to a more precise type within a conditional block.',
+    codeSnippet: `function process(val: string | number) {\n  if (typeof val === 'string') {\n    val.toUpperCase(); // string\n  } else {\n    val.toFixed(2); // number\n  }\n}\n\n// 'in' operator\nif ('role' in user) { ... }\n\n// instanceof\nif (date instanceof Date) { ... }`
+  },
+  {
+    id: 'ts-12',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you write a type guard function for checking API success response vs error response?',
+    answer: 'Use a custom type guard with the `is` keyword return type.',
+    codeSnippet: `interface Success { data: string }\ninterface Error { error: string }\ntype Response = Success | Error;\n\nfunction isSuccess(res: Response): res is Success {\n  return (res as Success).data !== undefined;\n}`
+  },
+  {
+    id: 'ts-13',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Hard,
+    question: 'Explain function overloading in TypeScript.',
+    answer: 'Function overloading allows you to define multiple function signatures for a single implementation to handle different parameter combinations type-safely.',
+    codeSnippet: `function getUser(id: number): User;\nfunction getUser(email: string): User;\nfunction getUser(param: number | string): User {\n  if (typeof param === 'number') return findById(param);\n  return findByEmail(param);\n}`
+  },
+  {
+    id: 'ts-14',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you enforce type safety for function arguments coming from external data?',
+    answer: 'TypeScript types disappear at runtime, so you need runtime validation. Libraries like Zod, Yup, or manual "User Defined Type Guards" validate that the external data matches the expected TS type.',
+  },
+  {
+    id: 'ts-15',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you use private, protected, and public in a real application?',
+    answer: '`public` (default) allows access anywhere. `private` restricts access to the class itself. `protected` allows access to the class and its subclasses.',
+    codeSnippet: `class Service {\n  private apiKey: string;\n  constructor(key: string) { this.apiKey = key; }\n  \n  public async fetchData() {\n    // Can access this.apiKey\n  }\n}`
+  },
+  {
+    id: 'ts-16',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Easy,
+    question: 'What is the practical use of readonly fields?',
+    answer: 'The `readonly` modifier ensures that a property can only be assigned during initialization or in the constructor, preventing accidental mutation of immutable data.',
+  },
+  {
+    id: 'ts-17',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Hard,
+    question: 'How do you implement dependency injection patterns using classes?',
+    answer: 'Define dependencies as interfaces, then inject concrete classes via the constructor. This decouples logic and makes testing easier.',
+    codeSnippet: `interface ILogger { log(msg: string): void }\n\nclass UserService {\n  constructor(private logger: ILogger) {}\n  \n  save() {\n    this.logger.log('Saved');\n  }\n}`
+  },
+  {
+    id: 'ts-18',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do abstract classes differ from interfaces?',
+    answer: 'Interfaces only define the contract (structure). Abstract classes can define the contract AND provide implementation details for some methods. You cannot instantiate an abstract class directly.',
+  },
+  {
+    id: 'ts-19',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Easy,
+    question: 'What is the purpose of tsconfig.json?',
+    answer: 'It specifies the root files and the compiler options required to compile the project, such as target JavaScript version, strictness settings, and module resolution strategies.',
+  },
+  {
+    id: 'ts-20',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'What does strict: true enable, and why is it recommended?',
+    answer: '`strict: true` enables a suite of strict type checking options, including `noImplicitAny`, `strictNullChecks`, and `strictFunctionTypes`. It guarantees higher type safety and catches more bugs at compile time.',
+  },
+  {
+    id: 'ts-21',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Hard,
+    question: 'What is the difference between "module": "esnext" and "moduleResolution": "node"?',
+    answer: '`module: esnext` controls the output format of the modules (using `import`/`export`). `moduleResolution: node` tells the compiler how to find imported modules (following Node.js resolution logic, looking in `node_modules`).',
+  },
+  {
+    id: 'ts-22',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'How do you set up path aliases in TypeScript and why?',
+    answer: 'Path aliases are configured in `tsconfig.json` under `compilerOptions.paths`. They allow you to import files using absolute paths (e.g., `@components/Button`) instead of relative paths (`../../components/Button`), making refactoring easier.',
+    codeSnippet: `"paths": {\n  "@components/*": ["src/components/*"],\n  "@utils/*": ["src/utils/*"]\n}`
+  },
+
   // --- Node.js ---
   {
     id: 'node-1',
@@ -266,6 +437,110 @@ const BASE_QUESTIONS: Question[] = [
     question: 'Explain the "this" keyword.',
     answer: 'The value of `this` depends on how a function is called. In a method, `this` refers to the owner object. Alone, it refers to the global object. In a function, it refers to the global object (or undefined in strict mode). In an event, it refers to the element that received the event.',
   },
+  {
+    id: 'js-7',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is a self-invoking (IIFE) function in JavaScript, and where is it used?',
+    answer: 'An Immediately Invoked Function Expression (IIFE) is a JavaScript function that runs as soon as it is defined. It is primarily used to create a private scope for variables to avoid polluting the global namespace.',
+    codeSnippet: `(function () {\n  var privateVar = 'I am private';\n  console.log(privateVar);\n})();\n\n// console.log(privateVar); // Uncaught ReferenceError`
+  },
+  {
+    id: 'js-8',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'What are throttle and debounce? Explain the difference.',
+    answer: 'Debouncing ensures that a function is not called again until a certain amount of time has passed since the last call (e.g., waiting for a user to stop typing before searching). Throttling ensures that a function is called at most once in a specified time period (e.g., firing a scroll event handler only every 100ms).',
+  },
+  {
+    id: 'js-9',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is memoization in JavaScript?',
+    answer: 'Memoization is an optimization technique used to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.',
+    codeSnippet: `const memoizedAdd = () => {\n  let cache = {};\n  return (n) => {\n    if (n in cache) return cache[n];\n    else {\n      let result = n + 10;\n      cache[n] = result;\n      return result;\n    }\n  }\n}`
+  },
+  {
+    id: 'js-10',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between CommonJS (CJS) and ES Modules (ESM)?',
+    answer: 'CommonJS (CJS) is the default in Node.js and uses `require()` and `module.exports` (synchronous loading). ES Modules (ESM) is the standard for JavaScript modules, using `import` and `export` (asynchronous, tree-shakeable). .mjs files explicitly denote ESM in Node.js.',
+  },
+  {
+    id: 'js-11',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'What are the major differences between ES5 and ES6?',
+    answer: 'ES6 introduced significant improvements: `let` and `const` for block scoping, Arrow functions (`=>`), Template Literals (`` ` ``), Default Parameters, Destructuring Assignment, Modules (`import/export`), Promises, and Classes.',
+  },
+  {
+    id: 'js-12',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'Explain the defer and async attributes in the <script> tag.',
+    answer: '`async` downloads the script in parallel to HTML parsing and executes it as soon as it loads (blocking HTML parsing during execution). `defer` also downloads in parallel but waits to execute the script until after the HTML parsing is complete. Use `defer` for scripts that rely on the DOM.',
+  },
+  {
+    id: 'js-13',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'How can you abort an API call while it is still in progress?',
+    answer: 'You can use the `AbortController` interface. Create a controller instance, pass its `signal` property to the fetch request options, and call `controller.abort()` when you want to cancel the request.',
+    codeSnippet: `const controller = new AbortController();\nconst signal = controller.signal;\n\nfetch('/api/data', { signal })\n  .catch(err => {\n    if (err.name === 'AbortError') console.log('Fetch aborted');\n  });\n\n// Cancel request\ncontroller.abort();`
+  },
+  {
+    id: 'js-14',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between prototype properties and instance properties?',
+    answer: 'Instance properties are defined inside the constructor and are unique to each object instance. Prototype properties are defined on the `prototype` object and are shared across all instances of that class, saving memory.',
+  },
+  {
+    id: 'js-15',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'Explain inheritance in JavaScript and the role of constructor functions.',
+    answer: 'In ES5, inheritance is achieved via the Prototype Chain. A Child constructor calls the Parent constructor using `Parent.call(this, args)` to inherit properties. Methods are inherited by linking prototypes: `Child.prototype = Object.create(Parent.prototype)`.',
+  },
+  {
+    id: 'js-16',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'How many ways can you define a function in JavaScript?',
+    answer: 'Common ways include: Function Declaration (`function foo(){}`), Function Expression (`const foo = function(){}`), Arrow Function (`const foo = () => {}`), Constructor (`new Function()`), and Method definition inside objects/classes.',
+  },
+  {
+    id: 'js-17',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'What causes memory leaks in JavaScript and how does garbage collection work?',
+    answer: 'Memory leaks occur when objects are no longer needed but are still referenced (e.g., global variables, uncleared intervals, closures, detached DOM nodes). JavaScript uses a "Mark-and-Sweep" algorithm: it starts from the root (window/global) and marks reachable objects; anything unreachable is garbage collected.',
+  },
+  {
+    id: 'js-18',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is callback hell and what are the solutions?',
+    answer: 'Callback hell refers to deeply nested callbacks (the "Pyramid of Doom") making code hard to read and debug. Solutions include: Modularization (named functions), Promises (`.then()` chaining), and modern `async/await`.',
+  },
+  {
+    id: 'js-19',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'Give a real-world example of a closure.',
+    answer: 'Closures are often used for data privacy (emulating private methods) and partial application. For example, an event handler needing access to variables from its parent scope even after the parent function has returned.',
+    codeSnippet: `function createCounter() {\n  let count = 0;\n  return function() {\n    count++;\n    return count;\n  };\n}\nconst counter = createCounter();\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2`
+  },
+  {
+    id: 'js-20',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'Explain call(), apply(), and bind().',
+    answer: '`call()` invokes a function with a specific `this` context and arguments passed individually. `apply()` is similar but takes arguments as an array. `bind()` returns a NEW function with `this` permanently bound, without invoking it immediately.',
+    codeSnippet: `const person = { name: 'Alice' };\nfunction say(greeting) { console.log(greeting, this.name); }\n\nsay.call(person, 'Hello');\nsay.apply(person, ['Hi']);\nconst boundSay = say.bind(person);\nboundSay('Hola');`
+  },
+
 
   // --- CSS ---
   {
@@ -334,6 +609,14 @@ const TOPIC_POOLS = {
         'Server Actions', 'TurboPack', 'Client vs Server Components', 'Hydration',
         'Parallel Routes', 'Intercepting Routes', 'Internationalization (i18n)', 'Deployment on Vercel',
         'next/navigation hooks', 'Global CSS vs CSS Modules', 'Tailwind with Next.js'
+    ],
+    [Category.TypeScript]: [
+        'Interfaces vs Types', 'Generics', 'Utility Types (Partial, Pick)', 'Type Guards',
+        'Enums vs Const Objects', 'Module augmentation', 'Decorators', 'Mixins',
+        'Abstract Classes', 'readonly modifier', 'keyof operator', 'typeof operator',
+        'Mapped Types', 'Conditional Types', 'Infer keyword', 'Tuple types',
+        'Unknown vs Any', 'Never type', 'Void vs Never', 'Definite Assignment Assertion (!)',
+        'Optional Chaining', 'Nullish Coalescing', 'Type assertions (as)', 'Namespace vs Module'
     ],
     [Category.JavaScript]: [
         'Prototypal Inheritance', 'ES6 Classes', 'Arrow Functions', 'Destructuring assignment',
