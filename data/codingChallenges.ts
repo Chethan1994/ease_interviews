@@ -64,7 +64,7 @@ const BASE_CHALLENGES: CodingChallenge[] = [
     starterCode: `import React from 'react';\n\nexport default function TrafficLight() {\n  // Green -> Yellow -> Red -> Green...\n  return <div className="traffic-light"></div>;\n}`,
     solutionCode: `import React, { useState, useEffect } from 'react';\n\nconst CONFIG = {\n  red: { next: 'green', duration: 4000, color: '#ef4444' },\n  yellow: { next: 'red', duration: 1000, color: '#eab308' },\n  green: { next: 'yellow', duration: 3000, color: '#22c55e' }\n};\n\nexport default function TrafficLight() {\n  const [state, setState] = useState('green');\n\n  useEffect(() => {\n    const { next, duration } = CONFIG[state];\n    const timer = setTimeout(() => setState(next), duration);\n    return () => clearTimeout(timer);\n  }, [state]);\n\n  return (\n    <div className="p-10 flex justify-center">\n      <div className="bg-slate-800 p-4 rounded-xl flex flex-col gap-4 shadow-xl">\n         {['red', 'yellow', 'green'].map(c => (\n            <div \n              key={c} \n              style={{ \n                width: 60, \n                height: 60, \n                borderRadius: '50%', \n                backgroundColor: state === c ? CONFIG[c].color : '#334155',\n                boxShadow: state === c ? \`0 0 20px \${CONFIG[c].color}\` : 'none',\n                transition: 'all 0.3s ease'\n              }}\n            />\n         ))}\n      </div>\n    </div>\n  );\n}`
   },
-  // --- New React Interviews ---
+  // --- New React Challenges ---
   {
     id: 'cc-8',
     category: Category.React,
@@ -340,27 +340,4 @@ const BASE_CHALLENGES: CodingChallenge[] = [
   }
 ];
 
-// Generator to fill up categories so we have > 5 items to test locking
-const generateFillerChallenges = (): CodingChallenge[] => {
-    const filler: CodingChallenge[] = [];
-    const categories = Object.values(Category);
-    
-    categories.forEach((cat, catIdx) => {
-        // Ensure each category has at least 10 items
-        for (let i = 0; i < 8; i++) {
-            filler.push({
-                id: `filler-${catIdx}-${i}`,
-                category: cat,
-                title: `${cat} Challenge #${i + 1}`,
-                difficulty: i % 2 === 0 ? Difficulty.Medium : Difficulty.Hard,
-                description: `This is a premium practice challenge for ${cat} to test your advanced knowledge. Implement a robust solution.`,
-                tags: [cat, 'Practice', 'Advanced'],
-                starterCode: `// Starter code for ${cat} Challenge #${i+1}\n\nfunction solution() {\n  \n}`,
-                solutionCode: `// Solution for ${cat} Challenge #${i+1}\n// Only visible to premium users\n\nexport default function Solution() {\n  return <div className="p-4 font-bold text-green-600">Correct Implementation</div>;\n}`
-            });
-        }
-    });
-    return filler;
-};
-
-export const CODING_CHALLENGES = [...BASE_CHALLENGES, ...generateFillerChallenges()];
+export const CODING_CHALLENGES = [...BASE_CHALLENGES];
