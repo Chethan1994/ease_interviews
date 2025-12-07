@@ -156,14 +156,105 @@ const BASE_CHALLENGES: CodingChallenge[] = [
     solutionCode: `import React, { useState, useEffect } from 'react';\n\n/* \n  Persistence Strategy:\n  1. Initialize state lazy-ly by reading from localStorage.\n  2. Use useEffect to write to localStorage whenever products change.\n*/\n\nconst DEFAULT_DATA = [\n  { category: 'Fruits', price: '$1', stocked: true, name: 'Apple' },\n  { category: 'Fruits', price: '$1', stocked: true, name: 'Dragonfruit' },\n  { category: 'Fruits', price: '$2', stocked: false, name: 'Passionfruit' },\n  { category: 'Vegetables', price: '$2', stocked: true, name: 'Spinach' },\n  { category: 'Vegetables', price: '$4', stocked: false, name: 'Pumpkin' },\n  { category: 'Vegetables', price: '$1', stocked: true, name: 'Peas' },\n];\n\nexport default function ProductTable() {\n  // Load from local storage or use default\n  const [products, setProducts] = useState(() => {\n    try {\n      const saved = localStorage.getItem('product_challenge_data');\n      return saved ? JSON.parse(saved) : DEFAULT_DATA;\n    } catch (e) { return DEFAULT_DATA; }\n  });\n  \n  const [filterText, setFilterText] = useState('');\n  const [inStockOnly, setInStockOnly] = useState(false);\n  const [editingName, setEditingName] = useState(null);\n  const [editForm, setEditForm] = useState({});\n\n  // Save to local storage on change\n  useEffect(() => {\n    localStorage.setItem('product_challenge_data', JSON.stringify(products));\n  }, [products]);\n\n  const handleDelete = (name) => {\n    if(window.confirm('Delete ' + name + '?')) {\n        setProducts(prev => prev.filter(p => p.name !== name));\n    }\n  };\n\n  const startEdit = (product) => {\n    setEditingName(product.name);\n    setEditForm({ ...product });\n  };\n\n  const saveEdit = () => {\n    setProducts(prev => prev.map(p => p.name === editingName ? editForm : p));\n    setEditingName(null);\n  };\n\n  // Filter logic\n  const filteredProducts = products.filter(product => {\n    if (product.name.toLowerCase().indexOf(filterText.toLowerCase()) === -1) return false;\n    if (inStockOnly && !product.stocked) return false;\n    return true; // Match found\n  });\n\n  // Group by category\n  const categories = {};\n  filteredProducts.forEach(p => {\n    if (!categories[p.category]) categories[p.category] = [];\n    categories[p.category].push(p);\n  });\n\n  return (\n    <div className="p-6 font-sans max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 mt-4">\n      <h2 className="text-xl font-bold mb-4 text-slate-800">Inventory Manager</h2>\n      \n      {/* Controls */}\n      <div className="mb-6 space-y-3 bg-slate-50 p-4 rounded-lg">\n        <input \n          type="text" \n          placeholder="Search products..." \n          value={filterText}\n          onChange={(e) => setFilterText(e.target.value)}\n          className="border border-slate-300 p-2 w-full rounded focus:ring-2 focus:ring-blue-500 outline-none"\n        />\n        <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">\n          <input \n            type="checkbox" \n            checked={inStockOnly} \n            onChange={(e) => setInStockOnly(e.target.checked)} \n            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"\n          />\n          Only show products in stock\n        </label>\n      </div>\n\n      {/* Table */}\n      <div className="overflow-x-auto">\n      <table className="w-full text-left text-sm">\n        <thead>\n          <tr className="border-b-2 border-slate-100">\n            <th className="font-bold py-2 text-slate-600">Name</th>\n            <th className="font-bold py-2 text-slate-600">Price</th>\n            <th className="font-bold py-2 text-slate-600 w-32 text-right">Actions</th>\n          </tr>\n        </thead>\n        <tbody>\n          {Object.keys(categories).length === 0 && (\n             <tr><td colSpan="3" className="text-center py-8 text-slate-400">No products found.</td></tr>\n          )}\n          {Object.keys(categories).map(category => (\n            <React.Fragment key={category}>\n              <tr>\n                <th colSpan="3" className="font-bold text-center py-2 bg-slate-100 text-slate-700 mt-2 rounded">\n                    {category}\n                </th>\n              </tr>\n              {categories[category].map(product => (\n                <tr key={product.name} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">\n                  <td className={\`p-3 \${!product.stocked ? 'text-red-500' : 'text-slate-700'}\`}>\n                    {editingName === product.name ? (\n                        <input \n                            value={editForm.name} \n                            onChange={e => setEditForm({...editForm, name: e.target.value})}\n                            className="border p-1 w-full rounded"\n                        />\n                    ) : product.name}\n                  </td>\n                  <td className="p-3 text-slate-600">\n                    {editingName === product.name ? (\n                        <input \n                            value={editForm.price} \n                            onChange={e => setEditForm({...editForm, price: e.target.value})}\n                            className="border p-1 w-16 rounded"\n                        />\n                    ) : product.price}\n                  </td>\n                  <td className="p-3 flex gap-2 justify-end">\n                    {editingName === product.name ? (\n                        <button onClick={saveEdit} className="text-green-600 font-bold hover:underline">Save</button>\n                    ) : (\n                        <>\n                            <button onClick={() => startEdit(product)} className="text-blue-600 hover:bg-blue-50 px-2 py-1 rounded">Edit</button>\n                            <button onClick={() => handleDelete(product.name)} className="text-red-600 hover:bg-red-50 px-2 py-1 rounded">Del</button>\n                        </>\n                    )}\n                  </td>\n                </tr>\n              ))}\n            </React.Fragment>\n          ))}\n        </tbody>\n      </table>\n      </div>\n      <div className="mt-4 text-xs text-slate-400 text-center">\n        Changes are persisted to localStorage.\n      </div>\n    </div>\n  );\n}`
   },
   {
-      id: 'cc-7',
-      category: Category.CSS,
-      title: 'Holy Grail Layout',
-      difficulty: Difficulty.Medium,
-      description: 'Create a classic Holy Grail layout using CSS Grid: Header, Footer, Main Content, Left Sidebar, Right Sidebar.',
-      tags: ['CSS Grid', 'Layout'],
-      starterCode: `import React from 'react';\nimport './styles.css';\n\nexport default function Layout() {\n  return <div className="container">...</div>;\n}`,
-      solutionCode: `import React from 'react';\n\nexport default function HolyGrail() {\n  return (\n    <div className="grid h-screen text-white font-bold text-center"\n         style={{\n           gridTemplateAreas: \`\n             "header header header"\n             "nav main ads"\n             "footer footer footer"\n           \`,\n           gridTemplateRows: '60px 1fr 60px',\n           gridTemplateColumns: '200px 1fr 200px',\n           gap: '4px'\n         }}\n    >\n      <header style={{ gridArea: 'header' }} className="bg-slate-700 flex items-center justify-center">Header</header>\n      <nav style={{ gridArea: 'nav' }} className="bg-slate-600 flex items-center justify-center">Nav</nav>\n      <main style={{ gridArea: 'main' }} className="bg-slate-500 flex items-center justify-center">Main Content</main>\n      <aside style={{ gridArea: 'ads' }} className="bg-slate-600 flex items-center justify-center">Sidebar</aside>\n      <footer style={{ gridArea: 'footer' }} className="bg-slate-700 flex items-center justify-center">Footer</footer>\n    </div>\n  );\n}`
+    id: 'cc-17',
+    category: Category.React,
+    title: 'n x n Checkbox Grid',
+    difficulty: Difficulty.Medium,
+    description: 'Create a component that accepts a prop `n` and renders an n x n grid of boxes. When a box is clicked, it should be marked active. Once ALL boxes are active, display a toast message "All Selected!" and reset the grid automatically.',
+    tags: ['State', 'Grid', 'Effects'],
+    starterCode: `import React, { useState } from 'react';\n\nexport default function Grid({ n = 3 }) {\n  return (\n    <div className="p-4">\n      {/* Render grid here */}\n    </div>\n  );\n}`,
+    solutionCode: `import React, { useState, useEffect } from 'react';\n\nexport default function Grid({ n = 3 }) {\n  const [activeIndices, setActiveIndices] = useState(new Set());\n  const [toast, setToast] = useState(false);\n  const total = n * n;\n\n  useEffect(() => {\n    if (activeIndices.size === total) {\n      setToast(true);\n      const timer = setTimeout(() => {\n        setActiveIndices(new Set());\n        setToast(false);\n      }, 1500);\n      return () => clearTimeout(timer);\n    }\n  }, [activeIndices, total]);\n\n  const handleClick = (index) => {\n    if (activeIndices.has(index)) return;\n    const next = new Set(activeIndices);\n    next.add(index);\n    setActiveIndices(next);\n  };\n\n  return (\n    <div className="flex flex-col items-center p-8 relative">\n      {toast && (\n        <div className="absolute top-0 bg-slate-800 text-white px-4 py-2 rounded shadow-lg animate-bounce">\n          All boxes selected! Resetting...\n        </div>\n      )}\n      \n      <div \n        className="grid gap-2"\n        style={{ gridTemplateColumns: \`repeat(\${n}, 1fr)\` }}\n      >\n        {Array.from({ length: total }).map((_, i) => (\n          <div \n            key={i}\n            onClick={() => handleClick(i)}\n            className={\`w-12 h-12 border-2 rounded flex items-center justify-center cursor-pointer transition-all text-xl font-bold select-none \${activeIndices.has(i) ? 'bg-green-500 border-green-600 text-white' : 'bg-white border-slate-300 hover:bg-slate-50'}\`}\n          >\n            {activeIndices.has(i) && 'X'}\n          </div>\n        ))}\n      </div>\n    </div>\n  );\n}`
+  },
+  // --- New JS Challenges ---
+  {
+    id: 'js-algo-1',
+    category: Category.JavaScript,
+    title: 'Flatten Array (Recursive)',
+    difficulty: Difficulty.Medium,
+    description: 'Convert n dimensional array to 1 dimensional array without using any pre-built prototypes like flat, reduce (use recursion).',
+    tags: ['Recursion', 'Algorithms'],
+    starterCode: `function flattenRecursive(arr) {\n  // Your code here\n}`,
+    solutionCode: `function flattenRecursive(arr) {\n  let result = [];\n  for (let i = 0; i < arr.length; i++) {\n    if (Array.isArray(arr[i])) {\n      result = result.concat(flattenRecursive(arr[i]));\n    } else {\n      result.push(arr[i]);\n    }\n  }\n  return result;\n}`
+  },
+  {
+    id: 'js-algo-2',
+    category: Category.JavaScript,
+    title: 'Flatten Array (Reduce)',
+    difficulty: Difficulty.Medium,
+    description: 'Convert n dimensional array to 1D array using reduce prototype.',
+    tags: ['Functional Programming', 'Reduce'],
+    starterCode: `function flattenReduce(arr) {\n  // Your code here\n}`,
+    solutionCode: `function flattenReduce(arr) {\n  return arr.reduce((acc, val) => \n    Array.isArray(val) ? acc.concat(flattenReduce(val)) : acc.concat(val), \n  []);\n}`
+  },
+  {
+    id: 'js-algo-3',
+    category: Category.JavaScript,
+    title: 'Print Nested Object Keys',
+    difficulty: Difficulty.Medium,
+    description: 'Print the keys of the given nested object in dot notation (e.g. location.0, qualifications.0.education).',
+    tags: ['Recursion', 'Objects'],
+    starterCode: `function printKeys(obj) {\n  // Your code here\n}`,
+    solutionCode: `function printKeys(obj, prefix = '') {\n  let keys = [];\n  for (let key in obj) {\n    if (obj.hasOwnProperty(key)) {\n      const newKey = prefix ? \`\${prefix}.\${key}\` : key;\n      if (typeof obj[key] === 'object' && obj[key] !== null) {\n        keys = keys.concat(printKeys(obj[key], newKey));\n      } else {\n        keys.push(newKey);\n      }\n    }\n  }\n  return keys;\n}\n\n// Usage:\n// console.log(printKeys(inputObject).join('\\n'));`
+  },
+  {
+    id: 'js-algo-4',
+    category: Category.JavaScript,
+    title: 'Frequency Count Sorted',
+    difficulty: Difficulty.Easy,
+    description: 'Calculate the frequency count of items in an array and return an object sorted alphabetically by key. Input: [a, d, a, c...]',
+    tags: ['Algorithms', 'Sorting'],
+    starterCode: `function frequencyCount(arr) {\n  // Your code here\n}`,
+    solutionCode: `function frequencyCount(arr) {\n  const count = arr.reduce((acc, curr) => {\n    acc[curr] = (acc[curr] || 0) + 1;\n    return acc;\n  }, {});\n  \n  return Object.keys(count).sort().reduce((acc, key) => {\n    acc[key] = count[key];\n    return acc;\n  }, {});\n}`
+  },
+  {
+    id: 'js-algo-5',
+    category: Category.JavaScript,
+    title: 'Max Value from Pattern',
+    difficulty: Difficulty.Easy,
+    description: 'Find max value from a patterned items of an array. Input: ["10-50-20", "80-90-35"] -> Output: [50, 90]',
+    tags: ['String Manipulation', 'Math'],
+    starterCode: `function maxFromPattern(arr) {\n  // Your code here\n}`,
+    solutionCode: `function maxFromPattern(arr) {\n  return arr.map(str => {\n    const nums = str.split('-').map(Number);\n    return Math.max(...nums);\n  });\n}`
+  },
+  {
+    id: 'js-algo-6',
+    category: Category.JavaScript,
+    title: 'Find Missing Values',
+    difficulty: Difficulty.Easy,
+    description: 'Find the missing values in an incremental integer array sequence. Input: [1, 2, 3, 5, 7, 8, 9, 10] -> Output: [4, 6]',
+    tags: ['Algorithms', 'Math'],
+    starterCode: `function findMissing(arr) {\n  // Your code here\n}`,
+    solutionCode: `function findMissing(arr) {\n  const missing = [];\n  const min = arr[0];\n  const max = arr[arr.length - 1];\n  const set = new Set(arr);\n  \n  for (let i = min; i <= max; i++) {\n    if (!set.has(i)) {\n      missing.push(i);\n    }\n  }\n  return missing;\n}`
+  },
+  {
+    id: 'js-algo-7',
+    category: Category.JavaScript,
+    title: 'Unique & Filter',
+    difficulty: Difficulty.Medium,
+    description: 'Remove duplicate items from an array, sort them, and separate odd numbers greater than 10.',
+    tags: ['Sets', 'Filtering'],
+    starterCode: `function processArray(arr) {\n  // Your code here\n}`,
+    solutionCode: `function processArray(arr) {\n  const uniqueSorted = [...new Set(arr)].sort((a, b) => a - b);\n  const oddGreaterThan10 = uniqueSorted.filter(n => n > 10 && n % 2 !== 0);\n  \n  return {\n    uniqueSorted,\n    oddGreaterThan10\n  };\n}`
+  },
+  {
+    id: 'js-algo-8',
+    category: Category.JavaScript,
+    title: 'Deep Clone Object',
+    difficulty: Difficulty.Medium,
+    description: 'Implement deep copy of an n-level nested object without using any external library.',
+    tags: ['Recursion', 'Objects'],
+    starterCode: `function deepClone(obj) {\n  // Your code here\n}`,
+    solutionCode: `function deepClone(obj) {\n  if (obj === null || typeof obj !== 'object') return obj;\n  \n  if (Array.isArray(obj)) {\n    return obj.map(item => deepClone(item));\n  }\n  \n  const cloned = {};\n  for (let key in obj) {\n    if (obj.hasOwnProperty(key)) {\n      cloned[key] = deepClone(obj[key]);\n    }\n  }\n  return cloned;\n}`
+  },
+  {
+    id: 'js-algo-9',
+    category: Category.JavaScript,
+    title: 'Group Anagrams',
+    difficulty: Difficulty.Medium,
+    description: 'Group an array of strings into sublists of anagrams. Input: ["act","pots","tops","cat"] -> Output: [["act", "cat"], ["pots", "tops"]]',
+    tags: ['Algorithms', 'Maps'],
+    starterCode: `function groupAnagrams(strs) {\n  // Your code here\n}`,
+    solutionCode: `function groupAnagrams(strs) {\n  const map = {};\n  \n  for (let str of strs) {\n    const sorted = str.split('').sort().join('');\n    if (!map[sorted]) map[sorted] = [];\n    map[sorted].push(str);\n  }\n  \n  return Object.values(map);\n}`
   },
   // --- Next.js Challenges ---
   {
