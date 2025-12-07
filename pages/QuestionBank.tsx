@@ -37,8 +37,6 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigat
   // but we can just show 0 or hide it if user is null.
   const masteredIds = user?.masteredIds || [];
 
-  const VISIBLE_LIMIT = 30; // Keep limit for Release 1
-
   const currentQuestions = selectedCategory 
     ? questions.filter(q => q.category === selectedCategory) 
     : [];
@@ -66,8 +64,9 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigat
     return 0; // Default order (as defined in data file)
   });
 
-  const visibleQuestions = sortedQuestions.slice(0, VISIBLE_LIMIT);
-  const hiddenCount = Math.max(0, sortedQuestions.length - VISIBLE_LIMIT);
+  // Show all available questions
+  const visibleQuestions = sortedQuestions;
+  const hiddenCount = 0;
 
   if (!selectedCategory) {
     return (
@@ -252,24 +251,6 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, onNavigat
           <div className="text-center py-20">
             <p className="text-slate-500">No questions found matching your search.</p>
           </div>
-        )}
-
-        {/* Coming Soon Banner */}
-        {hiddenCount > 0 && !search && (
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white shadow-xl mx-auto max-w-4xl mt-6 mb-6">
-              <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
-              
-              <div className="relative p-8 text-center">
-                  <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
-                      <Clock className="w-6 h-6 text-primary-300" />
-                  </div>
-                  <h3 className="text-2xl font-bold tracking-tight mb-2">More Real-World Questions Coming Soon</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed max-w-lg mx-auto">
-                      We are currently curating {hiddenCount} additional advanced scenarios, system design deep dives, and company-specific questions for the {selectedCategory} module. Stay tuned for our next update!
-                  </p>
-              </div>
-            </div>
         )}
 
         <AdBanner slotId="questions-list-footer" />
