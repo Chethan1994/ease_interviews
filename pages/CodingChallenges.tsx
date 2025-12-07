@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
-import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode } from 'lucide-react';
+import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode, Monitor } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
@@ -19,9 +19,28 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
 export const CodingChallenges: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [runningId, setRunningId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'preview' | 'console'>('preview');
+  const [logs, setLogs] = useState<{level: string, message: string}[]>([]);
   
   // Release 1: Premium disabled
   const isPremium = false;
+
+  // Reset logs and tab when switching challenges or stopping
+  useEffect(() => {
+    setLogs([]);
+    setActiveTab('preview');
+  }, [runningId]);
+
+  // Listen for console messages from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'CONSOLE_OUTPUT') {
+        setLogs(prev => [...prev, { level: event.data.level, message: event.data.payload }]);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const getStackBlitzUrl = (code: string, title: string) => {
     const files = {
@@ -70,10 +89,10 @@ export const CodingChallenges: React.FC = () => {
         const match = code.match(/export default function\s+(\w+)/);
         const name = match ? match[1] : 'App';
         appCode = appCode.replace('export default function', 'function');
-        mountCode = `try { const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<${name} />); } catch (e) { document.body.innerHTML = '<div style="color:red; padding:20px">Runtime Error: ' + e.message + '</div>'; }`;
+        mountCode = `try { const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<${name} />); } catch (e) { console.error(e.message); document.body.innerHTML = '<div style="color:red; padding:20px">Runtime Error: ' + e.message + '</div>'; }`;
     } else {
         appCode = appCode.replace(/export default/, '');
-        mountCode = `const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<div className="p-6 font-sans text-slate-600 flex flex-col items-center justify-center text-center h-full"><h3 className="text-xl font-bold text-slate-800 mb-2">Logic Output</h3><p>Check console for results.</p></div>);`;
+        mountCode = `const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<div className="p-6 font-sans text-slate-600 flex flex-col items-center justify-center text-center h-full"><h3 className="text-xl font-bold text-slate-800 mb-2">Logic Output</h3><p>Check console tab for results.</p></div>);`;
     }
 
     return `
@@ -86,6 +105,30 @@ export const CodingChallenges: React.FC = () => {
             <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
             <script src="https://cdn.tailwindcss.com"></script>
             <style>body { background-color: #ffffff; margin: 0; min-height: 100vh; font-family: sans-serif; } ::-webkit-scrollbar { width: 6px; }</style>
+            <script>
+                (function() {
+                    const send = (level, args) => {
+                        try {
+                            const msg = args.map(arg => {
+                                if (arg === null) return 'null';
+                                if (arg === undefined) return 'undefined';
+                                if (typeof arg === 'object') {
+                                    try { return JSON.stringify(arg, null, 2); } catch(e) { return String(arg); }
+                                }
+                                return String(arg);
+                            }).join(' ');
+                            window.parent.postMessage({ type: 'CONSOLE_OUTPUT', level, payload: msg }, '*');
+                        } catch(e) {}
+                    };
+                    const originalLog = console.log; console.log = (...args) => { originalLog(...args); send('log', args); };
+                    const originalErr = console.error; console.error = (...args) => { originalErr(...args); send('error', args); };
+                    const originalWarn = console.warn; console.warn = (...args) => { originalWarn(...args); send('warn', args); };
+                    
+                    window.onerror = function(message, source, lineno, colno, error) {
+                        send('error', [message]);
+                    };
+                })();
+            </script>
         </head>
         <body>
             <div id="root"></div>
@@ -101,7 +144,7 @@ export const CodingChallenges: React.FC = () => {
 
   // --- View: Category Selection ---
   if (!selectedCategory) {
-    const categories = Object.values(Category);
+    const categories = Object.values(Category).filter(c => c !== Category.HTML && c !== Category.CSS);
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-in fade-in duration-500">
             <div className="text-center mb-12">
@@ -173,7 +216,6 @@ export const CodingChallenges: React.FC = () => {
                 const isRunning = runningId === challenge.id;
                 const isNode = challenge.category === Category.NodeJS;
                 const isNext = challenge.category === Category.NextJS;
-                // Treat Next.js similar to Node.js for simplicity regarding build steps needed for running
                 const isServerSide = isNode || isNext;
 
                 return (
@@ -202,7 +244,7 @@ export const CodingChallenges: React.FC = () => {
 
                         {/* Editor / Solution Area */}
                         <div className="flex flex-col lg:flex-row">
-                            <div className={`bg-[#1e1e1e] flex flex-col min-h-[300px] transition-all duration-300 ${isRunning ? 'lg:w-1/2' : 'w-full'}`}>
+                            <div className={`bg-[#1e1e1e] flex flex-col transition-all duration-300 ${isRunning ? 'lg:w-1/2' : 'w-full'}`}>
                                 <div className="px-4 py-2 bg-emerald-900/20 border-b border-emerald-900/20 flex justify-between items-center">
                                     <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
                                         <CheckCircle2 className="w-4 h-4" /> Solution
@@ -212,25 +254,60 @@ export const CodingChallenges: React.FC = () => {
                                         <CopyButton text={challenge.solutionCode} />
                                     </div>
                                 </div>
-                                <pre className="flex-1 p-6 overflow-x-auto text-sm font-mono text-emerald-100 leading-relaxed custom-scrollbar">
+                                {/* Fixed height code block with scroll */}
+                                <pre className="h-[500px] p-6 overflow-auto text-sm font-mono text-emerald-100 leading-relaxed custom-scrollbar">
                                     <code>{challenge.solutionCode}</code>
                                 </pre>
                             </div>
 
                             {isRunning && (
-                                <div className="flex flex-col lg:w-1/2 border-t lg:border-t-0 lg:border-l border-slate-200 bg-slate-50 min-h-[400px]">
-                                    <div className="px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                            <Play className="w-4 h-4 text-green-600" /> Live Preview
-                                        </div>
+                                <div className="flex flex-col lg:w-1/2 border-t lg:border-t-0 lg:border-l border-slate-200 bg-slate-50">
+                                    <div className="flex border-b border-slate-200 bg-white">
+                                        <button 
+                                            onClick={() => setActiveTab('preview')}
+                                            className={`flex-1 px-4 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${activeTab === 'preview' ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50' : 'text-slate-500 hover:bg-slate-50'}`}
+                                        >
+                                            <Monitor className="w-4 h-4" /> Live Preview
+                                        </button>
+                                        <button 
+                                            onClick={() => setActiveTab('console')}
+                                            className={`flex-1 px-4 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${activeTab === 'console' ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50' : 'text-slate-500 hover:bg-slate-50'}`}
+                                        >
+                                            <Terminal className="w-4 h-4" /> Console
+                                            {logs.length > 0 && (
+                                                <span className={`px-1.5 py-0.5 rounded-full text-[9px] ${logs.some(l => l.level === 'error') ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-600'}`}>
+                                                    {logs.length}
+                                                </span>
+                                            )}
+                                        </button>
                                     </div>
-                                    <div className="flex-1 relative">
+                                    <div className="relative bg-white h-[500px]">
+                                        {/* Iframe stays mounted but hidden to preserve state */}
                                         <iframe 
                                             srcDoc={generateSrcDoc(challenge.solutionCode)}
                                             className="absolute inset-0 w-full h-full"
                                             title={`Preview ${challenge.title}`}
                                             sandbox="allow-scripts allow-modals allow-same-origin"
+                                            style={{ visibility: activeTab === 'preview' ? 'visible' : 'hidden' }}
                                         />
+                                        
+                                        {/* Console Layer */}
+                                        {activeTab === 'console' && (
+                                            <div className="absolute inset-0 bg-[#1e1e1e] p-4 overflow-y-auto font-mono text-sm custom-scrollbar">
+                                                {logs.length === 0 ? (
+                                                    <div className="text-slate-500 italic text-center mt-8 text-xs">No logs output yet...</div>
+                                                ) : (
+                                                    logs.map((log, i) => (
+                                                        <div key={i} className={`mb-2 border-b border-white/5 pb-1 ${log.level === 'error' ? 'text-red-400' : log.level === 'warn' ? 'text-yellow-400' : 'text-slate-300'}`}>
+                                                            <div className="flex gap-2">
+                                                                <span className="opacity-40 text-[10px] uppercase select-none w-10 shrink-0 text-right">{log.level}</span>
+                                                                <span className="whitespace-pre-wrap break-all">{log.message}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

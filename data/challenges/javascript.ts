@@ -59,7 +59,7 @@ export const JS_CHALLENGES: CodingChallenge[] = [
     description: 'Print the keys of the given nested object in dot notation (e.g. location.0, qualifications.0.education).',
     tags: ['Recursion', 'Objects'],
     starterCode: `function printKeys(obj) {\n  // Your code here\n}`,
-    solutionCode: `function printKeys(obj, prefix = '') {\n  let keys = [];\n  for (let key in obj) {\n    if (obj.hasOwnProperty(key)) {\n      const newKey = prefix ? \`\${prefix}.\${key}\` : key;\n      if (typeof obj[key] === 'object' && obj[key] !== null) {\n        keys = keys.concat(printKeys(obj[key], newKey));\n      } else {\n        keys.push(newKey);\n      }\n    }\n  }\n  return keys;\n}\n`
+    solutionCode: `function printKeys(obj, prefix = '') {\n  let keys = [];\n  for (let key in obj) {\n    if (obj.hasOwnProperty(key)) {\n      const newKey = prefix ? \`\${prefix}.\${key}\` : key;\n      if (typeof obj[key] === 'object' && obj[key] !== null) {\n        keys = keys.concat(printKeys(obj[key], newKey));\n      } else {\n        keys.push(newKey);\n      }\n    }\n  }\n  return keys;\n}\n\n// Usage:\n// console.log(printKeys(inputObject).join('\\n'));`
   },
   {
     id: 'js-algo-4',
