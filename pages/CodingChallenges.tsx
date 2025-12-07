@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
@@ -150,10 +149,7 @@ export const CodingChallenges: React.FC = () => {
   }
 
   // --- View: List of Challenges (Filtered) ---
-  const filteredChallenges = CODING_CHALLENGES.filter(c => c.category === selectedCategory);
-  const visibleLimit = 5;
-  const visibleChallenges = filteredChallenges.slice(0, visibleLimit);
-  const hiddenCount = Math.max(0, filteredChallenges.length - visibleLimit);
+  const visibleChallenges = CODING_CHALLENGES.filter(c => c.category === selectedCategory);
 
   return (
     <>
@@ -287,24 +283,6 @@ export const CodingChallenges: React.FC = () => {
                     </div>
                 );
             })}
-
-            {/* Coming Soon Banner */}
-            {hiddenCount > 0 && !isPremium && (
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-900 text-white shadow-2xl mx-auto max-w-4xl mt-12">
-                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl"></div>
-                    
-                    <div className="relative p-12 text-center">
-                         <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
-                              <Clock className="w-8 h-8 text-indigo-300" />
-                          </div>
-                        <h3 className="text-3xl font-bold tracking-tight mb-4">More Challenges Coming Soon</h3>
-                        <p className="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
-                            We are preparing {hiddenCount} more advanced {selectedCategory} coding challenges, including complex system components and architectural patterns used by top tech companies. Check back in our next release!
-                        </p>
-                    </div>
-                </div>
-            )}
         </div>
         
         <AdBanner slotId="challenges-list-footer" />
