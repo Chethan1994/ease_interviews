@@ -1,36 +1,43 @@
+
 import React, { useState, useEffect } from 'react';
 import { Question, Difficulty, Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { CopyButton } from '../components/ui/CopyButton';
 import { RefreshCw, Check, X, Eye, EyeOff } from 'lucide-react';
+import { analytics } from '../utils/analytics';
 
 interface StudyModeProps {
   questions: Question[];
   onMarkMastered: (id: string) => void;
+  onMarkReviewed: (id: string) => void;
   masteredIds: string[];
 }
 
-export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered, masteredIds }) => {
-  // Filter out mastered questions initially, or show all if completed
+export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered, onMarkReviewed, masteredIds }) => {
   const [queue, setQueue] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
 
   useEffect(() => {
-    // Prioritize unmastered questions
     const unmastered = questions.filter(q => !masteredIds.includes(q.id));
     const mastered = questions.filter(q => masteredIds.includes(q.id));
-    
-    // Simple shuffle
     const shuffled = [...unmastered, ...mastered].sort(() => Math.random() - 0.5);
     setQueue(shuffled);
     setCurrentIndex(0);
     setSessionComplete(false);
     setIsFlipped(false);
-  }, [questions, masteredIds]); // Re-shuffle if source changes slightly, but mainly on mount
+  }, [questions, masteredIds]);
 
   const currentQuestion = queue[currentIndex];
+
+  // Track review when a new card is shown
+  useEffect(() => {
+    if (currentQuestion) {
+        onMarkReviewed(currentQuestion.id);
+        analytics.logQuestionView(currentQuestion.id, currentQuestion.category);
+    }
+  }, [currentQuestion]);
 
   const handleNext = () => {
     setIsFlipped(false);
@@ -51,7 +58,6 @@ export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered,
   };
 
   const handleReviewLater = () => {
-      // Just move to next without marking mastered
       handleNext();
   };
 

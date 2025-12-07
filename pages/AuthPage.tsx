@@ -49,7 +49,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                 email: 'google-user@example.com',
                 name: 'Google User',
                 isPremium: false,
-                masteredIds: []
+                masteredIds: [],
+                reviewedIds: []
             };
             login(googleUser);
             setLoading(false);

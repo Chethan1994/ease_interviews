@@ -30,6 +30,7 @@ export interface User {
   name: string;
   isPremium: boolean;
   masteredIds: string[];
+  reviewedIds: string[];
 }
 
 export interface UserProgress {

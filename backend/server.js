@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -40,7 +41,8 @@ app.post('/api/register', (req, res) => {
         password, // In a real app, hash this!
         name,
         isPremium: false,
-        masteredIds: []
+        masteredIds: [],
+        reviewedIds: []
     };
 
     db.users.push(newUser);
@@ -59,13 +61,17 @@ app.post('/api/login', (req, res) => {
     if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
     }
+    
+    // Ensure new fields exist for old users
+    if (!user.reviewedIds) user.reviewedIds = [];
+    if (!user.masteredIds) user.masteredIds = [];
 
     const { password: _, ...userWithoutPass } = user;
     res.json(userWithoutPass);
 });
 
-// Update Progress (Mastered Questions)
-app.post('/api/user/progress', (req, res) => {
+// Mark Mastered
+app.post('/api/user/progress/mastered', (req, res) => {
     const { userId, masteredId } = req.body;
     const db = getDb();
     const userIndex = db.users.findIndex(u => u.id === userId);
@@ -75,8 +81,32 @@ app.post('/api/user/progress', (req, res) => {
     }
 
     const user = db.users[userIndex];
+    if (!user.masteredIds) user.masteredIds = [];
+    
     if (!user.masteredIds.includes(masteredId)) {
         user.masteredIds.push(masteredId);
+        saveDb(db);
+    }
+
+    const { password: _, ...userWithoutPass } = user;
+    res.json(userWithoutPass);
+});
+
+// Mark Reviewed
+app.post('/api/user/progress/reviewed', (req, res) => {
+    const { userId, reviewedId } = req.body;
+    const db = getDb();
+    const userIndex = db.users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user = db.users[userIndex];
+    if (!user.reviewedIds) user.reviewedIds = [];
+    
+    if (!user.reviewedIds.includes(reviewedId)) {
+        user.reviewedIds.push(reviewedId);
         saveDb(db);
     }
 

@@ -25,10 +25,20 @@ export const api = {
     },
 
     async markMastered(userId: string, masteredId: string): Promise<User> {
-        const res = await fetch(`${API_BASE}/user/progress`, {
+        const res = await fetch(`${API_BASE}/user/progress/mastered`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, masteredId }),
+        });
+        if (!res.ok) throw new Error('Failed to update mastery');
+        return res.json();
+    },
+
+    async markReviewed(userId: string, reviewedId: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/user/progress/reviewed`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, reviewedId }),
         });
         if (!res.ok) throw new Error('Failed to update progress');
         return res.json();

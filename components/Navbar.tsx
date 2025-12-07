@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ViewState } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, BarChart2, Layers, Sparkles, Code2, LogIn, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
+import { BookOpen, BarChart2, Layers, Sparkles, Code2, LogIn, User as UserIcon, LogOut, Menu, X, Lock } from 'lucide-react';
 
 interface NavbarProps {
   currentView: ViewState;
@@ -13,18 +13,32 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navItemClass = (view: ViewState) =>
-    `flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium ${
-      currentView === view
-        ? 'bg-primary-50 text-primary-700'
-        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+  // Helper for tooltip
+  const PremiumTooltip = () => (
+      <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold py-1.5 px-3 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none flex items-center gap-1.5">
+          <Lock className="w-3 h-3 text-yellow-400" /> 
+          <span>Coming Soon (Premium)</span>
+          {/* Little arrow */}
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-900"></div>
+      </div>
+  );
+
+  const navItemClass = (view: ViewState, disabled = false) =>
+    `flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium relative group ${
+      disabled 
+        ? 'text-slate-400 cursor-not-allowed hover:bg-transparent' 
+        : currentView === view
+            ? 'bg-primary-50 text-primary-700'
+            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
   
-  const mobileNavItemClass = (view: ViewState) =>
+  const mobileNavItemClass = (view: ViewState, disabled = false) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium w-full ${
-      currentView === view
-        ? 'bg-primary-50 text-primary-700'
-        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        disabled
+        ? 'text-slate-400 cursor-not-allowed bg-slate-50/50'
+        : currentView === view
+            ? 'bg-primary-50 text-primary-700'
+            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
 
   const handleNavClick = (view: ViewState) => {
@@ -36,9 +50,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
     <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavClick('dashboard')}>
-            <div className="bg-primary-600 p-2 rounded-lg">
+          {/* Logo - Redirects to Question Bank (browse) */}
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => handleNavClick('browse')}>
+            <div className="bg-primary-600 p-2 rounded-lg group-hover:bg-primary-700 transition-colors">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold text-slate-900 tracking-tight">InterviewPrep</span>
@@ -46,56 +60,35 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">
-            <div className="flex gap-1">
-                <button onClick={() => setView('dashboard')} className={navItemClass('dashboard')}>
-                    <BarChart2 className="w-4 h-4" />
-                    <span>Dashboard</span>
-                </button>
+            <div className="flex gap-1 items-center">
+                {/* Dashboard - Disabled */}
+                <div className="relative group">
+                    <button className={navItemClass('dashboard', true)} disabled>
+                        <BarChart2 className="w-4 h-4" />
+                        <span>Dashboard</span>
+                    </button>
+                    <PremiumTooltip />
+                </div>
+
                 <button onClick={() => setView('browse')} className={navItemClass('browse')}>
                     <Layers className="w-4 h-4" />
                     <span>Question Bank</span>
                 </button>
+
                 <button onClick={() => setView('coding-challenges')} className={navItemClass('coding-challenges')}>
                     <Code2 className="w-4 h-4" />
                     <span>Coding</span>
                 </button>
-                {/* AI Quiz commented out for Release 1 */}
-                {/* 
-                <button onClick={() => setView('ai-quiz')} className={navItemClass('ai-quiz')}>
-                    <Sparkles className="w-4 h-4" />
-                    <span>AI Quiz</span>
-                </button> 
-                */}
-            </div>
-
-            {/* Auth section commented out for Release 1 */}
-            {/* 
-            <div className="h-6 w-px bg-slate-200 mx-2"></div>
-
-            {user ? (
-                <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-end">
-                        <span className="text-sm font-bold text-slate-700">{user.name}</span>
-                        <span className="text-[10px] uppercase font-bold text-primary-600">{user.isPremium ? 'Premium' : 'Free Plan'}</span>
-                    </div>
-                    <button 
-                        onClick={handleLogout}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Logout"
-                    >
-                        <LogOut className="w-5 h-5" />
+                
+                {/* AI Quiz - Disabled */}
+                <div className="relative group">
+                    <button className={navItemClass('ai-quiz', true)} disabled>
+                        <Sparkles className="w-4 h-4" />
+                        <span>AI Quiz</span>
                     </button>
+                    <PremiumTooltip />
                 </div>
-            ) : (
-                <button
-                    onClick={() => setView('auth')}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm"
-                >
-                    <LogIn className="w-4 h-4" />
-                    Sign In
-                </button>
-            )}
-            */}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -114,59 +107,41 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
       {isMobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top-2 duration-200">
               <div className="p-4 space-y-2">
-                  <button onClick={() => handleNavClick('dashboard')} className={mobileNavItemClass('dashboard')}>
-                      <BarChart2 className="w-5 h-5" />
-                      Dashboard
-                  </button>
+                  {/* Dashboard - Disabled */}
+                  <div className="relative">
+                      <button className={mobileNavItemClass('dashboard', true)} disabled>
+                          <div className="flex items-center gap-3 w-full">
+                            <BarChart2 className="w-5 h-5" />
+                            Dashboard 
+                            <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded ml-auto flex items-center gap-1">
+                                <Lock className="w-3 h-3" /> Premium
+                            </span>
+                          </div>
+                      </button>
+                  </div>
+
                   <button onClick={() => handleNavClick('browse')} className={mobileNavItemClass('browse')}>
                       <Layers className="w-5 h-5" />
                       Question Bank
                   </button>
+                  
                   <button onClick={() => handleNavClick('coding-challenges')} className={mobileNavItemClass('coding-challenges')}>
                       <Code2 className="w-5 h-5" />
                       Coding Challenges
                   </button>
-                  {/* AI Quiz commented out for Release 1 */}
-                  {/* 
-                  <button onClick={() => handleNavClick('ai-quiz')} className={mobileNavItemClass('ai-quiz')}>
-                      <Sparkles className="w-5 h-5" />
-                      AI Quiz
-                  </button>
-                  */}
-
-                  {/* Auth commented out for Release 1 */}
-                  {/*
-                  <div className="border-t border-slate-100 my-2 pt-2">
-                    {user ? (
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3 px-4">
-                                <div className="bg-primary-100 p-2 rounded-full">
-                                    <UserIcon className="w-5 h-5 text-primary-600" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900">{user.name}</p>
-                                    <p className="text-xs font-bold text-primary-600 uppercase">{user.isPremium ? 'Premium Plan' : 'Free Plan'}</p>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={handleLogout}
-                                className="flex items-center gap-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-lg font-medium"
-                            >
-                                <LogOut className="w-5 h-5" />
-                                Sign Out
-                            </button>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={() => handleNavClick('auth')}
-                            className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-slate-900 text-white rounded-lg font-bold shadow-sm"
-                        >
-                            <LogIn className="w-5 h-5" />
-                            Sign In / Register
-                        </button>
-                    )}
+                  
+                  {/* AI Quiz - Disabled */}
+                  <div className="relative">
+                      <button className={mobileNavItemClass('ai-quiz', true)} disabled>
+                          <div className="flex items-center gap-3 w-full">
+                            <Sparkles className="w-5 h-5" />
+                            AI Quiz
+                            <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded ml-auto flex items-center gap-1">
+                                <Lock className="w-3 h-3" /> Premium
+                            </span>
+                          </div>
+                      </button>
                   </div>
-                  */}
               </div>
           </div>
       )}
