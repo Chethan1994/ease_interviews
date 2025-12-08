@@ -4,17 +4,28 @@
 
 export const analytics = {
   logEvent: (eventName: string, params?: Record<string, any>) => {
+    // In development, log to console so you can verify it's working
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📈 [Analytics] ${eventName}`, params || '');
+    }
+
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', eventName, params);
     }
   },
 
   logPageView: (page_title: string) => {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'page_view', {
+    const params = {
         page_title,
         page_location: window.location.href,
-      });
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`📈 [Analytics] page_view`, params);
+    }
+
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'page_view', params);
     }
   },
 

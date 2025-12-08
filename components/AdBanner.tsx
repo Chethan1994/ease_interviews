@@ -28,11 +28,9 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   }, []);
 
   // Development / Demo Mode Placeholder
-  // Since we don't have a real Publisher ID provided, we render a placeholder that mimics the layout.
-  // To enable real ads:
-  // 1. Add your ID to index.html
-  // 2. Set process.env.NODE_ENV to 'production' or remove this conditional
-  const isDevMode = true; 
+  // Since we have a real Publisher ID provided, we can allow ads in production
+  // To enable real ads in development, change this logic.
+  const isDevMode = process.env.NODE_ENV === 'development'; 
 
   if (isDevMode) {
       return (
@@ -52,7 +50,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
         <span className="text-[10px] text-slate-300 uppercase block mb-1">Sponsored</span>
         <ins className="adsbygoogle"
              style={{ display: 'block' }}
-             data-ad-client="ca-pub-YOUR_PUBLISHER_ID_HERE"
+             data-ad-client="ca-pub-5226596264390573"
              data-ad-slot={slotId}
              data-ad-format={format}
              data-full-width-responsive="true"></ins>
