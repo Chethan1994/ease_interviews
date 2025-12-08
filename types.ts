@@ -6,13 +6,13 @@ export enum Difficulty {
 }
 
 export enum Category {
+  JavaScript = 'JavaScript',
+  TypeScript = 'TypeScript',
   React = 'React',
   NextJS = 'Next.js',
-  TypeScript = 'TypeScript',
-  JavaScript = 'JavaScript',
   NodeJS = 'Node.js',
-  CSS = 'CSS',
-  HTML = 'HTML'
+  HTML = 'HTML',
+  CSS = 'CSS'
 }
 
 export interface Question {

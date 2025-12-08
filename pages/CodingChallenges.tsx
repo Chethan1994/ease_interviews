@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
+import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode, Monitor } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
@@ -170,6 +172,7 @@ export const CodingChallenges: React.FC = () => {
             </div>
             
             <AdBanner slotId="challenges-home-footer" />
+            <ScrollToTop />
         </div>
     );
   }
@@ -346,6 +349,7 @@ export const CodingChallenges: React.FC = () => {
         </div>
         
         <AdBanner slotId="challenges-list-footer" />
+        <ScrollToTop />
     </div>
     </>
   );

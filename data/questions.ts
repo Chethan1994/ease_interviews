@@ -1,8 +1,244 @@
 
 import { Category, Difficulty, Question } from '../types';
 
+// New User Requested React Questions (Exact wording)
+const NEW_REACT_QUESTIONS: Question[] = [
+  {
+    id: 'r-user-1',
+    category: Category.React,
+    difficulty: Difficulty.Easy,
+    question: 'What is the use of function component compared to class component?',
+    answer: 'Function components are simpler JavaScript functions that accept props and return React elements. Unlike class components, they do not have instances (`this`) or lifecycle methods (like `componentDidMount`), but with **Hooks** (introduced in React 16.8), they can manage state and side effects. They typically have less boilerplate and are easier to read and test.',
+  },
+  {
+    id: 'r-user-2',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is HOC? Explain with an example. Have you used any inbuilt HOCs of react?',
+    answer: 'A Higher-Order Component (HOC) is a function that takes a component and returns a new component, primarily used for reusing component logic.\n\n**Example**: `React.memo` is a built-in HOC used for performance optimization by memoizing a component based on its props. Other examples include `withRouter` (React Router v5) or `connect` (Redux).',
+    codeSnippet: `const EnhancedComponent = higherOrderComponent(WrappedComponent);\n\n// Example: React.memo\nconst MyComponent = React.memo(function MyComponent(props) {\n  /* render using props */\n});`
+  },
+  {
+    id: 'r-user-3',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'How do you handle error in react?',
+    answer: 'React uses **Error Boundaries** to handle errors in the component tree. An Error Boundary is a class component that implements `static getDerivedStateFromError()` (to render a fallback UI) and `componentDidCatch()` (to log error info).\n\nNote: Error Boundaries do not catch errors inside event handlers, asynchronous code, or server-side rendering; standard `try/catch` is used there.',
+    codeSnippet: `class ErrorBoundary extends React.Component {\n  state = { hasError: false };\n  static getDerivedStateFromError(error) {\n    return { hasError: true };\n  }\n  componentDidCatch(error, info) { \n    logError(error, info); \n  }\n  render() {\n    return this.state.hasError ? <h1>Error.</h1> : this.props.children;\n  }\n}`
+  },
+  {
+    id: 'r-user-4',
+    category: Category.React,
+    difficulty: Difficulty.Easy,
+    question: 'Write a syntax for calling a POST API through any convenient library',
+    answer: 'Using the native `fetch` API is a common way to make POST requests.',
+    codeSnippet: `const postData = async (url, data) => {\n  const response = await fetch(url, {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify(data)\n  });\n  return response.json();\n};`
+  },
+  {
+    id: 'r-user-5',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What are context APIs? When to use context API over redux?',
+    answer: '**Context API** provides a way to pass data through the component tree without having to pass props down manually at every level.\n\n**Use Context** when: Data needs to be accessible by many components at different nesting levels (e.g., Theme, User Auth, Locale) and updates are low-frequency.\n**Use Redux** when: You have complex state logic, high-frequency updates, need middleware, time-travel debugging, or a single source of truth for a large application.',
+  },
+  {
+    id: 'r-user-6',
+    category: Category.React,
+    difficulty: Difficulty.Easy,
+    question: 'What is useref? Explain with syntax. Will useref re-render the component when updated?',
+    answer: '`useRef` returns a mutable ref object whose `.current` property is initialized to the passed argument. It persists for the full lifetime of the component.\n\n**No**, updating `ref.current` does **not** trigger a re-render. It is commonly used to access DOM elements directly or store mutable values that don\'t affect the render output.',
+    codeSnippet: `const inputRef = useRef(null);\nconst count = useRef(0);\n\n// Accessing DOM\n<input ref={inputRef} />\n\n// Updating value (no re-render)\ncount.current += 1;`
+  },
+  {
+    id: 'r-user-7',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What method you follow to build responsive UI',
+    answer: '1. **CSS Media Queries**: The standard way to apply styles based on viewport width.\n2. **Flexbox & Grid**: For fluid layouts.\n3. **Relative Units**: Using `rem`, `em`, `%`, `vw`, `vh` instead of fixed `px`.\n4. **CSS Frameworks**: Tailwind CSS or Bootstrap.\n5. **Mobile-First Approach**: Designing for mobile and scaling up.\n6. **React Hooks**: `useMediaQuery` for conditional rendering logic in JS (less preferred for layout than CSS).',
+  },
+  {
+    id: 'r-user-8',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is webpack? Why is it used? What is the advantage?',
+    answer: '**Webpack** is a static module bundler for modern JavaScript applications. It processes your application and builds a dependency graph, mapping every module your project needs and generating one or more bundles.\n\n**Advantages**:\n- Code Splitting (load chunks on demand).\n- Loaders (transform non-JS files like CSS, images, JSX).\n- Plugins (optimization, minification).\n- Hot Module Replacement (HMR) during development.',
+  },
+  {
+    id: 'r-user-9',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is the advantage of using react query? Write a simple code to explain this',
+    answer: 'React Query (TanStack Query) simplifies data fetching, caching, synchronization, and server state updates. It handles loading, error states, and automatic refetching out of the box, reducing the need for `useEffect` and global state for server data.',
+    codeSnippet: `import { useQuery } from '@tanstack/react-query';\n\nfunction App() {\n  const { isLoading, error, data } = useQuery({\n    queryKey: ['repoData'],\n    queryFn: () =>\n      fetch('https://api.github.com/repos/tannerlinsley/react-query').then(res =>\n        res.json()\n      ),\n  });\n\n  if (isLoading) return 'Loading...';\n  return <div>{data.name}</div>;\n}`
+  },
+  {
+    id: 'r-user-10',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between controlled and uncontrolled components? How do you modify DOM in both cases, explain with example',
+    answer: '**Controlled**: Form data is handled by React component state. The source of truth is the state. DOM is updated via React render.\n**Uncontrolled**: Form data is handled by the DOM itself. You access values using Refs.',
+    codeSnippet: `// Controlled\nconst [val, setVal] = useState('');\n<input value={val} onChange={e => setVal(e.target.value)} />\n\n// Uncontrolled\nconst inputRef = useRef();\n<input ref={inputRef} />\n// Access via inputRef.current.value`
+  },
+  {
+    id: 'r-user-11',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is virtual DOM? What is diffing?',
+    answer: '**Virtual DOM** is a programming concept where a virtual representation of the UI is kept in memory and synced with the "real" DOM. \n\n**Diffing** is the heuristic algorithm React uses to compare the new Virtual DOM tree with the previous one. React calculates the minimum number of steps needed to update the real DOM to match the new tree (Reconciliation).',
+  },
+  {
+    id: 'r-user-12',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'What is react-fiber, explain the concepts of react-fiber',
+    answer: '**React Fiber** is the new reconciliation engine in React 16. Its main goal is to enable **incremental rendering**.\n\n**Concepts**:\n- **Time Slicing**: Splitting work into chunks to avoid blocking the main thread.\n- **Prioritization**: Assigning priority to different types of updates (e.g., user input > data fetch).\n- **Suspense**: Ability to pause rendering while waiting for data.',
+  },
+  {
+    id: 'r-user-13',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Difference between useeffect and uselayouteffect',
+    answer: '- **useEffect**: Runs asynchronously **after** the render is painted to the screen. Good for data fetching, subscriptions.\n- **useLayoutEffect**: Runs synchronously **after** DOM mutations but **before** the browser paints. Good for measuring DOM layout (width/height) to avoid visual flickering.',
+  },
+  {
+    id: 'r-user-14',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'Write a syntax for useTransition and explain the use of it',
+    answer: '`useTransition` is a hook for Concurrent Mode that lets you update the state without blocking the UI. It marks state updates as "transitions" (low priority), allowing urgent updates (like typing) to interrupt them.',
+    codeSnippet: `const [isPending, startTransition] = useTransition();\n\nfunction handleClick() {\n  startTransition(() => {\n    // This state update is marked as a transition\n    setTab('posts');\n  });\n}\n\nreturn isPending ? <Spinner /> : <TabContent />;`
+  },
+  {
+    id: 'r-user-15',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'With syntax explain the use of React.memo, usememo and usecallback',
+    answer: '- **React.memo**: HOC that memoizes a component to prevent re-renders if props don\'t change.\n- **useMemo**: Hook that memoizes a computed **value**.\n- **useCallback**: Hook that memoizes a **function** definition.',
+    codeSnippet: `// React.memo\nconst MyComponent = React.memo((props) => <div>{props.data}</div>);\n\n// useMemo\nconst expensiveValue = useMemo(() => compute(a, b), [a, b]);\n\n// useCallback\nconst handleClick = useCallback(() => console.log('Click'), []);`
+  },
+  {
+    id: 'r-user-16',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'How do you handle componentWillUnmount life cycle phase in function component',
+    answer: 'You use the **cleanup function** returned by the `useEffect` hook. This function runs when the component unmounts (or before the effect re-runs).',
+    codeSnippet: `useEffect(() => {\n  // ComponentDidMount logic\n  const timer = setInterval(() => {}, 1000);\n\n  // ComponentWillUnmount logic\n  return () => clearInterval(timer);\n}, []);`
+  },
+  {
+    id: 'r-user-17',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Explain redux toolkit? What are the hooks used in it?',
+    answer: '**Redux Toolkit (RTK)** is the official, opinionated toolset for efficient Redux development. It wraps the core Redux logic to reduce boilerplate (e.g., `configureStore`, `createSlice` which uses Immer for immutable updates).\n\n**Hooks** (from react-redux):\n- `useSelector`: Reads data from the store.\n- `useDispatch`: Returns the dispatch function.',
+  },
+  {
+    id: 'r-user-18',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is the use of extrareducers in toolkit and write a syntax of the same',
+    answer: '`extraReducers` allows a slice to respond to action types defined outside of its own reducers (e.g., actions from another slice or async thunks generated by `createAsyncThunk`).',
+    codeSnippet: `const usersSlice = createSlice({\n  name: 'users',\n  initialState,\n  reducers: {},\n  extraReducers: (builder) => {\n    builder.addCase(fetchUser.fulfilled, (state, action) => {\n      state.users.push(action.payload);\n    });\n  },\n});`
+  },
+  {
+    id: 'r-user-19',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'How does createAsynthunk work in toolkit?',
+    answer: '`createAsyncThunk` accepts an action type string and a promise-returning callback. It automatically generates action creators for the promise lifecycle: `pending`, `fulfilled`, and `rejected`, which you can handle in your reducers.',
+    codeSnippet: `const fetchUser = createAsyncThunk(\n  'users/fetchById',\n  async (userId) => {\n    const response = await api.getUser(userId);\n    return response.data;\n  }\n);`
+  },
+  {
+    id: 'r-user-20',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'Which middlewear do you select between thunk and saga? Why?',
+    answer: '- **Thunk**: Best for simple async logic (standard AJAX calls). Included in Redux Toolkit by default. Easier to learn.\n- **Saga**: Uses ES6 Generators. Best for complex async flows (e.g., cancelling requests, racing multiple requests, complex retry logic). Select based on complexity requirements.',
+  },
+  {
+    id: 'r-user-21',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Write a code snippet to show how to abort an ongoing API call',
+    answer: 'Use the `AbortController` API.',
+    codeSnippet: `const controller = new AbortController();\nconst signal = controller.signal;\n\nfetch('/api/data', { signal })\n  .then(res => res.json())\n  .catch(err => {\n    if (err.name === 'AbortError') console.log('Aborted');\n  });\n\n// To abort:\ncontroller.abort();`
+  },
+  {
+    id: 'r-user-22',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between client side rendering and server side rendering?',
+    answer: '- **CSR**: Browser downloads a minimal HTML and a large JS bundle. The JS constructs the DOM. Initial load is slower, subsequent navigation is fast.\n- **SSR**: Server generates full HTML for the page and sends it. Browser renders HTML immediately, then "hydrates" it with JS. Better for SEO and initial First Contentful Paint.',
+  },
+  {
+    id: 'r-user-23',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'What is microfrontend? Explain briefly on webpack module federation',
+    answer: '**Microfrontends** architecture splits a frontend app into smaller, independent applications (modules) that can be developed and deployed separately.\n\n**Module Federation** (Webpack 5 feature) allows a JavaScript application to dynamically load code from another application at runtime. It enables sharing dependencies (like React) to avoid loading them twice.',
+  },
+  {
+    id: 'r-user-24',
+    category: Category.React,
+    difficulty: Difficulty.Easy,
+    question: 'In package JSON, what is the difference between ~ and ^',
+    answer: '- **~ (Tilde)**: Updates to the most recent patch version (e.g., `~1.2.3` matches `1.2.9` but not `1.3.0`).\n- **^ (Caret)**: Updates to the most recent minor version (non-breaking) (e.g., `^1.2.3` matches `1.9.0` but not `2.0.0`).',
+  },
+  {
+    id: 'r-user-25',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is CORS? How to handle it?',
+    answer: '**CORS (Cross-Origin Resource Sharing)** is a browser security feature that restricts web pages from making requests to a different domain than the one that served the web page.\n\n**Handling it**: \n1. Server-side: Add `Access-Control-Allow-Origin` headers.\n2. Dev: Use a proxy server.\n3. Client: CORS is a server-side control; the client cannot bypass it securely without server/proxy support.',
+  },
+  {
+    id: 'r-user-26',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Which library do you use to handle application analytics? (explain on azure application insights feature)',
+    answer: 'Common libraries include Google Analytics (`react-ga4`) or **Azure Application Insights**.\n\n**Azure App Insights**: Provides performance monitoring, exception tracking, request tracing, and logging. It automatically collects telemetry about dependencies (AJAX calls), page views, and exceptions in React apps via the `@microsoft/applicationinsights-react-js` plugin.',
+  },
+  {
+    id: 'r-user-27',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'How do you handle secrets in your react application?',
+    answer: 'React runs on the client, so **no secrets** (private API keys, passwords) are safe in the code. \n- Use environment variables (`REACT_APP_...`) for non-sensitive config (like public API keys).\n- For sensitive secrets, move the logic to a **Backend-for-Frontend (BFF)** or API proxy. The React app calls the backend, and the backend (secure server) calls the external service with the secret.',
+  },
+  {
+    id: 'r-user-28',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'How do you improve the performance of the application while coding',
+    answer: '1. **Memoization**: `React.memo`, `useMemo`, `useCallback` to prevent wasted renders.\n2. **Virtualization**: Use `react-window` for large lists.\n3. **Code Splitting**: `React.lazy` and `Suspense` to reduce bundle size.\n4. **Lazy Loading Images**.\n5. **Throttling/Debouncing** event handlers.\n6. **Key Props**: Use stable, unique keys for lists.',
+  },
+  {
+    id: 'r-user-29',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Explain code splitting. What is the difference between lazy loading and useTransition hook',
+    answer: '**Code Splitting**: Bundling code into smaller chunks that are loaded on demand (e.g., per route).\n\n**Difference**:\n- **Lazy Loading**: Delays loading the code/component until it is needed (reduces initial load time).\n- **useTransition**: Marks a state update as low priority to keep the UI responsive (improves interaction feel). It doesn\'t manage network loading of code itself.',
+  },
+  {
+    id: 'r-user-30',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'After each new release build, how do you make sure browser reads the latest index file not the cached one',
+    answer: '1. **Content Hashing**: Webpack/Vite appends a hash to filenames (e.g., `main.5f3a.js`). If content changes, hash changes.\n2. **Cache-Control Headers**: Configure the web server (Nginx/AWS CloudFront) to serve `index.html` with `Cache-Control: no-cache` or `must-revalidate`, ensuring the browser always checks for a new version of the entry point.',
+  },
+  {
+    id: 'r-user-31',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is docker, how is it useful in deployment?',
+    answer: '**Docker** is a platform for developing, shipping, and running applications in containers.\n\n**Usefulness**:\n- **Consistency**: "Works on my machine" guarantees. The container includes OS, libraries, and code.\n- **Isolation**: Apps run in isolated environments.\n- **Scalability**: Containers are lightweight and easy to spin up/down (orchestrated by Kubernetes).',
+  },
+];
+
 // High-quality hand-curated questions (The "Head" of the data)
 const BASE_QUESTIONS: Question[] = [
+  // --- New React Questions First ---
+  ...NEW_REACT_QUESTIONS,
+
   // --- JavaScript Top 30 (User Requested) ---
   {
     id: 'js-top-1',
@@ -227,7 +463,7 @@ const BASE_QUESTIONS: Question[] = [
     codeSnippet: `(function(){})();`
   },
 
-  // --- Other JavaScript Questions (Non-duplicates from original set) ---
+  // --- Other JavaScript Questions ---
   {
     id: 'js-9',
     category: Category.JavaScript,
@@ -280,7 +516,7 @@ const BASE_QUESTIONS: Question[] = [
     answer: 'Common ways include: Function Declaration (`function foo(){}`), Function Expression (`const foo = function(){}`), Arrow Function (`const foo = () => {}`), Constructor (`new Function()`), and Method definition inside objects/classes.',
   },
 
-  // --- React ---
+  // --- React (Existing Questions, pushed down) ---
   {
     id: 'r-1',
     category: Category.React,
