@@ -3,6 +3,283 @@ import { Category, Difficulty, Question } from '../types';
 
 // High-quality hand-curated questions (The "Head" of the data)
 const BASE_QUESTIONS: Question[] = [
+  // --- JavaScript Top 30 (User Requested) ---
+  {
+    id: 'js-top-1',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'What is a closure in JavaScript?',
+    answer: 'A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment). In other words, a closure gives you access to an outer function’s scope from an inner function. Closures are created every time a function is created, at function creation time.',
+    codeSnippet: `function init() {\n  var name = "Mozilla"; // name is a local variable created by init\n  function displayName() { // displayName() is the inner function, a closure\n    alert(name); // use variable declared in the parent function\n  }\n  displayName();\n}\ninit();`
+  },
+  {
+    id: 'js-top-2',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'Explain the Event Loop? Explain with examples',
+    answer: 'The Event Loop is a mechanism that allows JavaScript to perform non-blocking I/O operations despite being single-threaded. It monitors the Call Stack and the Callback Queue. If the Call Stack is empty, it takes the first event from the queue and pushes it to the stack. It prioritizes Microtasks (Promises) over Macrotasks (setTimeout).',
+  },
+  {
+    id: 'js-top-3',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is "hoisting" in JavaScript? – Example',
+    answer: 'Hoisting is JavaScript\'s default behavior of moving declarations to the top of the current scope. Variables defined with `var` are hoisted and initialized with `undefined`. Variables defined with `let` and `const` are hoisted but remain in the "Temporal Dead Zone" until declared. Function declarations are fully hoisted.',
+    codeSnippet: `console.log(x); // undefined\nvar x = 5;\n\nconsole.log(y); // ReferenceError\nlet y = 5;`
+  },
+  {
+    id: 'js-top-4',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is a self-invoking (IIFE) function in JavaScript, and where is it used?',
+    answer: 'An Immediately Invoked Function Expression (IIFE) is a function that runs as soon as it is defined. It is used to avoid polluting the global namespace, create a private scope for variables, and execute async code immediately.',
+    codeSnippet: `(function () {\n  var privateVar = 'Secret';\n  console.log('Executed!');\n})();`
+  },
+  {
+    id: 'js-top-5',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is generator function, why is it used?',
+    answer: 'A generator function is a function that can pause execution and resume later, retaining its context. It is declared with `function*` and uses `yield` to pause. Generators are useful for implementing iterators, handling asynchronous streams, and managing state machines.',
+    codeSnippet: `function* idMaker() {\n  var index = 0;\n  while (true)\n    yield index++;\n}\nvar gen = idMaker();\nconsole.log(gen.next().value); // 0`
+  },
+  {
+    id: 'js-top-6',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'What are throttle and debounce? Explain the difference',
+    answer: 'Both limit the rate of function execution.\n\n**Debounce**: Groups a sudden burst of events (like typing) into a single event. It waits for a pause before executing.\n\n**Throttle**: Ensures a function is called at most once in a specified time period (like scrolling), regardless of how often the event fires.',
+  },
+  {
+    id: 'js-top-7',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'Explain call(), apply(), and bind().',
+    answer: 'These methods allow you to set the `this` context for a function.\n- `call(thisArg, arg1, arg2)`: Invokes function immediately with arguments comma-separated.\n- `apply(thisArg, [args])`: Invokes function immediately with arguments as an array.\n- `bind(thisArg)`: Returns a NEW function with `this` permanently bound, without invoking it.',
+  },
+  {
+    id: 'js-top-8',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is closure? Give a real world scenario where you can use closures',
+    answer: 'Real-world scenarios for closures include:\n1. **Data Privacy**: Emulating private methods (Module Pattern).\n2. **Function Factories**: Creating functions with preset arguments (Currying).\n3. **Event Handlers**: Maintaining state in an asynchronous callback without global variables.',
+    codeSnippet: `const makeCounter = () => {\n  let count = 0;\n  return () => count++; // 'count' is preserved\n};`
+  },
+  {
+    id: 'js-top-9',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is event bubbling and event capturing',
+    answer: '**Bubbling**: The event starts at the target element and bubbles up to the root (default behavior).\n**Capturing**: The event starts at the root and trickles down to the target.\n\nYou can control this using the third argument in `addEventListener` (`{capture: true}`).',
+  },
+  {
+    id: 'js-top-10',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'What are spread and rest operators, explain with syntax',
+    answer: 'Both use `...` syntax but for opposite purposes.\n\n**Spread**: Expands an iterable (array/string) into individual elements. Used in function calls or array literals.\n`[...arr1, ...arr2]`\n\n**Rest**: Collects multiple elements into a single array. Used in function parameter definitions.\n`function(a, ...args) { }`',
+  },
+  {
+    id: 'js-top-11',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is shallow and deep copy? How can this be achieved?',
+    answer: '**Shallow Copy**: Copies the top-level properties. Nested objects are still references. Achieved via `Object.assign({}, obj)` or `...` spread.\n\n**Deep Copy**: Recursively copies all levels, creating entirely new objects. Achieved via `JSON.parse(JSON.stringify(obj))` or `structuredClone(obj)`.',
+  },
+  {
+    id: 'js-top-12',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is promise? What are the methods used?',
+    answer: 'A Promise represents the eventual completion (or failure) of an asynchronous operation. \n\n**Methods**:\n- `.then()`: Handles success.\n- `.catch()`: Handles errors.\n- `.finally()`: Runs regardless of outcome.\n- `Promise.all()`: Waits for all.\n- `Promise.race()`: Waits for first.',
+  },
+  {
+    id: 'js-top-13',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What are protypes?',
+    answer: 'Prototypes are the mechanism by which JavaScript objects inherit features from one another. Every object has a prototype (accessible via `__proto__`), and the chain ends at `Object.prototype`. When accessing a property, JS looks up this chain.',
+  },
+  {
+    id: 'js-top-14',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'Difference between let, var and char (scoping)',
+    answer: 'Assuming "char" refers to `const` or typo (JS has no char type, only String). \n\n- **var**: Function scoped. Can be redeclared. Hoisted with `undefined`.\n- **let**: Block scoped. Cannot be redeclared in same scope. Hoisted but in TDZ.\n- **const**: Block scoped. Immutable reference (value can mutate if object). Hoisted but in TDZ.',
+  },
+  {
+    id: 'js-top-15',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'Explain different time functions',
+    answer: '1. `setTimeout(fn, ms)`: Executes a function once after a delay.\n2. `setInterval(fn, ms)`: Repeatedly executes a function with a fixed delay.\n3. `setImmediate(fn)`: Executes code at the end of the current event loop cycle (Node.js mostly).\n4. `requestAnimationFrame(fn)`: Schedules an update before the next repaint (Browser).',
+  },
+  {
+    id: 'js-top-16',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What are the kinds of storages available?',
+    answer: '1. **LocalStorage**: Persistent storage (5-10MB), survives browser restart.\n2. **SessionStorage**: Cleared when tab closes (5MB).\n3. **Cookies**: Sent with HTTP requests (4KB), has expiration.\n4. **IndexedDB**: Large-scale NoSQL storage for objects.',
+  },
+  {
+    id: 'js-top-17',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'Difference between setInterval and setImmediate',
+    answer: '`setInterval` schedules execution repeatedly after a minimum delay (time-based). `setImmediate` (Node.js specific) executes a callback after the current I/O phase of the event loop is completed, essentially "as soon as possible" but after the current code block, similar to `setTimeout(..., 0)` but distinct in the loop phase.',
+  },
+  {
+    id: 'js-top-18',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'Give any 5 improvements in ES6 compared to ES5',
+    answer: '1. Block scoping (`let`, `const`).\n2. Arrow Functions (`=>`).\n3. Template Literals (backticks).\n4. Destructuring Assignment.\n5. Modules (`import`/`export`).\n6. Classes.\n7. Promises.',
+  },
+  {
+    id: 'js-top-19',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is temporal dead zone, give an example',
+    answer: 'TDZ is the period between the start of a scope and the point where a variable is declared (for `let` and `const`). Accessing the variable in this zone throws a ReferenceError.',
+    codeSnippet: `console.log(a); // ReferenceError (TDZ)\nlet a = 3;`
+  },
+  {
+    id: 'js-top-20',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'What is garbage collection',
+    answer: 'Garbage collection is the process of automatic memory management. The engine (like V8) finds objects that are no longer reachable from the "roots" (global variables, stack) and reclaims their memory. The common algorithm used is "Mark-and-Sweep".',
+  },
+  {
+    id: 'js-top-21',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'How do you tackle memory leak issues?',
+    answer: '1. Avoid global variables.\n2. Clear timers (`clearInterval`/`clearTimeout`) when done.\n3. Remove event listeners when elements are removed.\n4. Nullify references to large objects/DOM nodes.\n5. Use WeakMap/WeakSet for cache-like structures.',
+  },
+  {
+    id: 'js-top-22',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'Difference between preventDefault and stopPropogation',
+    answer: '`preventDefault()` stops the browser\'s default behavior for an event (e.g., stopping a form submission or a link navigation). `stopPropagation()` prevents the event from bubbling up the DOM tree, so parent handlers won\'t be notified.',
+  },
+  {
+    id: 'js-top-23',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Easy,
+    question: 'Logical Reasoning: What is the use of async keyword? Normally Async returns promise response, then what is the output of below function?',
+    answer: 'The output is a **Promise**. Even if an async function returns a static string, it is automatically wrapped in `Promise.resolve("Hello World")`. You must `await` it or use `.then()` to access the string value.',
+    codeSnippet: `const getData = async () => "Hello World";\n// returns Promise<"Hello World">`
+  },
+  {
+    id: 'js-top-24',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'What is the output of below code? Explain why?',
+    codeSnippet: `console.log('Start');\nsetTimeout(() => console.log('setTimeout'), 0);\nPromise.resolve().then(() => console.log('Promise'));\n(async () => {\n  await Promise.resolve();\n  console.log('async/await');\n})();\nconsole.log('End');`,
+    answer: '**Order**: Start -> End -> Promise -> async/await -> setTimeout.\n\n**Reason**: Synchronous code runs first ("Start", "End"). Then Microtasks (Promises, async/await resume) run before Macrotasks (setTimeout).',
+  },
+  {
+    id: 'js-top-25',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the output of below code where variable and function has same name as “val”?',
+    codeSnippet: `var val = 1;\nfunction val() { console.log("ok") }\nval();`,
+    answer: '**Output**: TypeError: val is not a function.\n\n**Reason**: Function declarations are hoisted first. Then `var val` is hoisted. During execution, `val` is assigned `1` (number). Trying to call `1()` throws a TypeError. If `let` was used, it would throw a SyntaxError for redeclaration in the same scope.',
+  },
+  {
+    id: 'js-top-26',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'What would be output of above code? Explain.',
+    codeSnippet: `function getData() { console.log("Value is " + this.value) }\nconst data1 = getData();\nconst data2 = new getData();`,
+    answer: '`getData()`: `this` refers to global window (or undefined in strict mode), likely logs "Value is undefined".\n`new getData()`: `this` refers to the new object instance being created. Logs "Value is undefined" (since value isn\'t set on the instance) but `data2` becomes an empty object `{}`.',
+  },
+  {
+    id: 'js-top-27',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between promise.all and promise.allsettled, explain with example',
+    answer: '`Promise.all` fails fast; if one promise rejects, the entire call rejects. `Promise.allSettled` waits for all promises to finish regardless of success or failure, and returns an array of objects describing the outcome of each.',
+  },
+  {
+    id: 'js-top-28',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is DOM? How does it work? What is a tree traverse?',
+    answer: 'DOM (Document Object Model) is a tree-like representation of the HTML document. The browser parses HTML into DOM nodes. JavaScript manipulates this tree. Tree traversal refers to navigating between nodes (parent, child, sibling) using properties like `parentNode`, `childNodes`, `nextSibling`.',
+  },
+  {
+    id: 'js-top-29',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the output of below line of code',
+    codeSnippet: `NaN === NaN // false\n"" === 0 // false (strict)\n"1" + "1" // "11"\n1 + "1" // "11"\n'b' + 'a' + + 'a' + 'a' // "baNaNa"`,
+    answer: '1. NaN is not equal to anything, even itself.\n2. Strict equality checks type.\n3. String concatenation.\n4. Number is coerced to string.\n5. `+ + "a"` coerces "a" to NaN. Result: "b" + "a" + NaN + "a".',
+  },
+  {
+    id: 'js-top-30',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'hat is a self-invoking (IIFE) function in JavaScript, and where is it used?',
+    answer: '(Duplicate of Q4) An IIFE is a function that runs as soon as it is defined. It creates a lexical scope for variables to prevent global namespace pollution.',
+    codeSnippet: `(function(){})();`
+  },
+
+  // --- Other JavaScript Questions (Non-duplicates from original set) ---
+  {
+    id: 'js-9',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is memoization in JavaScript?',
+    answer: 'Memoization is an optimization technique used to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.',
+    codeSnippet: `const memoizedAdd = () => {\n  let cache = {};\n  return (n) => {\n    if (n in cache) return cache[n];\n    else {\n      let result = n + 10;\n      cache[n] = result;\n      return result;\n    }\n  }\n}`
+  },
+  {
+    id: 'js-10',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between CommonJS (CJS) and ES Modules (ESM)?',
+    answer: 'CommonJS (CJS) is the default in Node.js and uses `require()` and `module.exports` (synchronous loading). ES Modules (ESM) is the standard for JavaScript modules, using `import` and `export` (asynchronous, tree-shakeable). .mjs files explicitly denote ESM in Node.js.',
+  },
+  {
+    id: 'js-12',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'Explain the defer and async attributes in the <script> tag.',
+    answer: '`async` downloads the script in parallel to HTML parsing and executes it as soon as it loads (blocking HTML parsing during execution). `defer` also downloads in parallel but waits to execute the script until after the HTML parsing is complete. Use `defer` for scripts that rely on the DOM.',
+  },
+  {
+    id: 'js-13',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'How can you abort an API call while it is still in progress?',
+    answer: 'You can use the `AbortController` interface. Create a controller instance, pass its `signal` property to the fetch request options, and call `controller.abort()` when you want to cancel the request.',
+    codeSnippet: `const controller = new AbortController();\nconst signal = controller.signal;\n\nfetch('/api/data', { signal })\n  .catch(err => {\n    if (err.name === 'AbortError') console.log('Fetch aborted');\n  });\n\n// Cancel request\ncontroller.abort();`
+  },
+  {
+    id: 'js-14',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'What is the difference between prototype properties and instance properties?',
+    answer: 'Instance properties are defined inside the constructor and are unique to each object instance. Prototype properties are defined on the `prototype` object and are shared across all instances of that class, saving memory.',
+  },
+  {
+    id: 'js-15',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Hard,
+    question: 'Explain inheritance in JavaScript and the role of constructor functions.',
+    answer: 'In ES5, inheritance is achieved via the Prototype Chain. A Child constructor calls the Parent constructor using `Parent.call(this, args)` to inherit properties. Methods are inherited by linking prototypes: `Child.prototype = Object.create(Parent.prototype)`.',
+  },
+  {
+    id: 'js-16',
+    category: Category.JavaScript,
+    difficulty: Difficulty.Medium,
+    question: 'How many ways can you define a function in JavaScript?',
+    answer: 'Common ways include: Function Declaration (`function foo(){}`), Function Expression (`const foo = function(){}`), Arrow Function (`const foo = () => {}`), Constructor (`new Function()`), and Method definition inside objects/classes.',
+  },
+
   // --- React ---
   {
     id: 'r-1',
@@ -75,6 +352,149 @@ const BASE_QUESTIONS: Question[] = [
     difficulty: Difficulty.Medium,
     question: 'Explain Synthetic Events in React.',
     answer: 'SyntheticEvent is a cross-browser wrapper around the browser’s native event. It has the same interface as the native event, including `stopPropagation()` and `preventDefault()`, except the events work identically across all browsers.',
+  },
+  {
+    id: 'r-11',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'What is a bundler, and how do Webpack and Vite differ?',
+    answer: 'A bundler compiles JS/CSS modules into a single (or few) files for the browser. Webpack bundles the entire application before serving, which can be slow for large apps. Vite uses native ES Modules (ESM) to serve files on demand during development (instant start) and uses Rollup for highly optimized production builds.',
+  },
+  {
+    id: 'r-12',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Which compiler is used internally by React?',
+    answer: 'React itself doesn\'t have a built-in compiler, but it relies on **Babel** (or SWC/TypeScript) to transform JSX syntax into `React.createElement` calls (or `_jsx` calls in modern runtimes) that browsers can understand.',
+  },
+  {
+    id: 'r-13',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What does "type": "module" in package.json indicate?',
+    answer: 'It instructs Node.js to treat `.js` files as **ES Modules** (using `import`/`export`) instead of CommonJS (using `require`/`module.exports`). This aligns the backend environment closer to modern browser standards.',
+  },
+  {
+    id: 'r-14',
+    category: Category.React,
+    difficulty: Difficulty.Easy,
+    question: 'What do the ^ and ~ symbols mean in package.json version numbers?',
+    answer: '`^` (caret) allows upgrades that do not change the left-most non-zero digit (compatible with minor updates, e.g., ^1.2.3 allows 1.3.0 but not 2.0.0). `~` (tilde) allows upgrades to the patch version only (e.g., ~1.2.3 allows 1.2.9 but not 1.3.0).',
+  },
+  {
+    id: 'r-15',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is the purpose of createRoot in react-dom?',
+    answer: '`createRoot` is the entry point for React 18+. Unlike the legacy `render`, it enables **Concurrent Mode** features (like automatic batching, `useTransition`, and `Suspense`), allowing React to interrupt rendering to handle high-priority events.',
+    codeSnippet: `// Old\nReactDOM.render(<App />, root);\n\n// New (React 18)\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(<App />);`
+  },
+  {
+    id: 'r-16',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What are controlled vs uncontrolled components?',
+    answer: 'In **Controlled** components, form data is handled by React state (single source of truth). In **Uncontrolled** components, form data is handled by the DOM itself, accessed via Refs. Use Controlled for validation/dynamic inputs; Uncontrolled for simple forms or integrating with non-React libs.',
+    codeSnippet: `// Controlled\n<input value={val} onChange={e => setVal(e.target.value)} />\n\n// Uncontrolled\n<input ref={inputRef} />`
+  },
+  {
+    id: 'r-17',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'When would you use useReducer over useState?',
+    answer: 'Use `useReducer` when state logic is complex, involves multiple sub-values, or when the next state depends on the previous one. It is also cleaner for state transitions based on specific actions (similar to Redux) rather than raw value setters.',
+  },
+  {
+    id: 'r-18',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'Explain the diffing algorithm used during reconciliation.',
+    answer: 'React compares the new Virtual DOM tree with the old one. It uses heuristics to be O(n): 1. Two elements of different types produce different trees (full teardown). 2. The developer can hint which child elements may be stable across renders using a `key` prop.',
+  },
+  {
+    id: 'r-19',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Why is the entry point a JS file calling render instead of an HTML file?',
+    answer: 'React is a JavaScript-driven library (Single Page Application). The HTML file is just a static shell (container). JavaScript takes over to dynamically generate and manipulate the DOM nodes inside that shell based on the application state.',
+  },
+  {
+    id: 'r-20',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'In an uncontrolled component, do we modify the real DOM or Virtual DOM?',
+    answer: 'Uncontrolled components interact directly with the **Real DOM**. When you use a Ref to get a value (`ref.current.value`), you are querying the browser\'s actual DOM node, bypassing React\'s state management/Virtual DOM for that specific interaction.',
+  },
+  {
+    id: 'r-21',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is Redux and why is it needed?',
+    answer: 'Redux is a pattern and library for managing and updating application state using events called "actions". It serves as a centralized store for state that needs to be used across your entire application, solving the "prop drilling" problem.',
+  },
+  {
+    id: 'r-22',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What are the three core principles of Redux?',
+    answer: '1. **Single Source of Truth**: The state of the whole app is stored in an object tree within a single store.\n2. **State is Read-Only**: The only way to change the state is to emit an action.\n3. **Changes are made with Pure Functions**: Reducers specify how the state tree is transformed by actions.',
+  },
+  {
+    id: 'r-23',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'Difference between Redux state management and React Context?',
+    answer: 'Context is designed for dependency injection (passing data down) and can lead to performance issues if not optimized (renders all consumers on change). Redux is a state management tool offering middleware, time-travel debugging, dev tools, and performance optimizations (selectors) out of the box.',
+  },
+  {
+    id: 'r-24',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What problem does Redux Toolkit (RTK) solve?',
+    answer: 'RTK addresses the three common concerns about Redux: "Configuring a store is too complicated", "I have to add a lot of packages (Thunk, Immer, DevTools)", and "Redux requires too much boilerplate code". It provides standardized best practices.',
+  },
+  {
+    id: 'r-25',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'Why does RTK allow mutating state inside reducers?',
+    answer: 'RTK uses **Immer** internally. Immer detects changes to a "draft state" and produces a brand new immutable state based on those changes. This allows you to write simpler "mutating" logic (`state.value = 123`) while keeping Redux strictly immutable under the hood.',
+  },
+  {
+    id: 'r-26',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is createAsyncThunk?',
+    answer: '`createAsyncThunk` is a function that accepts a Redux action type string and a callback function that returns a promise. It automatically generates action creators for `pending`, `fulfilled`, and `rejected` states to handle async logic standardly.',
+    codeSnippet: `const fetchUser = createAsyncThunk(\n  'users/fetchById',\n  async (userId, thunkAPI) => {\n    const response = await userAPI.fetchById(userId)\n    return response.data\n  }\n)`
+  },
+  {
+    id: 'r-27',
+    category: Category.React,
+    difficulty: Difficulty.Easy,
+    question: 'What is the difference between useSelector and useDispatch?',
+    answer: '`useSelector` is a hook to read data from the Redux store state (subscribing to updates). `useDispatch` returns the store\'s dispatch function to let you dispatch actions to trigger state changes.',
+  },
+  {
+    id: 'r-28',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'What is the purpose of memoization in useSelector?',
+    answer: '`useSelector` runs after every dispatch. If it returns a new object reference every time, it forces the component to re-render. Memoization (using libraries like Reselect) ensures the selector only recalculates if the input arguments change, preventing unnecessary re-renders.',
+  },
+  {
+    id: 'r-29',
+    category: Category.React,
+    difficulty: Difficulty.Medium,
+    question: 'What is Redux Middleware?',
+    answer: 'Middleware provides a third-party extension point between dispatching an action and the moment it reaches the reducer. Examples include logging, crash reporting, performing asynchronous tasks (Thunks/Sagas), and routing.',
+  },
+  {
+    id: 'r-30',
+    category: Category.React,
+    difficulty: Difficulty.Hard,
+    question: 'What is Redux Saga and how does it differ from Thunk?',
+    answer: 'Redux Thunk allows action creators to return a function (for simple async promises). Redux Saga uses ES6 **Generators** to make asynchronous flows easier to read, write, and test. Sagas are better for complex logic like "cancel previous request if new one comes in" (debouncing/throttling effects).',
   },
 
   // --- Next.js ---
@@ -156,6 +576,7 @@ const BASE_QUESTIONS: Question[] = [
     difficulty: Difficulty.Medium,
     question: 'When would you use an interface over a type, and vice-versa, in a large-scale application?',
     answer: 'Use `interface` for defining public APIs of libraries or when you need declaration merging (extending existing types). Use `type` for unions, intersections, primitives, tuples, or complex computed types. In general, `type` is more flexible, while `interface` is better for OOP-style class implementation.',
+    codeSnippet: `// Interface: Better for Objects/Classes & Merging\ninterface IPoint { x: number; y: number; }\n\n// Type: Better for Unions/Primitives\ntype ID = string | number;\ntype Coordinate = [x: number, y: number];`
   },
   {
     id: 'ts-2',
@@ -259,6 +680,7 @@ const BASE_QUESTIONS: Question[] = [
     difficulty: Difficulty.Medium,
     question: 'How do you enforce type safety for function arguments coming from external data?',
     answer: 'TypeScript types disappear at runtime, so you need runtime validation. Libraries like Zod, Yup, or manual "User Defined Type Guards" validate that the external data matches the expected TS type.',
+    codeSnippet: `function isUser(data: unknown): data is User {\n  return (\n    typeof data === 'object' &&\n    data !== null &&\n    'id' in data &&\n    typeof (data as User).id === 'number'\n  );\n}\n\n// Usage\nconst data = await api.get();\nif (isUser(data)) { ... }`
   },
   {
     id: 'ts-15',
@@ -274,6 +696,7 @@ const BASE_QUESTIONS: Question[] = [
     difficulty: Difficulty.Easy,
     question: 'What is the practical use of readonly fields?',
     answer: 'The `readonly` modifier ensures that a property can only be assigned during initialization or in the constructor, preventing accidental mutation of immutable data.',
+    codeSnippet: `interface Config {\n  readonly apiUrl: string;\n}\n\nconst config: Config = { apiUrl: 'https://api.com' };\n// config.apiUrl = 'http://localhost'; // Error: Cannot assign to 'apiUrl' because it is a read-only property.`
   },
   {
     id: 'ts-17',
@@ -289,6 +712,7 @@ const BASE_QUESTIONS: Question[] = [
     difficulty: Difficulty.Medium,
     question: 'How do abstract classes differ from interfaces?',
     answer: 'Interfaces only define the contract (structure). Abstract classes can define the contract AND provide implementation details for some methods. You cannot instantiate an abstract class directly.',
+    codeSnippet: `abstract class Payment {\n  // Implementation shared by subclasses\n  validate() { return true; }\n  \n  // Contract subclasses MUST implement\n  abstract process(): void;\n}\n\nclass Stripe extends Payment {\n  process() { console.log('Stripe'); }\n}`
   },
   {
     id: 'ts-19',
@@ -318,6 +742,14 @@ const BASE_QUESTIONS: Question[] = [
     question: 'How do you set up path aliases in TypeScript and why?',
     answer: 'Path aliases are configured in `tsconfig.json` under `compilerOptions.paths`. They allow you to import files using absolute paths (e.g., `@components/Button`) instead of relative paths (`../../components/Button`), making refactoring easier.',
     codeSnippet: `"paths": {\n  "@components/*": ["src/components/*"],\n  "@utils/*": ["src/utils/*"]\n}`
+  },
+  {
+    id: 'ts-23',
+    category: Category.TypeScript,
+    difficulty: Difficulty.Medium,
+    question: 'In TypeScript, is it possible to override the type of a variable after declaration?',
+    answer: 'Strictly speaking, no. If you define `let name: string`, you cannot assign a number to it. However, you can use Type Assertions (`as`) to override the compiler\'s inference. Example: `name = 123 as any`. While `name = 123 as number` is not valid for a string variable, asserting to `any` or `unknown` first allows the assignment, though it defeats type safety.',
+    codeSnippet: `let name: string = "Chethan";\n// name = 123; // Error\n\n// Solution (Use with caution):\nname = 123 as unknown as string; // Force compiler to accept`
   },
 
   // --- Node.js ---
@@ -392,155 +824,22 @@ const BASE_QUESTIONS: Question[] = [
     question: 'What is the difference between "require" and "import"?',
     answer: '`require()` is CommonJS (synchronous, dynamic, used in older Node). `import` is ES Modules (asynchronous, static, standard in modern JS/Node). Node.js now supports ES Modules by using `.mjs` extension or `"type": "module"` in package.json.',
   },
-
-  // --- JavaScript ---
   {
-    id: 'js-1',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Easy,
-    question: 'What is a closure in JavaScript?',
-    answer: 'A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment). In other words, a closure gives you access to an outer function’s scope from an inner function.',
-    codeSnippet: `function makeFunc() {\n  const name = 'Mozilla';\n  function displayName() {\n    alert(name);\n  }\n  return displayName;\n}\n\nconst myFunc = makeFunc();\nmyFunc();`
-  },
-  {
-    id: 'js-2',
-    category: Category.JavaScript,
+    id: 'node-11',
+    category: Category.NodeJS,
     difficulty: Difficulty.Medium,
-    question: 'Explain Event Delegation.',
-    answer: 'Event Delegation is a pattern where you attach a single event listener to a parent element to manage events for all of its children (including those added dynamically). It leverages the concept of Event Bubbling, where events triggered on a child element bubble up to the parent.',
+    question: 'In Express, is there an alternative to defining app.get() and app.post() separately for the same route?',
+    answer: 'Yes, you can use `app.route()`. This allows you to create a chainable route handler for a specific path, reducing redundancy.',
+    codeSnippet: `app.route('/events')\n  .get((req, res) => { ... })\n  .post((req, res) => { ... });\n\n// Or use app.all() for all methods`
   },
   {
-    id: 'js-3',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Hard,
-    question: 'Explain the Event Loop.',
-    answer: 'The Event Loop is a mechanism that allows JavaScript to perform non-blocking I/O operations despite being single-threaded. It monitors the Call Stack and the Callback Queue. If the Call Stack is empty, it will take the first event from the queue and push it to the stack.',
-  },
-  {
-    id: 'js-4',
-    category: Category.JavaScript,
+    id: 'node-12',
+    category: Category.NodeJS,
     difficulty: Difficulty.Medium,
-    question: 'What is the difference between "==" and "==="?',
-    answer: 'The `==` operator checks for abstract equality and performs type coercion if the types are different. The `===` operator checks for strict equality and does not perform type coercion; the values must have the same type to be equal.',
+    question: 'Should the common error handler middleware be defined before or after routes?',
+    answer: 'Error handling middleware MUST be defined **after** all the route definitions. If defined before, the routes will execute without ever passing control to the error handler (unless specifically called), and errors thrown within routes won\'t be caught by it.',
+    codeSnippet: `app.use('/api', routes);\n\n// Error handler comes last\napp.use((err, req, res, next) => {\n  console.error(err);\n  res.status(500).send('Something broke!');\n});`
   },
-  {
-    id: 'js-5',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Hard,
-    question: 'What is "hoisting" in JavaScript?',
-    answer: 'Hoisting is JavaScript\'s default behavior of moving declarations to the top. Variables defined with `var` are hoisted and initialized with `undefined`. Variables defined with `let` and `const` are hoisted but not initialized (Temporal Dead Zone). Function declarations are fully hoisted.',
-  },
-  {
-    id: 'js-6',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'Explain the "this" keyword.',
-    answer: 'The value of `this` depends on how a function is called. In a method, `this` refers to the owner object. Alone, it refers to the global object. In a function, it refers to the global object (or undefined in strict mode). In an event, it refers to the element that received the event.',
-  },
-  {
-    id: 'js-7',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'What is a self-invoking (IIFE) function in JavaScript, and where is it used?',
-    answer: 'An Immediately Invoked Function Expression (IIFE) is a JavaScript function that runs as soon as it is defined. It is primarily used to create a private scope for variables to avoid polluting the global namespace.',
-    codeSnippet: `(function () {\n  var privateVar = 'I am private';\n  console.log(privateVar);\n})();\n\n// console.log(privateVar); // Uncaught ReferenceError`
-  },
-  {
-    id: 'js-8',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Hard,
-    question: 'What are throttle and debounce? Explain the difference.',
-    answer: 'Debouncing ensures that a function is not called again until a certain amount of time has passed since the last call (e.g., waiting for a user to stop typing before searching). Throttling ensures that a function is called at most once in a specified time period (e.g., firing a scroll event handler only every 100ms).',
-  },
-  {
-    id: 'js-9',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'What is memoization in JavaScript?',
-    answer: 'Memoization is an optimization technique used to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.',
-    codeSnippet: `const memoizedAdd = () => {\n  let cache = {};\n  return (n) => {\n    if (n in cache) return cache[n];\n    else {\n      let result = n + 10;\n      cache[n] = result;\n      return result;\n    }\n  }\n}`
-  },
-  {
-    id: 'js-10',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'What is the difference between CommonJS (CJS) and ES Modules (ESM)?',
-    answer: 'CommonJS (CJS) is the default in Node.js and uses `require()` and `module.exports` (synchronous loading). ES Modules (ESM) is the standard for JavaScript modules, using `import` and `export` (asynchronous, tree-shakeable). .mjs files explicitly denote ESM in Node.js.',
-  },
-  {
-    id: 'js-11',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Easy,
-    question: 'What are the major differences between ES5 and ES6?',
-    answer: 'ES6 introduced significant improvements: `let` and `const` for block scoping, Arrow functions (`=>`), Template Literals (`` ` ``), Default Parameters, Destructuring Assignment, Modules (`import/export`), Promises, and Classes.',
-  },
-  {
-    id: 'js-12',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'Explain the defer and async attributes in the <script> tag.',
-    answer: '`async` downloads the script in parallel to HTML parsing and executes it as soon as it loads (blocking HTML parsing during execution). `defer` also downloads in parallel but waits to execute the script until after the HTML parsing is complete. Use `defer` for scripts that rely on the DOM.',
-  },
-  {
-    id: 'js-13',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'How can you abort an API call while it is still in progress?',
-    answer: 'You can use the `AbortController` interface. Create a controller instance, pass its `signal` property to the fetch request options, and call `controller.abort()` when you want to cancel the request.',
-    codeSnippet: `const controller = new AbortController();\nconst signal = controller.signal;\n\nfetch('/api/data', { signal })\n  .catch(err => {\n    if (err.name === 'AbortError') console.log('Fetch aborted');\n  });\n\n// Cancel request\ncontroller.abort();`
-  },
-  {
-    id: 'js-14',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'What is the difference between prototype properties and instance properties?',
-    answer: 'Instance properties are defined inside the constructor and are unique to each object instance. Prototype properties are defined on the `prototype` object and are shared across all instances of that class, saving memory.',
-  },
-  {
-    id: 'js-15',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Hard,
-    question: 'Explain inheritance in JavaScript and the role of constructor functions.',
-    answer: 'In ES5, inheritance is achieved via the Prototype Chain. A Child constructor calls the Parent constructor using `Parent.call(this, args)` to inherit properties. Methods are inherited by linking prototypes: `Child.prototype = Object.create(Parent.prototype)`.',
-  },
-  {
-    id: 'js-16',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'How many ways can you define a function in JavaScript?',
-    answer: 'Common ways include: Function Declaration (`function foo(){}`), Function Expression (`const foo = function(){}`), Arrow Function (`const foo = () => {}`), Constructor (`new Function()`), and Method definition inside objects/classes.',
-  },
-  {
-    id: 'js-17',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Hard,
-    question: 'What causes memory leaks in JavaScript and how does garbage collection work?',
-    answer: 'Memory leaks occur when objects are no longer needed but are still referenced (e.g., global variables, uncleared intervals, closures, detached DOM nodes). JavaScript uses a "Mark-and-Sweep" algorithm: it starts from the root (window/global) and marks reachable objects; anything unreachable is garbage collected.',
-  },
-  {
-    id: 'js-18',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'What is callback hell and what are the solutions?',
-    answer: 'Callback hell refers to deeply nested callbacks (the "Pyramid of Doom") making code hard to read and debug. Solutions include: Modularization (named functions), Promises (`.then()` chaining), and modern `async/await`.',
-  },
-  {
-    id: 'js-19',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'Give a real-world example of a closure.',
-    answer: 'Closures are often used for data privacy (emulating private methods) and partial application. For example, an event handler needing access to variables from its parent scope even after the parent function has returned.',
-    codeSnippet: `function createCounter() {\n  let count = 0;\n  return function() {\n    count++;\n    return count;\n  };\n}\nconst counter = createCounter();\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2`
-  },
-  {
-    id: 'js-20',
-    category: Category.JavaScript,
-    difficulty: Difficulty.Medium,
-    question: 'Explain call(), apply(), and bind().',
-    answer: '`call()` invokes a function with a specific `this` context and arguments passed individually. `apply()` is similar but takes arguments as an array. `bind()` returns a NEW function with `this` permanently bound, without invoking it immediately.',
-    codeSnippet: `const person = { name: 'Alice' };\nfunction say(greeting) { console.log(greeting, this.name); }\n\nsay.call(person, 'Hello');\nsay.apply(person, ['Hi']);\nconst boundSay = say.bind(person);\nboundSay('Hola');`
-  },
-
 
   // --- CSS ---
   {

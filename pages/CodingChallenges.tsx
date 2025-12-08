@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
 import { Badge } from '../components/ui/Badge';
@@ -41,23 +41,6 @@ export const CodingChallenges: React.FC = () => {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
-
-  const getStackBlitzUrl = (code: string, title: string) => {
-    const files = {
-        'App.js': code,
-        'index.js': `import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App';\n\nconst root = ReactDOM.createRoot(document.getElementById('root'));\nroot.render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n);`,
-        'index.html': `<div id="root"></div>`
-    };
-    
-    const params = new URLSearchParams();
-    params.append('project[template]', 'create-react-app');
-    params.append('project[title]', `InterviewPrep - ${title}`);
-    params.append('project[files][src/App.js]', files['App.js']);
-    params.append('project[files][src/index.js]', files['index.js']);
-    params.append('project[files][public/index.html]', files['index.html']);
-
-    return `https://stackblitz.com/run?${params.toString()}`;
-  };
 
   const generateSrcDoc = (code: string) => {
     // Basic detection for Node.js code which won't run in browser
