@@ -7,7 +7,7 @@ import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { AdBanner } from '../components/AdBanner';
 import { analytics } from '../utils/analytics';
 import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, ArrowUpDown, FileCode, FileText, Filter, Check, X } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 interface QuestionBankProps {
   questions: Question[];
@@ -27,34 +27,39 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
 };
 
 export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], masteredIds, onNavigateToLogin, isGuest }) => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const { categoryId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Derive selected category from URL
+  const selectedCategory = Object.values(Category).find(c => c === categoryId) || null;
+
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<'default' | 'easy' | 'hard'>('default');
-  
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Reset to blocks view if location state requests it
-  useEffect(() => {
-    // @ts-ignore
-    if (location.state?.reset) {
-        setSelectedCategory(null);
-        // Clear state so we don't reset again on simple refreshes if browser keeps state (optional)
-        navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.state, navigate, location.pathname]);
   
   // Filter States
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
   const [showMastered, setShowMastered] = useState(true);
+
+  // Reset filters if navigation state requests it (e.g. clicking "Question Bank" in nav)
+  useEffect(() => {
+    // @ts-ignore
+    if (location.state?.reset) {
+        setSearch('');
+        setSelectedDifficulties([]);
+        setShowMastered(true);
+        setSortOrder('default');
+        // We don't need to force navigate here because Navbar links already point to /browse
+    }
+  }, [location.state]);
   
-  // Track category selection
+  // Track category selection analytics and reset view-specific filters
   useEffect(() => {
     if (selectedCategory) {
         analytics.logEvent('view_category', { category: selectedCategory });
-        // Reset filters when changing category (though we unmount usually, good practice)
+        // Reset filters when changing category
         setSearch('');
         setSelectedDifficulties([]);
         setShowMastered(true);
@@ -109,7 +114,17 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
 
   const visibleQuestions = sortedQuestions;
 
-  // If no category selected, show Category Selection View
+  // Handler for category selection
+  const handleCategorySelect = (cat: Category) => {
+      navigate(`/browse/${encodeURIComponent(cat)}`);
+  };
+
+  // Handler for back button
+  const handleBackToBlocks = () => {
+      navigate('/browse');
+  };
+
+  // If no category selected (and no valid URL param), show Category Selection View
   if (!selectedCategory) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-in fade-in duration-500">
@@ -132,7 +147,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
             return (
               <button
                 key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => handleCategorySelect(cat)}
                 className="group p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary-200 transition-all duration-300 text-left"
               >
                 <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-50 transition-colors">
@@ -158,7 +173,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => setSelectedCategory(null)}
+            onClick={handleBackToBlocks}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-slate-900"
           >
             <ArrowLeft className="w-6 h-6" />

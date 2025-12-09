@@ -80,6 +80,15 @@ const MainContent: React.FC = () => {
     }
   };
 
+  const questionBankElement = (
+      <QuestionBank 
+          questions={QUESTION_BANK} 
+          masteredIds={masteredIds}
+          isGuest={!user}
+          onNavigateToLogin={() => {}}
+      />
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <Navbar />
@@ -92,14 +101,9 @@ const MainContent: React.FC = () => {
                     onStartStudy={() => {}} // Navigation handled via Link inside Dashboard if needed, or update Dashboard to use Link
                 />
             } />
-            <Route path="/browse" element={
-                <QuestionBank 
-                    questions={QUESTION_BANK} 
-                    masteredIds={masteredIds}
-                    isGuest={!user}
-                    onNavigateToLogin={() => {}}
-                />
-            } />
+            <Route path="/browse" element={questionBankElement} />
+            <Route path="/browse/:categoryId" element={questionBankElement} />
+            
             <Route path="/coding-challenges" element={<CodingChallenges />} />
             <Route path="/study" element={
                 <StudyMode 
