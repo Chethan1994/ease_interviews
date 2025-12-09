@@ -22,6 +22,7 @@ export interface Question {
   question: string;
   answer: string;
   codeSnippet?: string;
+  imageUrl?: string;
 }
 
 export interface User {

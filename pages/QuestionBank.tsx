@@ -327,6 +327,16 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
                  <div className="prose prose-slate max-w-none">
                     <div className="bg-slate-50 rounded-lg p-4 text-slate-700 leading-relaxed whitespace-pre-line border border-slate-100">
                        {q.answer}
+                       {q.imageUrl && (
+                          <div className="mt-4">
+                             <img 
+                               src={q.imageUrl} 
+                               alt="Explanation diagram" 
+                               className="rounded-lg border border-slate-200 shadow-sm max-w-full h-auto" 
+                               loading="lazy"
+                             />
+                          </div>
+                       )}
                     </div>
                     {q.codeSnippet && (
                        <div className="mt-4 relative group">

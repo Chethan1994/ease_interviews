@@ -144,6 +144,15 @@ export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered,
                         <p className="text-lg text-slate-100 leading-relaxed whitespace-pre-line">
                             {currentQuestion.answer}
                         </p>
+                        {currentQuestion.imageUrl && (
+                           <div className="mt-4 mb-4">
+                              <img 
+                                src={currentQuestion.imageUrl} 
+                                alt="Explanation diagram" 
+                                className="rounded-lg border border-slate-700 max-w-full h-auto" 
+                              />
+                           </div>
+                        )}
                         {currentQuestion.codeSnippet && (
                             <div className="mt-4 bg-black/50 rounded-lg border border-slate-700 overflow-hidden">
                                 <div className="flex justify-end p-2 bg-white/5 border-b border-white/5">
