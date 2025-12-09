@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
@@ -6,7 +7,7 @@ import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
 import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode, Monitor } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
@@ -19,7 +20,9 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
 };
 
 export const CodingChallenges: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const { categoryId } = useParams();
+  const selectedCategory = Object.values(Category).find(c => c === categoryId) || null;
+
   const [runningId, setRunningId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'preview' | 'console'>('preview');
   const [logs, setLogs] = useState<{level: string, message: string}[]>([]);
@@ -31,10 +34,11 @@ export const CodingChallenges: React.FC = () => {
   useEffect(() => {
     // @ts-ignore
     if (location.state?.reset) {
-        setSelectedCategory(null);
-        navigate(location.pathname, { replace: true, state: {} });
+        if (categoryId) {
+            navigate('/coding-challenges');
+        }
     }
-  }, [location.state, navigate, location.pathname]);
+  }, [location.state, navigate, categoryId]);
 
   // Release 1: Premium disabled
   const isPremium = false;
@@ -139,6 +143,14 @@ export const CodingChallenges: React.FC = () => {
     `;
   };
 
+  const handleCategorySelect = (cat: Category) => {
+      navigate(`/coding-challenges/${encodeURIComponent(cat)}`);
+  };
+
+  const handleBackToBlocks = () => {
+      navigate('/coding-challenges');
+  };
+
   // --- View: Category Selection ---
   if (!selectedCategory) {
     const categories = Object.values(Category).filter(c => c !== Category.HTML && c !== Category.CSS);
@@ -164,7 +176,7 @@ export const CodingChallenges: React.FC = () => {
                     return (
                         <button
                             key={cat}
-                            onClick={() => setSelectedCategory(cat)}
+                            onClick={() => handleCategorySelect(cat)}
                             className="group relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 text-left overflow-hidden"
                         >
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -197,7 +209,7 @@ export const CodingChallenges: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in slide-in-from-right-8 duration-300">
         <div className="flex items-center gap-4 mb-8">
             <button 
-                onClick={() => setSelectedCategory(null)}
+                onClick={handleBackToBlocks}
                 className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-slate-900"
             >
                 <ArrowLeft className="w-6 h-6" />

@@ -105,6 +105,8 @@ const MainContent: React.FC = () => {
             <Route path="/browse/:categoryId" element={questionBankElement} />
             
             <Route path="/coding-challenges" element={<CodingChallenges />} />
+            <Route path="/coding-challenges/:categoryId" element={<CodingChallenges />} />
+
             <Route path="/study" element={
                 <StudyMode 
                     questions={QUESTION_BANK} 
