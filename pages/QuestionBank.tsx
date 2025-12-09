@@ -7,6 +7,7 @@ import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { AdBanner } from '../components/AdBanner';
 import { analytics } from '../utils/analytics';
 import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, ArrowUpDown, FileCode, FileText, Filter, Check, X } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface QuestionBankProps {
   questions: Question[];
@@ -25,10 +26,23 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.HTML]: Hash,
 };
 
-export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredIds, onNavigateToLogin, isGuest }) => {
+export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], masteredIds, onNavigateToLogin, isGuest }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<'default' | 'easy' | 'hard'>('default');
+  
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Reset to blocks view if location state requests it
+  useEffect(() => {
+    // @ts-ignore
+    if (location.state?.reset) {
+        setSelectedCategory(null);
+        // Clear state so we don't reset again on simple refreshes if browser keeps state (optional)
+        navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
   
   // Filter States
   const [showSortMenu, setShowSortMenu] = useState(false);
@@ -49,6 +63,10 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
   }, [selectedCategory]);
   
   const categories = Object.values(Category);
+
+  if (!questions) {
+      return <div className="p-12 text-center text-slate-500">Loading Question Bank...</div>;
+  }
 
   // Limit to first 30 questions per category as requested
   const currentQuestions = selectedCategory 
@@ -106,11 +124,9 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map(cat => {
-            const Icon = CATEGORY_ICONS[cat];
+            const Icon = CATEGORY_ICONS[cat] || Code;
             const count = questions.filter(q => q.category === cat).length;
-            // Display count is capped at 30 effectively for the user view, but we show total available in DB or just 30?
-            // User asked to hide others, implying they aren't available yet. 
-            // Let's show the count of *available* questions (min of actual or 30).
+            // Display count is capped at 30 effectively for the user view
             const displayCount = Math.min(count, 30);
             
             return (
@@ -313,7 +329,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions, masteredI
            );
         })}
 
-        {/* Footer Message - Only show if we have filtered questions, or if the list is just naturally ending */}
+        {/* Footer Message */}
         {visibleQuestions.length > 0 && (
             <div className="mt-12 bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950 rounded-3xl border border-blue-800/50 p-10 text-center relative overflow-hidden shadow-2xl">
                 <div className="relative z-10">

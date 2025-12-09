@@ -1,20 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
 import { QuestionBank } from './pages/QuestionBank';
 import { CodingChallenges } from './pages/CodingChallenges';
 import { StudyMode } from './pages/StudyMode';
-import { ViewState } from './types';
+import { AuthPage } from './pages/AuthPage';
+import { AIQuiz } from './pages/AIQuiz'; // Assuming you have this imported
 import { ALL_QUESTIONS as QUESTION_BANK } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { api } from './services/api';
 import { analytics } from './utils/analytics';
 
 const MainContent: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewState>('browse');
-  const [questionBankKey, setQuestionBankKey] = useState(0);
-  const [codingChallengesKey, setCodingChallengesKey] = useState(0);
+  const location = useLocation();
   const { user, updateUser } = useAuth();
   
   // Local state for Release 1 "Guest" progress
@@ -23,8 +23,9 @@ const MainContent: React.FC = () => {
 
   useEffect(() => {
     // Track page views
-    analytics.logPageView(currentView);
-  }, [currentView]);
+    analytics.logPageView(location.pathname);
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Adapter to switch between real user data and guest local state
   const masteredIds = user ? user.masteredIds : guestMasteredIds;
@@ -34,16 +35,6 @@ const MainContent: React.FC = () => {
       masteredIds: masteredIds,
       reviewedIds: reviewedIds, 
       isPremium: user?.isPremium || false
-  };
-
-  const handleSetView = (view: ViewState) => {
-    if (view === 'browse') {
-      setQuestionBankKey(prev => prev + 1);
-    }
-    if (view === 'coding-challenges') {
-      setCodingChallengesKey(prev => prev + 1);
-    }
-    setCurrentView(view);
   };
 
   const handleMarkMastered = async (id: string) => {
@@ -71,8 +62,6 @@ const MainContent: React.FC = () => {
   };
 
   const handleMarkReviewed = async (id: string) => {
-    // If it's already mastered or reviewed, skip api call logic to save bandwidth, 
-    // but in guest mode we still update state.
     const isAlreadyReviewed = reviewedIds.includes(id);
 
     if (user) {
@@ -91,58 +80,41 @@ const MainContent: React.FC = () => {
     }
   };
 
-  const renderView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return (
-          <Dashboard 
-            progress={progressAdapter} 
-            questions={QUESTION_BANK} 
-            onStartStudy={() => setCurrentView('study')} 
-          />
-        );
-      case 'browse':
-        return (
-          <QuestionBank 
-            key={questionBankKey}
-            questions={QUESTION_BANK} 
-            masteredIds={masteredIds}
-            isGuest={!user}
-            onNavigateToLogin={() => setCurrentView('auth')}
-          />
-        );
-      case 'coding-challenges':
-        return (
-            <CodingChallenges key={codingChallengesKey} />
-        );
-      case 'study':
-        return (
-          <StudyMode 
-            questions={QUESTION_BANK} 
-            masteredIds={progressAdapter.masteredIds}
-            onMarkMastered={handleMarkMastered}
-            onMarkReviewed={handleMarkReviewed}
-          />
-        );
-      /* Auth removed for Release 1 */
-      default:
-        return (
-          <QuestionBank 
-            key={questionBankKey}
-            questions={QUESTION_BANK} 
-            masteredIds={masteredIds}
-            isGuest={!user}
-            onNavigateToLogin={() => {}}
-          />
-        );
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <Navbar currentView={currentView} setView={handleSetView} />
+      <Navbar />
       <main className="pb-12">
-        {renderView()}
+        <Routes>
+            <Route path="/dashboard" element={
+                <Dashboard 
+                    progress={progressAdapter} 
+                    questions={QUESTION_BANK} 
+                    onStartStudy={() => {}} // Navigation handled via Link inside Dashboard if needed, or update Dashboard to use Link
+                />
+            } />
+            <Route path="/browse" element={
+                <QuestionBank 
+                    questions={QUESTION_BANK} 
+                    masteredIds={masteredIds}
+                    isGuest={!user}
+                    onNavigateToLogin={() => {}}
+                />
+            } />
+            <Route path="/coding-challenges" element={<CodingChallenges />} />
+            <Route path="/study" element={
+                <StudyMode 
+                    questions={QUESTION_BANK} 
+                    masteredIds={progressAdapter.masteredIds}
+                    onMarkMastered={handleMarkMastered}
+                    onMarkReviewed={handleMarkReviewed}
+                />
+            } />
+            <Route path="/auth" element={
+                <AuthPage onSuccess={() => {}} /> 
+            } />
+            {/* Redirect root to browse */}
+            <Route path="*" element={<Navigate to="/browse" replace />} />
+        </Routes>
       </main>
     </div>
   );
@@ -150,9 +122,11 @@ const MainContent: React.FC = () => {
 
 const App: React.FC = () => {
     return (
-        <AuthProvider>
-            <MainContent />
-        </AuthProvider>
+        <HashRouter>
+            <AuthProvider>
+                <MainContent />
+            </AuthProvider>
+        </HashRouter>
     );
 };
 

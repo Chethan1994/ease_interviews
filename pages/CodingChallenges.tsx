@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CODING_CHALLENGES } from '../data/codingChallenges';
 import { Category } from '../types';
@@ -7,6 +6,7 @@ import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
 import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode, Monitor } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
@@ -24,6 +24,18 @@ export const CodingChallenges: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'preview' | 'console'>('preview');
   const [logs, setLogs] = useState<{level: string, message: string}[]>([]);
   
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Reset to blocks view if location state requests it
+  useEffect(() => {
+    // @ts-ignore
+    if (location.state?.reset) {
+        setSelectedCategory(null);
+        navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
+
   // Release 1: Premium disabled
   const isPremium = false;
 

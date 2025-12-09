@@ -1,17 +1,15 @@
-
 import React, { useState } from 'react';
-import { ViewState } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, BarChart2, Layers, Sparkles, Code2, LogIn, User as UserIcon, LogOut, Menu, X, Lock } from 'lucide-react';
+import { BookOpen, BarChart2, Layers, Sparkles, Code2, Menu, X, Lock } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-interface NavbarProps {
-  currentView: ViewState;
-  setView: (view: ViewState) => void;
-}
+interface NavbarProps {}
 
-export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
-  const { user, logout } = useAuth();
+export const Navbar: React.FC<NavbarProps> = () => {
+  const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Helper for tooltip
   const PremiumTooltip = () => (
@@ -23,26 +21,31 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
       </div>
   );
 
-  const navItemClass = (view: ViewState, disabled = false) =>
+  const isActive = (path: string) => location.pathname === path;
+
+  const navItemClass = (path: string, disabled = false) =>
     `flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium relative group ${
       disabled 
         ? 'text-slate-400 cursor-not-allowed hover:bg-transparent' 
-        : currentView === view
+        : isActive(path)
             ? 'bg-primary-50 text-primary-700'
             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
   
-  const mobileNavItemClass = (view: ViewState, disabled = false) =>
+  const mobileNavItemClass = (path: string, disabled = false) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium w-full ${
         disabled
         ? 'text-slate-400 cursor-not-allowed bg-slate-50/50'
-        : currentView === view
+        : isActive(path)
             ? 'bg-primary-50 text-primary-700'
             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
 
-  const handleNavClick = (view: ViewState) => {
-    setView(view);
+  const handleNavClick = (path: string, resetKey?: string) => {
+    // If we are navigating to the same path (e.g. clicking "Question Bank" while in Question Bank), 
+    // we pass a state object to force a reset effect in the target component.
+    const state = resetKey ? { reset: Date.now() } : undefined;
+    navigate(path, { state });
     setIsMobileMenuOpen(false);
   };
 
@@ -51,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Redirects to Question Bank (browse) */}
-          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => handleNavClick('browse')}>
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => handleNavClick('/browse', 'reset')}>
             <div className="bg-primary-600 p-2 rounded-lg group-hover:bg-primary-700 transition-colors">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
@@ -63,26 +66,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
             <div className="flex gap-1 items-center">
                 {/* Dashboard - Disabled */}
                 <div className="relative group">
-                    <button className={navItemClass('dashboard', true)} disabled>
+                    <button className={navItemClass('/dashboard', true)} disabled>
                         <BarChart2 className="w-4 h-4" />
                         <span>Dashboard</span>
                     </button>
                     <PremiumTooltip />
                 </div>
 
-                <button onClick={() => setView('browse')} className={navItemClass('browse')}>
+                <button onClick={() => handleNavClick('/browse', 'reset')} className={navItemClass('/browse')}>
                     <Layers className="w-4 h-4" />
                     <span>Question Bank</span>
                 </button>
 
-                <button onClick={() => setView('coding-challenges')} className={navItemClass('coding-challenges')}>
+                <button onClick={() => handleNavClick('/coding-challenges', 'reset')} className={navItemClass('/coding-challenges')}>
                     <Code2 className="w-4 h-4" />
                     <span>Coding</span>
                 </button>
                 
                 {/* AI Quiz - Disabled */}
                 <div className="relative group">
-                    <button className={navItemClass('ai-quiz', true)} disabled>
+                    <button className={navItemClass('/ai-quiz', true)} disabled>
                         <Sparkles className="w-4 h-4" />
                         <span>AI Quiz</span>
                     </button>
@@ -109,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
               <div className="p-4 space-y-2">
                   {/* Dashboard - Disabled */}
                   <div className="relative">
-                      <button className={mobileNavItemClass('dashboard', true)} disabled>
+                      <button className={mobileNavItemClass('/dashboard', true)} disabled>
                           <div className="flex items-center gap-3 w-full">
                             <BarChart2 className="w-5 h-5" />
                             Dashboard 
@@ -120,19 +123,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView }) => {
                       </button>
                   </div>
 
-                  <button onClick={() => handleNavClick('browse')} className={mobileNavItemClass('browse')}>
+                  <button onClick={() => handleNavClick('/browse', 'reset')} className={mobileNavItemClass('/browse')}>
                       <Layers className="w-5 h-5" />
                       Question Bank
                   </button>
                   
-                  <button onClick={() => handleNavClick('coding-challenges')} className={mobileNavItemClass('coding-challenges')}>
+                  <button onClick={() => handleNavClick('/coding-challenges', 'reset')} className={mobileNavItemClass('/coding-challenges')}>
                       <Code2 className="w-5 h-5" />
                       Coding Challenges
                   </button>
                   
                   {/* AI Quiz - Disabled */}
                   <div className="relative">
-                      <button className={mobileNavItemClass('ai-quiz', true)} disabled>
+                      <button className={mobileNavItemClass('/ai-quiz', true)} disabled>
                           <div className="flex items-center gap-3 w-full">
                             <Sparkles className="w-5 h-5" />
                             AI Quiz
