@@ -370,6 +370,27 @@ export const CodingChallenges: React.FC = () => {
                     </div>
                 );
             })}
+
+            {/* Coming Soon Banner */}
+            {visibleChallenges.length > 0 && (
+                <div className="mt-12 bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950 rounded-3xl border border-blue-800/50 p-10 text-center relative overflow-hidden shadow-2xl">
+                    <div className="relative z-10">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl shadow-inner mb-6 border border-white/10 transform -rotate-3 transition-transform hover:rotate-0 duration-300">
+                            <Clock className="w-8 h-8 text-blue-200" />
+                        </div>
+                        <h3 className="text-2xl font-extrabold text-white mb-3 tracking-tight">More Challenges In The Works</h3>
+                        <p className="text-blue-200 max-w-lg mx-auto mb-8 text-lg leading-relaxed">
+                            We are actively crafting new high-quality <span className="font-semibold text-blue-100">{selectedCategory}</span> coding challenges. 
+                            Stay tuned for the next update!
+                        </p>
+                    </div>
+                    {/* Decorative background elements */}
+                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                        <div className="absolute top-[-10%] right-[-5%] w-72 h-72 bg-blue-600/20 rounded-full blur-3xl mix-blend-overlay"></div>
+                        <div className="absolute bottom-[-10%] left-[-5%] w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl mix-blend-overlay"></div>
+                    </div>
+                </div>
+            )}
         </div>
         
         <AdBanner slotId="challenges-list-footer" />
