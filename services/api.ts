@@ -1,7 +1,6 @@
-
 import { User } from '../types';
 
-const API_BASE = '/api';
+export const API_BASE = 'https://interview-express-backend.vercel.app/api';
 
 export const api = {
     async register(email: string, password: string, name: string): Promise<User> {

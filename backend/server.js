@@ -14,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // --- Database Connection ---
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/interview-prep';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Vercel-Admin-ease-interview-db:srRODOaoHwMOtY24@ease-interview-db.rfn442u.mongodb.net/interview-prep?retryWrites=true&w=majority';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('✅ MongoDB Connected'))

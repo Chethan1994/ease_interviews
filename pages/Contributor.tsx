@@ -1,8 +1,8 @@
-
 import React, { useState, useRef } from 'react';
 import { Category, Difficulty } from '../types';
 import { Send, Upload, FileText, CheckCircle, AlertCircle, Plus, Loader2, Trash2, Edit2, List, Eye } from 'lucide-react';
 import { CopyButton } from '../components/ui/CopyButton';
+import { API_BASE } from '../services/api';
 
 interface ContributorQuestion {
     id: string;
@@ -100,7 +100,7 @@ export const Contributor: React.FC = () => {
     formData.append('questions', JSON.stringify(questions));
 
     try {
-        const response = await submitWithTimeout('/api/contribute', {
+        const response = await submitWithTimeout(`${API_BASE}/contribute`, {
             method: 'POST',
             body: formData,
         });
@@ -120,9 +120,9 @@ export const Contributor: React.FC = () => {
         console.error("Submission Error:", err);
         
         if (err.name === 'AbortError' || err.message.includes('Failed to fetch') || err.message.includes('Server responded')) {
-            console.log("Backend unreachable. Simulating success for demo.");
-            setSubmitStatus('success');
-            setTimeout(() => resetAll(), 3000);
+            // If backend is truly down, show error.
+            setSubmitStatus('error');
+            setErrorMessage('Failed to send contribution. Please try again.');
         } else {
             setSubmitStatus('error');
             setErrorMessage('Failed to send contribution. Please try again.');
@@ -144,7 +144,7 @@ export const Contributor: React.FC = () => {
     formData.append('file', selectedFile);
 
     try {
-        const response = await submitWithTimeout('/api/contribute', {
+        const response = await submitWithTimeout(`${API_BASE}/contribute`, {
             method: 'POST',
             body: formData,
         });
@@ -155,14 +155,8 @@ export const Contributor: React.FC = () => {
         setTimeout(() => resetAll(), 3000);
     } catch (err: any) {
         console.error(err);
-        if (err.name === 'AbortError' || err.message.includes('Failed to fetch')) {
-             console.log("Backend unreachable. Simulating success for demo.");
-             setSubmitStatus('success');
-             setTimeout(() => resetAll(), 3000);
-        } else {
-            setSubmitStatus('error');
-            setErrorMessage('Failed to upload file. Please ensure it is under 4MB.');
-        }
+        setSubmitStatus('error');
+        setErrorMessage('Failed to upload file. Please ensure it is under 4MB.');
     } finally {
         setIsSubmitting(false);
     }
@@ -200,7 +194,7 @@ export const Contributor: React.FC = () => {
             <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
                 <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
                 <p className="text-lg font-bold text-slate-700">Submitting your contribution...</p>
-                <p className="text-xs text-slate-400 mt-2">Sending to chethansg4@gmail.com</p>
+                <p className="text-xs text-slate-400 mt-2">Sending to reviewer</p>
             </div>
         )}
 
@@ -480,4 +474,3 @@ export const Contributor: React.FC = () => {
     </div>
   );
 };
-        

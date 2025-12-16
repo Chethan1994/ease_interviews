@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
@@ -184,11 +183,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                         {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                     </button>
                 </div>
-            </div>
-            
-            {/* Backend connection warning */}
-            <div className="mt-8 text-center text-xs text-slate-400 max-w-xs">
-                Note: Ensure the backend server is running on port 5000 for full authentication features.
             </div>
         </div>
     );
