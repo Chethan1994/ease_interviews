@@ -13,7 +13,7 @@ import Contribution from './models/Contribution';
 import Question from './models/Question';
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors() as any);
 app.use(bodyParser.json() as any);
@@ -25,23 +25,57 @@ app.use((req, res, next) => {
 });
 
 // --- Database Connection ---
-const MONGO_URI = process.env.MONGO_URI;
+// Explicitly define the connection string with the database name
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Vercel-Admin-ease-interview-db:srRODOaoHwMOtY24@ease-interview-db.rfn442u.mongodb.net/interview-prep?retryWrites=true&w=majority';
 
 // Enhanced Logging for MongoDB
-mongoose.connection.on('connected', () => console.log('✅ MongoDB: Connected successfully'));
+mongoose.connection.on('connected', () => console.log(`✅ MongoDB: Connected successfully to ${mongoose.connection.name}`));
 mongoose.connection.on('open', () => console.log('✅ MongoDB: Connection open'));
 mongoose.connection.on('disconnected', () => console.log('❌ MongoDB: Disconnected'));
 mongoose.connection.on('reconnected', () => console.log('⚠️ MongoDB: Reconnected'));
 mongoose.connection.on('disconnecting', () => console.log('⚠️ MongoDB: Disconnecting...'));
 mongoose.connection.on('close', () => console.log('❌ MongoDB: Connection closed'));
 
-console.log(`Attempting to connect to MongoDB at: ${MONGO_URI.replace(/:([^@]+)@/, ':****@')}`);
+// Reusable Connection Logic for Serverless
+const connectDB = async () => {
+    // 1 = connected
+    if (mongoose.connection.readyState === 1) {
+        return;
+    }
+    
+    // 2 = connecting - wait for it to finish instead of returning immediately
+    if (mongoose.connection.readyState === 2) {
+        console.log("⏳ MongoDB is connecting, waiting...");
+        return mongoose.connection.asPromise();
+    }
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ MongoDB Initial Connection Established'))
-    .catch((err) => {
-        console.error('❌ MongoDB Initial Connection Error Details:', JSON.stringify(err, null, 2));
-    });
+    // Hide credentials in log
+    const maskedURI = MONGO_URI.replace(/:([^@]+)@/, ':****@');
+    console.log(`Attempting to connect to MongoDB at: ${maskedURI}`);
+
+    try {
+        await mongoose.connect(MONGO_URI, {
+            dbName: 'interview-prep', // Critical: Force database name here
+            serverSelectionTimeoutMS: 10000, 
+            socketTimeoutMS: 45000,
+        } as mongoose.ConnectOptions);
+        console.log(`✅ MongoDB Initial Connection Established to: ${mongoose.connection.name}`);
+    } catch (err) {
+        console.error('❌ MongoDB Connection Error Details:', JSON.stringify(err, null, 2));
+        throw err;
+    }
+};
+
+// Middleware to ensure DB is connected before handling requests
+app.use(async (req: any, res: any, next: any) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error: any) {
+        console.error("Database connection failed during request:", error);
+        res.status(500).json({ message: 'Internal Server Error: Database Connection Failed', error: error.message });
+    }
+});
 
 // --- Configuration ---
 
@@ -57,7 +91,11 @@ const upload = multer({
 app.get('/api/health', (req: any, res: any) => {
     const readyState = mongoose.connection.readyState;
     const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-    res.json({ status: 'ok', dbState: states[readyState] || 'unknown' });
+    res.json({ 
+        status: 'ok', 
+        dbState: states[readyState] || 'unknown', 
+        dbName: mongoose.connection.name 
+    });
 });
 
 // --- Public Data ---
@@ -247,7 +285,7 @@ app.post('/api/register', async (req: any, res: any): Promise<any> => {
         });
 
         await newUser.save();
-        console.log('✅ User registered:', newUser._id);
+        console.log('✅ User registered in DB:', newUser.email, newUser._id);
 
         const userObj = newUser.toObject();
         // @ts-ignore

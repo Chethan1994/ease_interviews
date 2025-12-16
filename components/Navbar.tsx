@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake, LogOut, User as UserIcon, Shield } from 'lucide-react';
@@ -67,13 +68,15 @@ export const Navbar: React.FC<NavbarProps> = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1 ml-6 flex-1">
-                <div className="relative group">
-                    <button className={navItemClass('/dashboard', true)} disabled>
-                        <BarChart2 className="w-4 h-4" />
-                        <span>Dashboard</span>
-                    </button>
-                    <PremiumTooltip />
-                </div>
+                <button 
+                    onClick={() => handleNavClick('/dashboard')} 
+                    className={navItemClass('/dashboard', !user)} 
+                    disabled={!user}
+                    title={!user ? "Login to access dashboard" : ""}
+                >
+                    <BarChart2 className="w-4 h-4" />
+                    <span>Dashboard</span>
+                </button>
 
                 <button onClick={() => handleNavClick('/browse', 'reset')} className={navItemClass('/browse')}>
                     <Layers className="w-4 h-4" />
@@ -163,17 +166,14 @@ export const Navbar: React.FC<NavbarProps> = () => {
       {isMobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top-2 duration-200 overflow-hidden h-[calc(100vh-64px)] flex flex-col">
               <div className="p-4 space-y-2 flex-1 overflow-y-auto">
-                  <div className="relative">
-                      <button className={mobileNavItemClass('/dashboard', true)} disabled>
-                          <div className="flex items-center gap-3 w-full">
-                            <BarChart2 className="w-5 h-5" />
-                            Dashboard 
-                            <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded ml-auto flex items-center gap-1">
-                                <Lock className="w-3 h-3" /> Premium
-                            </span>
-                          </div>
-                      </button>
-                  </div>
+                  <button 
+                      onClick={() => handleNavClick('/dashboard')} 
+                      className={mobileNavItemClass('/dashboard', !user)}
+                      disabled={!user}
+                  >
+                      <BarChart2 className="w-5 h-5" />
+                      Dashboard 
+                  </button>
 
                   <button onClick={() => handleNavClick('/browse', 'reset')} className={mobileNavItemClass('/browse')}>
                       <Layers className="w-5 h-5" />
