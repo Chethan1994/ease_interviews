@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
 import { QuestionBank } from './pages/QuestionBank';
@@ -14,6 +14,7 @@ import { analytics } from './utils/analytics';
 
 const MainContent: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   
   // Local state for Release 1 "Guest" progress
@@ -25,6 +26,15 @@ const MainContent: React.FC = () => {
     analytics.logPageView(location.pathname);
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  // Enable Debug Mode for specific user
+  useEffect(() => {
+    if (user?.email === 'chethansg4@gmail.com') {
+      console.log('🐞 Debug Mode Enabled for Admin');
+      // @ts-ignore
+      window.DEBUG_MODE = true;
+    }
+  }, [user]);
 
   // Adapter to switch between real user data and guest local state
   const masteredIds = user ? user.masteredIds : guestMasteredIds;
@@ -97,7 +107,7 @@ const MainContent: React.FC = () => {
                 <Dashboard 
                     progress={progressAdapter} 
                     questions={QUESTION_BANK} 
-                    onStartStudy={() => {}} // Navigation handled via Link inside Dashboard if needed, or update Dashboard to use Link
+                    onStartStudy={() => navigate('/study')}
                 />
             } />
             <Route path="/browse" element={questionBankElement} />
@@ -116,7 +126,7 @@ const MainContent: React.FC = () => {
             } />
             <Route path="/contribute" element={<Contributor />} />
             <Route path="/auth" element={
-                <AuthPage onSuccess={() => {}} /> 
+                <AuthPage onSuccess={() => navigate('/dashboard')} /> 
             } />
             {/* Redirect root to browse */}
             <Route path="*" element={<Navigate to="/browse" replace />} />

@@ -6,7 +6,7 @@ import { API_BASE } from '../services/api';
 
 interface ContributorQuestion {
     id: string;
-    category: Category;
+    category: string; // Changed from Category to string to support manual entry
     difficulty: Difficulty;
     question: string;
     answer: string;
@@ -21,7 +21,10 @@ export const Contributor: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   // Form State
-  const [category, setCategory] = useState<Category>(Category.React);
+  const [category, setCategory] = useState<string>(Category.React);
+  const [customCategory, setCustomCategory] = useState('');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.Medium);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
@@ -36,13 +39,26 @@ export const Contributor: React.FC = () => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const val = e.target.value;
+      if (val === 'OTHER') {
+          setIsCustomCategory(true);
+          setCategory('');
+      } else {
+          setIsCustomCategory(false);
+          setCategory(val);
+      }
+  };
+
   const addToQueue = (e: React.FormEvent) => {
       e.preventDefault();
-      if (!question.trim() || !answer.trim()) return;
+      const finalCategory = isCustomCategory ? customCategory : category;
+      
+      if (!question.trim() || !answer.trim() || !finalCategory.trim()) return;
 
       const newQ: ContributorQuestion = {
           id: Date.now().toString(),
-          category,
+          category: finalCategory,
           difficulty,
           question,
           answer,
@@ -118,15 +134,8 @@ export const Contributor: React.FC = () => {
         setTimeout(() => resetAll(), 3000);
     } catch (err: any) {
         console.error("Submission Error:", err);
-        
-        if (err.name === 'AbortError' || err.message.includes('Failed to fetch') || err.message.includes('Server responded')) {
-            // If backend is truly down, show error.
-            setSubmitStatus('error');
-            setErrorMessage('Failed to send contribution. Please try again.');
-        } else {
-            setSubmitStatus('error');
-            setErrorMessage('Failed to send contribution. Please try again.');
-        }
+        setSubmitStatus('error');
+        setErrorMessage('Failed to send contribution. Please try again.');
     } finally {
         setIsSubmitting(false);
     }
@@ -299,14 +308,26 @@ export const Contributor: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Category</label>
                                     <select
-                                        value={category}
-                                        onChange={(e) => setCategory(e.target.value as Category)}
-                                        className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none bg-white"
+                                        value={isCustomCategory ? 'OTHER' : category}
+                                        onChange={handleCategoryChange}
+                                        className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none bg-white mb-2"
                                     >
                                         {Object.values(Category).map((c) => (
                                         <option key={c} value={c}>{c}</option>
                                         ))}
+                                        <option value="OTHER">Other (Specify)</option>
                                     </select>
+                                    
+                                    {isCustomCategory && (
+                                        <input 
+                                            type="text"
+                                            required={isCustomCategory}
+                                            value={customCategory}
+                                            onChange={(e) => setCustomCategory(e.target.value)}
+                                            placeholder="Enter new category"
+                                            className="w-full p-2.5 border border-purple-300 bg-purple-50 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-purple-900 placeholder:text-purple-300"
+                                        />
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Difficulty</label>

@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { BookOpen, AlertCircle, ArrowRight, Check } from 'lucide-react';
-import { ViewState } from '../types';
+import { useLocation } from 'react-router-dom';
 
 interface AuthPageProps {
     onSuccess: () => void;
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
+    const location = useLocation();
+    // Default to login, but check state for signup mode request
     const [isLogin, setIsLogin] = useState(true);
+    
+    useEffect(() => {
+        // @ts-ignore
+        if (location.state?.mode === 'signup') {
+            setIsLogin(false);
+        } else {
+            setIsLogin(true);
+        }
+    }, [location.state]);
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
@@ -42,10 +54,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
     const handleGoogleLogin = async () => {
         setLoading(true);
         setError('');
-        
-        // Note: In a real production app, you would use the Google Identity Services SDK here.
-        // For this demonstration, we simulate the "Google Popup" success and then call our backend
-        // to actually create or retrieve the user in MongoDB.
         
         try {
             // Simulate waiting for Google Popup interaction

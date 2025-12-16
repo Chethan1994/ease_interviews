@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import multer from 'multer';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import { Buffer } from 'buffer';
 import User from './models/User';
 import Contribution from './models/Contribution';
@@ -119,10 +120,13 @@ app.post('/api/register', async (req: any, res: any): Promise<any> => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({
             id: Date.now().toString(),
             email,
-            password, 
+            password: hashedPassword, 
             name,
             isPremium: false
         });
@@ -149,10 +153,23 @@ app.post('/api/login', async (req: any, res: any): Promise<any> => {
     try {
         const { email, password } = req.body;
         
-        const user = await User.findOne({ email, password });
+        // Find user by email
+        const user = await User.findOne({ email });
 
         if (!user) {
-            console.log('❌ Invalid credentials');
+            console.log('❌ User not found');
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Check if user has a password (might be Google-only user)
+        if (!user.password) {
+            return res.status(401).json({ message: 'Please sign in with Google' });
+        }
+
+        // Compare password with hash
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            console.log('❌ Password mismatch');
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         

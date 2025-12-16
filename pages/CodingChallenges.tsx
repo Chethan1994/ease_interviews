@@ -179,8 +179,8 @@ export const CodingChallenges: React.FC = () => {
                             onClick={() => handleCategorySelect(cat)}
                             className="group relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 text-left overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Icon className="w-24 h-24 text-indigo-600" />
+                            <div className="absolute top-4 right-4 text-slate-100 font-black text-6xl opacity-20 group-hover:opacity-10 transition-opacity">
+                                {cat.charAt(0)}
                             </div>
                             
                             <div className="relative z-10">
@@ -230,7 +230,7 @@ export const CodingChallenges: React.FC = () => {
 
                 return (
                     <div key={challenge.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
-                        <div className="absolute top-4 right-4 text-slate-200 font-black text-4xl opacity-20 pointer-events-none select-none">
+                        <div className="absolute top-4 right-4 text-slate-100 font-black text-5xl opacity-50 pointer-events-none select-none">
                             #{idx + 1}
                         </div>
 
@@ -265,9 +265,23 @@ export const CodingChallenges: React.FC = () => {
                                     </div>
                                 </div>
                                 {/* Fixed height code block with scroll */}
-                                <pre className="h-[500px] p-6 overflow-auto text-sm font-mono text-emerald-100 leading-relaxed custom-scrollbar">
+                                <pre className="h-[400px] p-6 overflow-auto text-sm font-mono text-emerald-100 leading-relaxed custom-scrollbar">
                                     <code>{challenge.solutionCode}</code>
                                 </pre>
+
+                                {/* Time/Space Complexity - Highlighted */}
+                                <div className="bg-emerald-950/30 border-t border-emerald-900/30 p-4">
+                                    <div className="flex flex-col sm:flex-row gap-6 text-xs font-mono">
+                                        <div>
+                                            <span className="text-emerald-500 uppercase tracking-wider font-bold block mb-1">Time Complexity</span>
+                                            <span className="text-emerald-100 text-sm font-semibold">{challenge.timeComplexity || 'O(n) - Linear Time'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-emerald-500 uppercase tracking-wider font-bold block mb-1">Space Complexity</span>
+                                            <span className="text-emerald-100 text-sm font-semibold">{challenge.spaceComplexity || 'O(1) - Constant Space'}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {isRunning && (
@@ -291,7 +305,7 @@ export const CodingChallenges: React.FC = () => {
                                             )}
                                         </button>
                                     </div>
-                                    <div className="relative bg-white h-[500px]">
+                                    <div className="relative bg-white h-[465px]">
                                         {/* Iframe stays mounted but hidden to preserve state */}
                                         <iframe 
                                             srcDoc={generateSrcDoc(challenge.solutionCode)}
@@ -351,21 +365,9 @@ export const CodingChallenges: React.FC = () => {
                                         <button disabled className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed text-sm font-medium opacity-60">
                                             <Box className="w-4 h-4" /> CodeSandbox
                                         </button>
-                                        <button disabled className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed text-sm font-medium opacity-60">
-                                            <ExternalLink className="w-4 h-4" /> Plunker
-                                        </button>
                                     </>
                                 )}
                             </div>
-                            
-                            {!isServerSide && (
-                                <div className="mt-3 text-right">
-                                    <span className="text-[10px] text-slate-400 font-medium flex items-center justify-end gap-1.5 opacity-80">
-                                        <Clock className="w-3 h-3" />
-                                        Direct integration with StackBlitz, CodeSandbox, and Plunker coming in the next release.
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     </div>
                 );

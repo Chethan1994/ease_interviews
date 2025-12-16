@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import multer from 'multer';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import { Buffer } from 'buffer';
 import User from '../backend/models/User';
 import Contribution from '../backend/models/Contribution';
@@ -132,10 +133,12 @@ app.post('/api/register', async (req: any, res: any): Promise<any> => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({
             id: Date.now().toString(),
             email,
-            password, 
+            password: hashedPassword, 
             name,
             isPremium: false
         });
@@ -160,12 +163,21 @@ app.post('/api/login', async (req: any, res: any): Promise<any> => {
     try {
         await connectToDatabase();
         const { email, password } = req.body;
-        const user = await User.findOne({ email, password });
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         
+        if (!user.password) {
+             return res.status(401).json({ message: 'Please sign in with Google' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+             return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
         const userObj = user.toObject();
         // @ts-ignore
         delete userObj.password;

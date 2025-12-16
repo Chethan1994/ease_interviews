@@ -49,6 +49,8 @@ export interface CodingChallenge {
   starterCode: string;
   solutionCode: string;
   tags: string[];
+  timeComplexity?: string;
+  spaceComplexity?: string;
 }
 
 export type ViewState = 'dashboard' | 'browse' | 'study' | 'ai-quiz' | 'coding-challenges' | 'auth';

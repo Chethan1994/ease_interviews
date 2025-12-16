@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake } from 'lucide-react';
+import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake, LogOut, User as UserIcon } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NavbarProps {}
 
 export const Navbar: React.FC<NavbarProps> = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,7 +24,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const navItemClass = (path: string, disabled = false) =>
-    `flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium relative group ${
+    `flex items-center gap-2 px-3 py-2 rounded-lg transition-all font-medium relative group text-sm ${
       disabled 
         ? 'text-slate-400 cursor-not-allowed hover:bg-transparent' 
         : isActive(path)
@@ -41,12 +41,18 @@ export const Navbar: React.FC<NavbarProps> = () => {
             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
 
-  const handleNavClick = (path: string, resetKey?: string) => {
+  const handleNavClick = (path: string, resetKey?: string, state?: any) => {
     // If we are navigating to the same path (e.g. clicking "Question Bank" while in Question Bank), 
     // we pass a state object to force a reset effect in the target component.
-    const state = resetKey ? { reset: Date.now() } : undefined;
-    navigate(path, { state });
+    const navState = resetKey ? { reset: Date.now(), ...state } : state;
+    navigate(path, { state: navState });
     setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+      logout();
+      navigate('/browse');
+      setIsMobileMenuOpen(false);
   };
 
   return (
@@ -54,16 +60,15 @@ export const Navbar: React.FC<NavbarProps> = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Redirects to Question Bank (browse) */}
-          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => handleNavClick('/browse', 'reset')}>
+          <div className="flex items-center gap-2 cursor-pointer group flex-shrink-0" onClick={() => handleNavClick('/browse', 'reset')}>
             <div className="bg-primary-600 p-2 rounded-lg group-hover:bg-primary-700 transition-colors">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">InterviewPrep</span>
+            <span className="text-xl font-bold text-slate-900 tracking-tight hidden sm:block">InterviewPrep</span>
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2">
-            <div className="flex gap-1 items-center">
+          <div className="hidden md:flex items-center gap-1 ml-6 flex-1">
                 {/* Dashboard - Disabled */}
                 <div className="relative group">
                     <button className={navItemClass('/dashboard', true)} disabled>
@@ -83,16 +88,64 @@ export const Navbar: React.FC<NavbarProps> = () => {
                     <span>Coding</span>
                 </button>
                 
-                {/* Contribute */}
                 <button onClick={() => handleNavClick('/contribute')} className={navItemClass('/contribute')}>
                     <HeartHandshake className="w-4 h-4" />
                     <span>Contribute</span>
                 </button>
-            </div>
+          </div>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            {user?.email === 'chethansg4@gmail.com' && (
+                <div className="hidden md:flex items-center px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-bold border border-red-200" title="Debug Mode Active">
+                    DEBUG
+                </div>
+            )}
+            
+            {user ? (
+                <>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-200">
+                        <div className="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
+                            <UserIcon className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-700 max-w-[100px] truncate">
+                            {user.name.split(' ')[0]}
+                        </span>
+                    </div>
+                    <button 
+                        onClick={handleLogout}
+                        className="p-2 text-slate-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                        title="Sign Out"
+                    >
+                        <LogOut className="w-5 h-5" />
+                    </button>
+                </>
+            ) : (
+                <>
+                    <button 
+                        onClick={() => handleNavClick('/auth')}
+                        className="text-slate-600 hover:text-slate-900 font-medium text-sm px-4 py-2 transition-colors"
+                    >
+                        Sign In
+                    </button>
+                    <button 
+                        onClick={() => handleNavClick('/auth', undefined, { mode: 'signup' })}
+                        className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30 active:scale-95"
+                    >
+                        Sign Up
+                    </button>
+                </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-4">
+             {/* Show user avatar on mobile header if logged in */}
+             {user && (
+                 <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
+                    <UserIcon className="w-4 h-4" />
+                 </div>
+             )}
             <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
@@ -105,8 +158,8 @@ export const Navbar: React.FC<NavbarProps> = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top-2 duration-200">
-              <div className="p-4 space-y-2">
+          <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top-2 duration-200 overflow-hidden h-[calc(100vh-64px)] flex flex-col">
+              <div className="p-4 space-y-2 flex-1 overflow-y-auto">
                   {/* Dashboard - Disabled */}
                   <div className="relative">
                       <button className={mobileNavItemClass('/dashboard', true)} disabled>
@@ -134,6 +187,44 @@ export const Navbar: React.FC<NavbarProps> = () => {
                       <HeartHandshake className="w-5 h-5" />
                       Contribute
                   </button>
+
+                  <div className="border-t border-slate-100 my-4 pt-4">
+                      {user ? (
+                        <>
+                             <div className="flex items-center gap-3 px-4 py-2 mb-2">
+                                <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
+                                    <UserIcon className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-slate-900">{user.name}</p>
+                                    <p className="text-xs text-slate-500">{user.email}</p>
+                                </div>
+                             </div>
+                             <button 
+                                onClick={handleLogout}
+                                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium w-full text-red-600 hover:bg-red-50"
+                             >
+                                <LogOut className="w-5 h-5" />
+                                Sign Out
+                             </button>
+                        </>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3 px-2">
+                             <button 
+                                onClick={() => handleNavClick('/auth')}
+                                className="flex justify-center items-center py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                             >
+                                Sign In
+                             </button>
+                             <button 
+                                onClick={() => handleNavClick('/auth', undefined, { mode: 'signup' })}
+                                className="flex justify-center items-center py-3 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 shadow-md shadow-primary-500/20"
+                             >
+                                Sign Up
+                             </button>
+                        </div>
+                      )}
+                  </div>
               </div>
           </div>
       )}
