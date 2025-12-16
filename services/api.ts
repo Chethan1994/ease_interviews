@@ -1,9 +1,8 @@
 
 import { User, Question, Contribution } from '../types';
 
-// Use relative path for API calls. 
-// In development, Webpack proxy forwards '/api' to 'http://localhost:5000/api'.
-export const API_BASE = '/api';
+// Updated to point to the deployed backend
+export const API_BASE = 'https://interview-express-backend.vercel.app/api';
 
 const handleResponse = async (res: Response) => {
     const contentType = res.headers.get("content-type");
