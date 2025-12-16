@@ -60,13 +60,18 @@ export const AdminDashboard: React.FC = () => {
 
   const handleMultipleChange = (index: number, field: string, value: string) => {
       const updatedQuestions = [...(editForm.questions || [])];
-      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
-      setEditForm({ ...editForm, questions: updatedQuestions });
+      if (updatedQuestions[index]) {
+          updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
+          setEditForm({ ...editForm, questions: updatedQuestions });
+      }
   };
 
-  const removeQuestionFromMultiple = (index: number) => {
+  const removeQuestionFromMultiple = (e: React.MouseEvent, index: number) => {
+      e.preventDefault();
+      e.stopPropagation();
       if (!window.confirm('Remove this question from the set?')) return;
-      const updatedQuestions = editForm.questions.filter((_: any, i: number) => i !== index);
+      const currentQuestions = editForm.questions || [];
+      const updatedQuestions = currentQuestions.filter((_: any, i: number) => i !== index);
       setEditForm({ ...editForm, questions: updatedQuestions });
   };
 
@@ -94,13 +99,18 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleReject = async (id: string) => {
-      if (!window.confirm('Delete this contribution permanently?')) return;
+      if (!window.confirm('Delete this contribution permanently? This action cannot be undone.')) return;
+      
+      // Optimistic update
+      setContributions(prev => prev.filter(c => c._id !== id));
+      
       try {
           await api.deleteContribution(id);
-          fetchContributions();
+          // fetchContributions(); // Optional: re-fetch to ensure sync
       } catch (err) {
           console.error(err);
           alert('Failed to delete');
+          fetchContributions(); // Revert on error
       }
   };
 
@@ -217,14 +227,14 @@ export const AdminDashboard: React.FC = () => {
                                     <div className="flex gap-2">
                                         {editingId === c._id ? (
                                             <>
-                                                <button onClick={handleSaveEdit} className="p-2 bg-green-100 text-green-700 rounded hover:bg-green-200"><Check className="w-4 h-4" /></button>
-                                                <button onClick={() => setEditingId(null)} className="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200"><X className="w-4 h-4" /></button>
+                                                <button type="button" onClick={handleSaveEdit} className="p-2 bg-green-100 text-green-700 rounded hover:bg-green-200"><Check className="w-4 h-4" /></button>
+                                                <button type="button" onClick={() => setEditingId(null)} className="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200"><X className="w-4 h-4" /></button>
                                             </>
                                         ) : (
                                             <>
-                                                <button onClick={() => handleStartEdit(c)} disabled={c.type === 'bulk'} className="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 disabled:opacity-50" title="Edit Content"><Edit3 className="w-4 h-4" /></button>
-                                                <button onClick={() => handleReject(c._id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200" title="Reject/Delete"><Trash2 className="w-4 h-4" /></button>
-                                                <button onClick={() => handleApprove(c._id)} className="p-2 bg-green-600 text-white rounded hover:bg-green-700 shadow-sm flex items-center gap-2 font-bold text-xs px-3">
+                                                <button type="button" onClick={() => handleStartEdit(c)} disabled={c.type === 'bulk'} className="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 disabled:opacity-50" title="Edit Content"><Edit3 className="w-4 h-4" /></button>
+                                                <button type="button" onClick={() => handleReject(c._id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200" title="Reject/Delete"><Trash2 className="w-4 h-4" /></button>
+                                                <button type="button" onClick={() => handleApprove(c._id)} className="p-2 bg-green-600 text-white rounded hover:bg-green-700 shadow-sm flex items-center gap-2 font-bold text-xs px-3">
                                                     Approve & Push <Send className="w-3 h-3" />
                                                 </button>
                                             </>
@@ -304,7 +314,8 @@ export const AdminDashboard: React.FC = () => {
                                                             <div className="flex justify-between items-center mb-3">
                                                                 <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Question #{idx + 1}</span>
                                                                 <button 
-                                                                    onClick={() => removeQuestionFromMultiple(idx)}
+                                                                    type="button"
+                                                                    onClick={(e) => removeQuestionFromMultiple(e, idx)}
                                                                     className="text-slate-400 hover:text-red-500 transition-colors p-1"
                                                                     title="Remove Question"
                                                                 >
@@ -369,6 +380,7 @@ export const AdminDashboard: React.FC = () => {
                                                 <p className="text-xs text-slate-500">{(c.data.size/1024).toFixed(1)} KB • {c.data.mimetype}</p>
                                             </div>
                                             <button 
+                                                type="button"
                                                 onClick={() => downloadFile(c.data.filename, c.data.contentBase64, c.data.mimetype)}
                                                 className="text-blue-600 hover:text-blue-800 text-xs font-bold flex items-center gap-1"
                                             >

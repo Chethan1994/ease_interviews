@@ -1,3 +1,4 @@
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -132,33 +133,61 @@ app.get('/api/admin/contributions', async (req: any, res: any) => {
         const contributions = await Contribution.find({ status: 'pending' }).sort({ submittedAt: -1 });
         res.json(contributions);
     } catch (err) {
+        console.error('Error fetching contributions:', err);
         res.status(500).json({ message: 'Error fetching contributions' });
     }
 });
 
 // Update Contribution Data
 app.put('/api/admin/contributions/:id', async (req: any, res: any) => {
+    console.log(`📝 Updating contribution ${req.params.id}`);
     try {
         const { data } = req.body;
-        await Contribution.findByIdAndUpdate(req.params.id, { data });
-        res.json({ message: 'Contribution updated' });
+        
+        // Ensure data is present
+        if (!data) {
+            return res.status(400).json({ message: 'No data provided for update' });
+        }
+
+        const updatedContribution = await Contribution.findByIdAndUpdate(
+            req.params.id, 
+            { data },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedContribution) {
+            return res.status(404).json({ message: 'Contribution not found' });
+        }
+
+        console.log('✅ Contribution updated successfully');
+        res.json({ message: 'Contribution updated', contribution: updatedContribution });
     } catch (err) {
+        console.error('❌ Error updating contribution:', err);
         res.status(500).json({ message: 'Error updating contribution' });
     }
 });
 
 // Delete Contribution
 app.delete('/api/admin/contributions/:id', async (req: any, res: any) => {
+    console.log(`🗑️ Deleting contribution ${req.params.id}`);
     try {
-        await Contribution.findByIdAndDelete(req.params.id);
+        const deletedContribution = await Contribution.findByIdAndDelete(req.params.id);
+        
+        if (!deletedContribution) {
+            return res.status(404).json({ message: 'Contribution not found' });
+        }
+
+        console.log('✅ Contribution deleted successfully');
         res.json({ message: 'Contribution deleted' });
     } catch (err) {
+        console.error('❌ Error deleting contribution:', err);
         res.status(500).json({ message: 'Error deleting contribution' });
     }
 });
 
 // Approve Contribution
 app.post('/api/admin/contributions/:id/approve', async (req: any, res: any) => {
+    console.log(`👍 Approving contribution ${req.params.id}`);
     try {
         const contribution = await Contribution.findById(req.params.id);
         if (!contribution) return res.status(404).json({ message: 'Contribution not found' });
@@ -194,9 +223,10 @@ app.post('/api/admin/contributions/:id/approve', async (req: any, res: any) => {
         contribution.status = 'approved';
         await contribution.save();
         
+        console.log('✅ Contribution approved and questions created');
         res.json({ message: 'Contribution approved and questions created' });
     } catch (err) {
-        console.error(err);
+        console.error('❌ Error approving contribution:', err);
         res.status(500).json({ message: 'Error approving contribution' });
     }
 });
