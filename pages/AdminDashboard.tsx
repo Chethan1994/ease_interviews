@@ -7,7 +7,10 @@ import { Users, FileText, Check, X, ShieldAlert, Edit3, Trash2, Send, Download, 
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'contributions'>('users');
+  const isSuperAdmin = user?.email === 'chethansg4@gmail.com';
+  
+  // Default to 'users' only if super admin, otherwise 'contributions'
+  const [activeTab, setActiveTab] = useState<'users' | 'contributions'>(isSuperAdmin ? 'users' : 'contributions');
   const [adminEmail, setAdminEmail] = useState('');
   const [message, setMessage] = useState('');
   
@@ -152,12 +155,14 @@ export const AdminDashboard: React.FC = () => {
         <h1 className="text-3xl font-bold text-slate-900 mb-8">Admin Dashboard</h1>
 
         <div className="flex border-b border-slate-200 mb-8">
-            <button
-                onClick={() => setActiveTab('users')}
-                className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'users' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
-            >
-                <Users className="w-4 h-4" /> Manage Admins
-            </button>
+            {isSuperAdmin && (
+                <button
+                    onClick={() => setActiveTab('users')}
+                    className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'users' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                >
+                    <Users className="w-4 h-4" /> Manage Admins
+                </button>
+            )}
             <button
                 onClick={() => setActiveTab('contributions')}
                 className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'contributions' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
@@ -166,7 +171,7 @@ export const AdminDashboard: React.FC = () => {
             </button>
         </div>
 
-        {activeTab === 'users' && (
+        {activeTab === 'users' && isSuperAdmin && (
             <div className="max-w-xl">
                 <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
                     <h3 className="text-xl font-bold text-slate-800 mb-4">Grant Admin Privileges</h3>
