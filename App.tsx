@@ -160,7 +160,13 @@ const MainContent: React.FC = () => {
                 <Dashboard 
                     progress={progressAdapter} 
                     questions={questions} 
-                    onStartStudy={() => navigate('/study')}
+                    onStartStudy={(category?: string) => {
+                        if (category) {
+                            navigate(`/study?category=${encodeURIComponent(category)}`);
+                        } else {
+                            navigate('/study');
+                        }
+                    }}
                 />
             } />
             <Route path="/browse" element={questionBankElement} />

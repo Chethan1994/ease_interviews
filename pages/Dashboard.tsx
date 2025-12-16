@@ -1,17 +1,29 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { UserProgress, Question, Category } from '../types';
 import { StatsChart } from '../components/StatsChart';
 import { AdBanner } from '../components/AdBanner';
-import { PlayCircle, Award, Target } from 'lucide-react';
+import { PlayCircle, Award, Target, X, Shuffle } from 'lucide-react';
+import { analytics } from '../utils/analytics';
 
 interface DashboardProps {
   progress: UserProgress;
   questions: Question[];
-  onStartStudy: () => void;
+  onStartStudy: (category?: string) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ progress, questions, onStartStudy }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = Object.values(Category);
+  
+  useEffect(() => {
+      // Log dashboard view with user stats
+      analytics.logEvent('view_dashboard', {
+          mastered_count: progress.masteredIds.length,
+          total_questions: questions.length,
+          is_premium: progress.isPremium
+      });
+  }, [progress.masteredIds.length, questions.length]);
   
   const getCategoryProgress = (cat: Category) => {
     const catQuestions = questions.filter(q => q.category === cat);
@@ -49,15 +61,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ progress, questions, onSta
                     <p className="text-2xl font-bold text-slate-900">{questions.length}</p>
                  </div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors" onClick={onStartStudy}>
+              <button 
+                 className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors text-left" 
+                 onClick={() => setIsModalOpen(true)}
+              >
                  <div className="p-3 bg-indigo-100 text-indigo-600 rounded-lg">
                     <PlayCircle className="w-6 h-6" />
                  </div>
                  <div>
                     <p className="text-sm text-slate-500 font-medium">Quick Start</p>
-                    <p className="text-sm font-bold text-indigo-600">Resume Session</p>
+                    <p className="text-sm font-bold text-indigo-600">Start Session</p>
                  </div>
-              </div>
+              </button>
            </div>
            
            <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
@@ -95,6 +110,69 @@ export const Dashboard: React.FC<DashboardProps> = ({ progress, questions, onSta
           <AdBanner slotId="dashboard-sidebar" />
         </div>
       </div>
+
+      {/* Topic Selection Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[85vh]">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-900">Start Study Session</h3>
+                        <p className="text-sm text-slate-500">Select a specific topic to focus on or mix them all.</p>
+                    </div>
+                    <button 
+                        onClick={() => setIsModalOpen(false)}
+                        className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                
+                <div className="p-6 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar">
+                    {/* All Topics Option */}
+                    <button
+                        onClick={() => { onStartStudy(); setIsModalOpen(false); }}
+                        className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-400 transition-all group text-center min-h-[140px]"
+                    >
+                        <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                            <Shuffle className="w-6 h-6" />
+                        </div>
+                        <span className="font-bold text-indigo-900">Mix All Topics</span>
+                        <span className="text-xs text-indigo-600/70 mt-1 font-medium">{questions.length} questions available</span>
+                    </button>
+
+                    {/* Categories */}
+                    {categories.map(cat => {
+                        const catQuestions = questions.filter(q => q.category === cat);
+                        const count = catQuestions.length;
+                        const percent = getCategoryProgress(cat);
+
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => { onStartStudy(cat); setIsModalOpen(false); }}
+                                className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 hover:border-primary-300 hover:shadow-md hover:bg-white bg-slate-50/50 transition-all text-center min-h-[140px] relative overflow-hidden group"
+                            >
+                                <span className="font-bold text-slate-800 mb-1 text-lg group-hover:text-primary-700">{cat}</span>
+                                <span className="text-xs text-slate-500 mb-3">{count} questions</span>
+                                
+                                <div className="w-full bg-slate-200 rounded-full h-1.5 mt-auto mb-1 overflow-hidden">
+                                    <div className="bg-primary-500 h-full transition-all" style={{ width: `${percent}%` }}></div>
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-400">
+                                    {percent}% Mastered
+                                </span>
+                            </button>
+                        )
+                    })}
+                </div>
+                
+                <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-400">
+                    Pro Tip: Focusing on one topic at a time can improve retention.
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -14,6 +14,17 @@ export const analytics = {
     }
   },
 
+  setUserId: (userId: string) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`👤 [Analytics] Set User ID: ${userId}`);
+    }
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('config', 'G-GVV1BWZ99X', {
+            'user_id': userId
+        });
+    }
+  },
+
   logPageView: (page_title: string) => {
     const params = {
         page_title,

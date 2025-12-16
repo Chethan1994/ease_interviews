@@ -390,6 +390,30 @@ app.post('/api/auth/google', async (req: any, res: any): Promise<any> => {
     }
 });
 
+// Get User Profile (Restore Session)
+app.get('/api/user/:id', async (req: any, res: any): Promise<any> => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findOne({ id: userId });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const userObj = user.toObject();
+        // @ts-ignore
+        delete userObj.password;
+        // @ts-ignore
+        delete userObj._id;
+        
+        console.log(`🔄 Session restored for user: ${user.email}`);
+        res.json(userObj);
+    } catch (err) {
+        console.error('❌ Fetch User Error:', err);
+        res.status(500).json({ message: 'Error fetching user profile' });
+    }
+});
+
 // Mark Mastered
 app.post('/api/user/progress/mastered', async (req: any, res: any): Promise<any> => {
     try {

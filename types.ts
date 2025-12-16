@@ -1,4 +1,5 @@
 
+
 export enum Difficulty {
   Easy = 'Easy',
   Medium = 'Medium',
@@ -31,6 +32,7 @@ export interface User {
   name: string;
   isPremium: boolean;
   isAdmin?: boolean;
+  googleId?: string;
   masteredIds: string[];
   reviewedIds: string[];
 }

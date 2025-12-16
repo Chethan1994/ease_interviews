@@ -47,6 +47,11 @@ export const api = {
         return handleResponse(res);
     },
 
+    async getUser(userId: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/user/${userId}`);
+        return handleResponse(res);
+    },
+
     async markMastered(userId: string, masteredId: string): Promise<User> {
         const res = await fetch(`${API_BASE}/user/progress/mastered`, {
             method: 'POST',
