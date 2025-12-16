@@ -10,6 +10,7 @@ import { AuthPage } from './pages/AuthPage';
 import { Contributor } from './pages/Contributor';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Promo } from './pages/Promo';
+import { SEO } from './components/SEO';
 import { ALL_QUESTIONS as STATIC_QUESTIONS } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { api } from './services/api';
@@ -132,12 +133,18 @@ const MainContent: React.FC = () => {
   }
 
   const questionBankElement = (
-      <QuestionBank 
-          questions={questions} 
-          masteredIds={masteredIds}
-          isGuest={!user}
-          onNavigateToLogin={() => {}}
-      />
+      <>
+        <SEO 
+            title="Question Bank - 1000+ Interview Questions" 
+            description="Browse our extensive collection of technical interview questions for React, Node.js, TypeScript, and more."
+        />
+        <QuestionBank 
+            questions={questions} 
+            masteredIds={masteredIds}
+            isGuest={!user}
+            onNavigateToLogin={() => {}}
+        />
+      </>
   );
 
   return (
@@ -167,35 +174,65 @@ const MainContent: React.FC = () => {
       <main className="pb-12">
         <Routes>
             <Route path="/dashboard" element={
-                <Dashboard 
-                    progress={progressAdapter} 
-                    questions={questions} 
-                    onStartStudy={(category?: string) => {
-                        if (category) {
-                            navigate(`/study?category=${encodeURIComponent(category)}`);
-                        } else {
-                            navigate('/study');
-                        }
-                    }}
-                />
+                <>
+                    <SEO title="Dashboard - Track Your Progress" />
+                    <Dashboard 
+                        progress={progressAdapter} 
+                        questions={questions} 
+                        onStartStudy={(category?: string) => {
+                            if (category) {
+                                navigate(`/study?category=${encodeURIComponent(category)}`);
+                            } else {
+                                navigate('/study');
+                            }
+                        }}
+                    />
+                </>
             } />
             <Route path="/browse" element={questionBankElement} />
             <Route path="/browse/:categoryId" element={questionBankElement} />
             
-            <Route path="/coding-challenges" element={<CodingChallenges />} />
-            <Route path="/coding-challenges/:categoryId" element={<CodingChallenges />} />
+            <Route path="/coding-challenges" element={
+                <>
+                    <SEO 
+                        title="Coding Challenges - Interactive Practice" 
+                        description="Solve real-world frontend coding challenges directly in your browser. Practice React, JavaScript hooks, and algorithms."
+                    />
+                    <CodingChallenges />
+                </>
+            } />
+            <Route path="/coding-challenges/:categoryId" element={
+                <>
+                    <SEO 
+                        title="Coding Challenges - Interactive Practice" 
+                        description="Solve real-world frontend coding challenges directly in your browser. Practice React, JavaScript hooks, and algorithms."
+                    />
+                    <CodingChallenges />
+                </>
+            } />
 
             <Route path="/study" element={
-                <StudyMode 
-                    questions={questions} 
-                    masteredIds={progressAdapter.masteredIds}
-                    onMarkMastered={handleMarkMastered}
-                    onMarkReviewed={handleMarkReviewed}
-                />
+                <>
+                    <SEO title="Study Mode - Flashcards" />
+                    <StudyMode 
+                        questions={questions} 
+                        masteredIds={progressAdapter.masteredIds}
+                        onMarkMastered={handleMarkMastered}
+                        onMarkReviewed={handleMarkReviewed}
+                    />
+                </>
             } />
-            <Route path="/contribute" element={<Contributor />} />
+            <Route path="/contribute" element={
+                <>
+                    <SEO title="Contribute Question" description="Submit your own interview questions to help the community." />
+                    <Contributor />
+                </>
+            } />
             <Route path="/auth" element={
-                <AuthPage onSuccess={() => navigate('/dashboard')} /> 
+                <>
+                    <SEO title="Sign In - Interview Prep Hub" />
+                    <AuthPage onSuccess={() => navigate('/dashboard')} /> 
+                </>
             } />
             
             <Route path="/admin" element={

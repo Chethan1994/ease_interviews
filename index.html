@@ -28,7 +28,10 @@
     <meta property="twitter:description" content="Ace your technical interview with our comprehensive Full Stack Question Bank and interactive Coding Challenges." />
     <meta property="twitter:image" content="https://ease-interviews.vercel.app/og-image.png" />
 
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/%3E%3Cpath d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/%3E%3C/svg%3E">
+    <!-- Favicon (Using stable CDN URL for Google Indexing) -->
+    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/book-open.svg" />
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/book-open.svg" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -43,21 +46,23 @@
       gtag('js', new Date());
 
       gtag('config', 'G-GVV1BWZ99X');
-    </script>
+    script>
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
+      "@type": "SoftwareApplication",
       "name": "Interview Prep Hub",
       "url": "https://ease-interviews.vercel.app/",
-      "description": "A comprehensive platform for Full Stack interview preparation.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://ease-interviews.vercel.app/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A comprehensive platform for Full Stack interview preparation with interactive coding challenges and flashcards."
     }
     </script>
 
