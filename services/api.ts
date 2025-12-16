@@ -23,6 +23,16 @@ export const api = {
         return res.json();
     },
 
+    async googleLogin(email: string, name: string, googleId: string): Promise<User> {
+        const res = await fetch(`${API_BASE}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, name, googleId }),
+        });
+        if (!res.ok) throw new Error((await res.json()).message || 'Google Login failed');
+        return res.json();
+    },
+
     async markMastered(userId: string, masteredId: string): Promise<User> {
         const res = await fetch(`${API_BASE}/user/progress/mastered`, {
             method: 'POST',

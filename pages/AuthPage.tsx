@@ -41,20 +41,40 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
 
     const handleGoogleLogin = async () => {
         setLoading(true);
-        // Simulate Google Login delay
-        setTimeout(() => {
-            const googleUser = {
-                id: 'google-' + Date.now(),
-                email: 'google-user@example.com',
+        setError('');
+        
+        // Note: In a real production app, you would use the Google Identity Services SDK here.
+        // For this demonstration, we simulate the "Google Popup" success and then call our backend
+        // to actually create or retrieve the user in MongoDB.
+        
+        try {
+            // Simulate waiting for Google Popup interaction
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Simulating a successful response from Google with a unique ID based on time
+            const timestamp = Date.now();
+            const mockGoogleProfile = {
+                email: `google_user_${timestamp}@gmail.com`,
                 name: 'Google User',
-                isPremium: false,
-                masteredIds: [],
-                reviewedIds: []
+                googleId: `google-auth-id-${timestamp}`
             };
-            login(googleUser);
-            setLoading(false);
+
+            // Call backend to Create/Login user in MongoDB
+            const user = await api.googleLogin(
+                mockGoogleProfile.email, 
+                mockGoogleProfile.name, 
+                mockGoogleProfile.googleId
+            );
+
+            login(user);
             onSuccess();
-        }, 1500);
+
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || "Failed to authenticate with Google");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

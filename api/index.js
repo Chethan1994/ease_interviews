@@ -1,1 +1,0 @@
-// File converted to TypeScript (index.ts). This file is deprecated.

@@ -1,7 +1,6 @@
 import express, { Request, Response, RequestHandler } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import nodemailer from 'nodemailer';
 import multer from 'multer';
 import mongoose from 'mongoose';
 import { Buffer } from 'buffer';
@@ -61,15 +60,6 @@ async function connectToDatabase() {
   return cached.conn;
 }
 
-// --- Email Configuration ---
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER || 'chethansg4@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-app-password-here' 
-    }
-});
-
 // --- Routes ---
 
 app.get('/api/health', async (req: any, res: any) => {
@@ -86,7 +76,7 @@ interface MulterRequest extends Request {
     body: any;
 }
 
-// Contribute Endpoint
+// Contribute Endpoint (No Email)
 app.post('/api/contribute', upload.single('file') as any, async (req: any, res: any): Promise<any> => {
     try {
         await connectToDatabase();
@@ -94,55 +84,15 @@ app.post('/api/contribute', upload.single('file') as any, async (req: any, res: 
         const { type } = req.body;
         const file = req.file;
 
-        let subject = '';
-        let textContent = '';
-        let attachments: { filename: string; content: Buffer }[] = [];
         let dbData: any = {};
 
         if (type === 'multiple') {
             const questions = JSON.parse(req.body.questions || '[]');
             dbData = { questions };
-            const count = questions.length;
-            
-            subject = `New Contribution: ${count} Question${count > 1 ? 's' : ''}`;
-            textContent = `User submitted ${count} questions:\n\n`;
-            
-            questions.forEach((q: any, index: number) => {
-                textContent += `--- QUESTION ${index + 1} ---\n`;
-                textContent += `Category: ${q.category}\n`;
-                textContent += `Difficulty: ${q.difficulty}\n`;
-                textContent += `Question:\n${q.question}\n\n`;
-                textContent += `Answer:\n${q.answer}\n\n`;
-                if (q.codeSnippet) {
-                    textContent += `Code Snippet:\n${q.codeSnippet}\n`;
-                }
-                textContent += `\n`;
-            });
-
         } else if (type === 'single') {
             const { category, difficulty, question, answer, codeSnippet } = req.body;
             dbData = { category, difficulty, question, answer, codeSnippet };
-            
-            subject = `New Contribution: ${category} (${difficulty})`;
-            textContent = `
-New Question Contribution
-
-Category: ${category}
-Difficulty: ${difficulty}
-
-Question:
-${question}
-
-Answer:
-${answer}
-
-Code Snippet:
-${codeSnippet || 'None'}
-            `;
         } else {
-            subject = 'Bulk Contribution Upload';
-            textContent = `A bulk file upload has been submitted. See attachment.`;
-            
             if (file) {
                  dbData = {
                     filename: file.originalname,
@@ -150,10 +100,6 @@ ${codeSnippet || 'None'}
                     size: file.size,
                     contentBase64: file.buffer.toString('base64')
                 };
-                attachments.push({
-                    filename: file.originalname,
-                    content: file.buffer
-                });
             } else {
                 return res.status(400).json({ message: 'No file uploaded for bulk submission' });
             }
@@ -167,22 +113,7 @@ ${codeSnippet || 'None'}
         });
         await newContribution.save();
 
-        // Send Email
-        const mailOptions = {
-            from: process.env.EMAIL_USER || 'chethansg4@gmail.com', 
-            to: 'chethansg4@gmail.com',
-            subject: subject,
-            text: textContent,
-            attachments: attachments
-        };
-
-        if (process.env.EMAIL_PASS) {
-            await transporter.sendMail(mailOptions);
-            res.json({ message: 'Contribution submitted successfully' });
-        } else {
-            console.log("Mock Email Sent:", mailOptions);
-            res.json({ message: 'Contribution submitted successfully (Saved to DB)' });
-        }
+        res.json({ message: 'Contribution submitted successfully' });
 
     } catch (error: any) {
         console.error('Contribution Error:', error);
@@ -245,6 +176,44 @@ app.post('/api/login', async (req: any, res: any): Promise<any> => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error during login' });
+    }
+});
+
+// Google Auth
+app.post('/api/auth/google', async (req: any, res: any): Promise<any> => {
+    try {
+        await connectToDatabase();
+        const { email, name, googleId } = req.body;
+        
+        let user = await User.findOne({ email });
+        
+        if (!user) {
+            user = new User({
+                id: Date.now().toString(),
+                email,
+                name,
+                googleId,
+                isPremium: false
+            });
+            await user.save();
+        } else {
+            // Link Google ID if not present
+            if (!user.googleId) {
+                user.googleId = googleId;
+                await user.save();
+            }
+        }
+
+        const userObj = user.toObject();
+        // @ts-ignore
+        delete userObj.password;
+        // @ts-ignore
+        delete userObj._id;
+        
+        res.json(userObj);
+    } catch (err) {
+        console.error('Google Auth Error:', err);
+        res.status(500).json({ message: 'Server error during Google authentication' });
     }
 });
 

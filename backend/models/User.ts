@@ -3,8 +3,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IUser extends Document {
   id: string;
   email: string;
-  password: string;
+  password?: string;
   name: string;
+  googleId?: string;
   isPremium: boolean;
   masteredIds: string[];
   reviewedIds: string[];
@@ -13,8 +14,9 @@ export interface IUser extends Document {
 const UserSchema: Schema = new Schema({
     id: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false }, // Optional for Google Auth users
     name: { type: String, required: true },
+    googleId: { type: String },
     isPremium: { type: Boolean, default: false },
     masteredIds: { type: [String], default: [] },
     reviewedIds: { type: [String], default: [] }
