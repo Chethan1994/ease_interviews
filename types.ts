@@ -30,6 +30,7 @@ export interface User {
   email: string;
   name: string;
   isPremium: boolean;
+  isAdmin?: boolean;
   masteredIds: string[];
   reviewedIds: string[];
 }
@@ -54,3 +55,11 @@ export interface CodingChallenge {
 }
 
 export type ViewState = 'dashboard' | 'browse' | 'study' | 'ai-quiz' | 'coding-challenges' | 'auth';
+
+export interface Contribution {
+    _id: string;
+    type: 'single' | 'multiple' | 'bulk';
+    data: any;
+    status: 'pending' | 'approved' | 'rejected';
+    submittedAt: string;
+}

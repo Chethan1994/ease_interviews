@@ -7,10 +7,12 @@ import { CodingChallenges } from './pages/CodingChallenges';
 import { StudyMode } from './pages/StudyMode';
 import { AuthPage } from './pages/AuthPage';
 import { Contributor } from './pages/Contributor';
-import { ALL_QUESTIONS as QUESTION_BANK } from './data/questions';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { ALL_QUESTIONS as STATIC_QUESTIONS } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { api } from './services/api';
 import { analytics } from './utils/analytics';
+import { Question } from './types';
 
 const MainContent: React.FC = () => {
   const location = useLocation();
@@ -20,12 +22,33 @@ const MainContent: React.FC = () => {
   // Local state for Release 1 "Guest" progress
   const [guestMasteredIds, setGuestMasteredIds] = useState<string[]>([]);
   const [guestReviewedIds, setGuestReviewedIds] = useState<string[]>([]);
+  
+  // Combined Questions (Static + DB)
+  const [questions, setQuestions] = useState<Question[]>(STATIC_QUESTIONS);
 
   useEffect(() => {
     // Track page views
     analytics.logPageView(location.pathname);
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  // Fetch extra questions from DB
+  useEffect(() => {
+      const fetchQuestions = async () => {
+          try {
+              const dbQuestions = await api.getDBQuestions();
+              // Merge, favoring DB if there were duplicates (though ID collision unlikely with current scheme)
+              // We append DB questions to static ones
+              if (dbQuestions && dbQuestions.length > 0) {
+                  // Transform DB _id or structure if necessary, though Type matches
+                  setQuestions([...STATIC_QUESTIONS, ...dbQuestions]);
+              }
+          } catch (e) {
+              console.error("Failed to load dynamic questions", e);
+          }
+      };
+      fetchQuestions();
+  }, []);
 
   // Enable Debug Mode for specific user
   useEffect(() => {
@@ -47,7 +70,7 @@ const MainContent: React.FC = () => {
   };
 
   const handleMarkMastered = async (id: string) => {
-    const question = QUESTION_BANK.find(q => q.id === id);
+    const question = questions.find(q => q.id === id);
     if (question) {
         analytics.logMastery(id, question.category);
     }
@@ -91,7 +114,7 @@ const MainContent: React.FC = () => {
 
   const questionBankElement = (
       <QuestionBank 
-          questions={QUESTION_BANK} 
+          questions={questions} 
           masteredIds={masteredIds}
           isGuest={!user}
           onNavigateToLogin={() => {}}
@@ -106,7 +129,7 @@ const MainContent: React.FC = () => {
             <Route path="/dashboard" element={
                 <Dashboard 
                     progress={progressAdapter} 
-                    questions={QUESTION_BANK} 
+                    questions={questions} 
                     onStartStudy={() => navigate('/study')}
                 />
             } />
@@ -118,7 +141,7 @@ const MainContent: React.FC = () => {
 
             <Route path="/study" element={
                 <StudyMode 
-                    questions={QUESTION_BANK} 
+                    questions={questions} 
                     masteredIds={progressAdapter.masteredIds}
                     onMarkMastered={handleMarkMastered}
                     onMarkReviewed={handleMarkReviewed}
@@ -128,6 +151,11 @@ const MainContent: React.FC = () => {
             <Route path="/auth" element={
                 <AuthPage onSuccess={() => navigate('/dashboard')} /> 
             } />
+            
+            <Route path="/admin" element={
+                user?.isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" replace />
+            } />
+
             {/* Redirect root to browse */}
             <Route path="*" element={<Navigate to="/browse" replace />} />
         </Routes>

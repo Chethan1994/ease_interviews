@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import { Buffer } from 'buffer';
 import User from '../backend/models/User';
 import Contribution from '../backend/models/Contribution';
+import Question from '../backend/models/Question';
 
 const app = express();
 
@@ -72,6 +73,107 @@ app.get('/api/health', async (req: any, res: any) => {
     }
 });
 
+// Get Questions (DB)
+app.get('/api/questions', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        const questions = await Question.find({});
+        res.json(questions);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching questions' });
+    }
+});
+
+// Promote to Admin
+app.post('/api/admin/promote', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        const { email } = req.body;
+        const user = await User.findOneAndUpdate({ email }, { isAdmin: true });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json({ message: 'User promoted to admin' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error promoting user' });
+    }
+});
+
+// Get Contributions
+app.get('/api/admin/contributions', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        const contributions = await Contribution.find({ status: 'pending' }).sort({ submittedAt: -1 });
+        res.json(contributions);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching contributions' });
+    }
+});
+
+// Update Contribution Data
+app.put('/api/admin/contributions/:id', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        const { data } = req.body;
+        await Contribution.findByIdAndUpdate(req.params.id, { data });
+        res.json({ message: 'Contribution updated' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating contribution' });
+    }
+});
+
+// Delete Contribution
+app.delete('/api/admin/contributions/:id', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        await Contribution.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Contribution deleted' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting contribution' });
+    }
+});
+
+// Approve Contribution
+app.post('/api/admin/contributions/:id/approve', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        const contribution = await Contribution.findById(req.params.id);
+        if (!contribution) return res.status(404).json({ message: 'Contribution not found' });
+
+        if (contribution.type === 'single') {
+            const qData = contribution.data;
+            const newQuestion = new Question({
+                id: Date.now().toString(),
+                category: qData.category,
+                difficulty: qData.difficulty,
+                question: qData.question,
+                answer: qData.answer,
+                codeSnippet: qData.codeSnippet
+            });
+            await newQuestion.save();
+        } 
+        else if (contribution.type === 'multiple' && Array.isArray(contribution.data.questions)) {
+             for (const q of contribution.data.questions) {
+                 const newQuestion = new Question({
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                    category: q.category,
+                    difficulty: q.difficulty,
+                    question: q.question,
+                    answer: q.answer,
+                    codeSnippet: q.codeSnippet
+                });
+                await newQuestion.save();
+             }
+        }
+
+        contribution.status = 'approved';
+        await contribution.save();
+        
+        res.json({ message: 'Contribution approved' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error approving contribution' });
+    }
+});
+
 interface MulterRequest extends Request {
     file?: any;
     body: any;
@@ -134,13 +236,15 @@ app.post('/api/register', async (req: any, res: any): Promise<any> => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const isAdmin = email === 'chethansg4@gmail.com';
 
         const newUser = new User({
             id: Date.now().toString(),
             email,
             password: hashedPassword, 
             name,
-            isPremium: false
+            isPremium: false,
+            isAdmin
         });
 
         await newUser.save();
@@ -200,16 +304,22 @@ app.post('/api/auth/google', async (req: any, res: any): Promise<any> => {
         let user = await User.findOne({ email });
         
         if (!user) {
+            const isAdmin = email === 'chethansg4@gmail.com';
             user = new User({
                 id: Date.now().toString(),
                 email,
                 name,
                 googleId,
-                isPremium: false
+                isPremium: false,
+                isAdmin
             });
             await user.save();
         } else {
-            // Link Google ID if not present
+            // Check for default admin logic on login for existing users
+            if (email === 'chethansg4@gmail.com' && !user.isAdmin) {
+                user.isAdmin = true;
+                await user.save();
+            }
             if (!user.googleId) {
                 user.googleId = googleId;
                 await user.save();

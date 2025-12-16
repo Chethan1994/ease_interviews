@@ -1,8 +1,21 @@
-import { User } from '../types';
+import { User, Question, Contribution } from '../types';
 
 // Use relative path for API calls. 
 // In development, Webpack proxy forwards '/api' to 'http://localhost:5000/api'.
 export const API_BASE = '/api';
+
+const handleResponse = async (res: Response) => {
+    const contentType = res.headers.get("content-type");
+    if (!contentType || contentType.indexOf("application/json") === -1) {
+         const text = await res.text();
+         // If it's a 404 HTML response, it likely means backend is down or route is wrong.
+         // We throw a specific error that can be caught gracefully.
+         throw new Error(`Server error: ${res.status} ${res.statusText} (${text.substring(0, 100)})`);
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Request failed');
+    return data;
+};
 
 export const api = {
     async register(email: string, password: string, name: string): Promise<User> {
@@ -11,17 +24,7 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, name }),
         });
-        
-        // Safety check: Ensure response is JSON
-        const contentType = res.headers.get("content-type");
-        if (!contentType || contentType.indexOf("application/json") === -1) {
-             const text = await res.text();
-             console.error('Non-JSON response:', text);
-             throw new Error(`Server error: ${res.status} ${res.statusText}. Ensure backend is running.`);
-        }
-
-        if (!res.ok) throw new Error((await res.json()).message || 'Registration failed');
-        return res.json();
+        return handleResponse(res);
     },
 
     async login(email: string, password: string): Promise<User> {
@@ -30,16 +33,7 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
-
-        const contentType = res.headers.get("content-type");
-        if (!contentType || contentType.indexOf("application/json") === -1) {
-             const text = await res.text();
-             console.error('Non-JSON response:', text);
-             throw new Error(`Server error: ${res.status} ${res.statusText}. Ensure backend is running.`);
-        }
-
-        if (!res.ok) throw new Error((await res.json()).message || 'Login failed');
-        return res.json();
+        return handleResponse(res);
     },
 
     async googleLogin(email: string, name: string, googleId: string): Promise<User> {
@@ -48,16 +42,7 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, name, googleId }),
         });
-
-        const contentType = res.headers.get("content-type");
-        if (!contentType || contentType.indexOf("application/json") === -1) {
-             const text = await res.text();
-             console.error('Non-JSON response:', text);
-             throw new Error(`Server error: ${res.status} ${res.statusText}. Ensure backend is running.`);
-        }
-
-        if (!res.ok) throw new Error((await res.json()).message || 'Google Login failed');
-        return res.json();
+        return handleResponse(res);
     },
 
     async markMastered(userId: string, masteredId: string): Promise<User> {
@@ -66,8 +51,7 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, masteredId }),
         });
-        if (!res.ok) throw new Error('Failed to update mastery');
-        return res.json();
+        return handleResponse(res);
     },
 
     async markReviewed(userId: string, reviewedId: string): Promise<User> {
@@ -76,8 +60,7 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, reviewedId }),
         });
-        if (!res.ok) throw new Error('Failed to update progress');
-        return res.json();
+        return handleResponse(res);
     },
 
     async processPaymentSuccess(userId: string): Promise<User> {
@@ -86,7 +69,60 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId }),
         });
-        if (!res.ok) throw new Error('Payment processing failed');
-        return res.json();
+        return handleResponse(res);
+    },
+
+    // --- Admin & Content ---
+
+    async getDBQuestions(): Promise<Question[]> {
+        try {
+            const res = await fetch(`${API_BASE}/questions`);
+            // Gracefully handle if backend is not running or route is missing (404)
+            if (res.status === 404 || res.status === 502 || res.status === 504) {
+                console.warn("Backend questions not available, using static only.");
+                return [];
+            }
+            return await handleResponse(res);
+        } catch (e) {
+            console.warn("Could not fetch DB questions (Backend might be down):", e);
+            return []; // Return empty array so app continues with static questions
+        }
+    },
+
+    async addAdmin(email: string): Promise<void> {
+        const res = await fetch(`${API_BASE}/admin/promote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        return handleResponse(res);
+    },
+
+    async getContributions(): Promise<Contribution[]> {
+        const res = await fetch(`${API_BASE}/admin/contributions`);
+        return handleResponse(res);
+    },
+
+    async updateContribution(id: string, data: any): Promise<void> {
+        const res = await fetch(`${API_BASE}/admin/contributions/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data }),
+        });
+        return handleResponse(res);
+    },
+
+    async deleteContribution(id: string): Promise<void> {
+        const res = await fetch(`${API_BASE}/admin/contributions/${id}`, {
+            method: 'DELETE',
+        });
+        return handleResponse(res);
+    },
+
+    async approveContribution(id: string): Promise<void> {
+        const res = await fetch(`${API_BASE}/admin/contributions/${id}/approve`, {
+            method: 'POST',
+        });
+        return handleResponse(res);
     }
 };

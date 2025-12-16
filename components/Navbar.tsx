@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake, LogOut, User as UserIcon } from 'lucide-react';
+import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake, LogOut, User as UserIcon, Shield } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NavbarProps {}
@@ -42,8 +42,6 @@ export const Navbar: React.FC<NavbarProps> = () => {
     }`;
 
   const handleNavClick = (path: string, resetKey?: string, state?: any) => {
-    // If we are navigating to the same path (e.g. clicking "Question Bank" while in Question Bank), 
-    // we pass a state object to force a reset effect in the target component.
     const navState = resetKey ? { reset: Date.now(), ...state } : state;
     navigate(path, { state: navState });
     setIsMobileMenuOpen(false);
@@ -69,7 +67,6 @@ export const Navbar: React.FC<NavbarProps> = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1 ml-6 flex-1">
-                {/* Dashboard - Disabled */}
                 <div className="relative group">
                     <button className={navItemClass('/dashboard', true)} disabled>
                         <BarChart2 className="w-4 h-4" />
@@ -92,6 +89,13 @@ export const Navbar: React.FC<NavbarProps> = () => {
                     <HeartHandshake className="w-4 h-4" />
                     <span>Contribute</span>
                 </button>
+
+                {user?.isAdmin && (
+                    <button onClick={() => handleNavClick('/admin')} className={navItemClass('/admin')}>
+                        <Shield className="w-4 h-4" />
+                        <span>Admin</span>
+                    </button>
+                )}
           </div>
 
           {/* Desktop Auth Buttons */}
@@ -140,7 +144,6 @@ export const Navbar: React.FC<NavbarProps> = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-4">
-             {/* Show user avatar on mobile header if logged in */}
              {user && (
                  <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
                     <UserIcon className="w-4 h-4" />
@@ -160,7 +163,6 @@ export const Navbar: React.FC<NavbarProps> = () => {
       {isMobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top-2 duration-200 overflow-hidden h-[calc(100vh-64px)] flex flex-col">
               <div className="p-4 space-y-2 flex-1 overflow-y-auto">
-                  {/* Dashboard - Disabled */}
                   <div className="relative">
                       <button className={mobileNavItemClass('/dashboard', true)} disabled>
                           <div className="flex items-center gap-3 w-full">
@@ -187,6 +189,13 @@ export const Navbar: React.FC<NavbarProps> = () => {
                       <HeartHandshake className="w-5 h-5" />
                       Contribute
                   </button>
+
+                  {user?.isAdmin && (
+                      <button onClick={() => handleNavClick('/admin')} className={mobileNavItemClass('/admin')}>
+                          <Shield className="w-5 h-5" />
+                          Admin
+                      </button>
+                  )}
 
                   <div className="border-t border-slate-100 my-4 pt-4">
                       {user ? (

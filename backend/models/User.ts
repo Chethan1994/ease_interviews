@@ -7,6 +7,7 @@ export interface IUser extends Document {
   name: string;
   googleId?: string;
   isPremium: boolean;
+  isAdmin: boolean;
   masteredIds: string[];
   reviewedIds: string[];
 }
@@ -18,6 +19,7 @@ const UserSchema: Schema = new Schema({
     name: { type: String, required: true },
     googleId: { type: String },
     isPremium: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false },
     masteredIds: { type: [String], default: [] },
     reviewedIds: { type: [String], default: [] }
 }, { 
