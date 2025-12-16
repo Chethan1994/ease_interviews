@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, BarChart2, Layers, Sparkles, Code2, Menu, X, Lock, HeartHandshake } from 'lucide-react';
+import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NavbarProps {}
@@ -84,15 +83,6 @@ export const Navbar: React.FC<NavbarProps> = () => {
                     <span>Coding</span>
                 </button>
                 
-                {/* AI Quiz - Disabled */}
-                <div className="relative group">
-                    <button className={navItemClass('/ai-quiz', true)} disabled>
-                        <Sparkles className="w-4 h-4" />
-                        <span>AI Quiz</span>
-                    </button>
-                    <PremiumTooltip />
-                </div>
-
                 {/* Contribute */}
                 <button onClick={() => handleNavClick('/contribute')} className={navItemClass('/contribute')}>
                     <HeartHandshake className="w-4 h-4" />
@@ -139,19 +129,6 @@ export const Navbar: React.FC<NavbarProps> = () => {
                       <Code2 className="w-5 h-5" />
                       Coding Challenges
                   </button>
-                  
-                  {/* AI Quiz - Disabled */}
-                  <div className="relative">
-                      <button className={mobileNavItemClass('/ai-quiz', true)} disabled>
-                          <div className="flex items-center gap-3 w-full">
-                            <Sparkles className="w-5 h-5" />
-                            AI Quiz
-                            <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded ml-auto flex items-center gap-1">
-                                <Lock className="w-3 h-3" /> Premium
-                            </span>
-                          </div>
-                      </button>
-                  </div>
 
                   <button onClick={() => handleNavClick('/contribute')} className={mobileNavItemClass('/contribute')}>
                       <HeartHandshake className="w-5 h-5" />

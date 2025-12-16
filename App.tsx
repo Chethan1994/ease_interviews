@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
@@ -7,7 +6,6 @@ import { QuestionBank } from './pages/QuestionBank';
 import { CodingChallenges } from './pages/CodingChallenges';
 import { StudyMode } from './pages/StudyMode';
 import { AuthPage } from './pages/AuthPage';
-import { AIQuiz } from './pages/AIQuiz'; 
 import { Contributor } from './pages/Contributor';
 import { ALL_QUESTIONS as QUESTION_BANK } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';

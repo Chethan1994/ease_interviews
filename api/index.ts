@@ -1,38 +1,67 @@
-require('dotenv').config();
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const nodemailer = require('nodemailer');
-const multer = require('multer');
-const mongoose = require('mongoose');
-const User = require('./models/User');
+import express, { Request, Response, RequestHandler } from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import nodemailer from 'nodemailer';
+import multer from 'multer';
+import mongoose from 'mongoose';
+import { Buffer } from 'buffer';
+import User from '../backend/models/User';
+import Contribution from '../backend/models/Contribution';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(bodyParser.json());
+// Allow CORS
+app.use(cors() as any);
+app.use(bodyParser.json() as any);
 
-// --- Database Connection ---
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Vercel-Admin-ease-interview-db:srRODOaoHwMOtY24@ease-interview-db.rfn442u.mongodb.net/interview-prep?retryWrites=true&w=majority';
-
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => {
-        console.error('❌ MongoDB Connection Error:', err);
-        console.log('Ensure you have a .env file with MONGO_URI or a local MongoDB running.');
-    });
-
-// --- Configuration ---
-
-// Multer for file uploads (stored in memory to attach to email)
+// Multer Config
 const storage = multer.memoryStorage();
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 4 * 1024 * 1024 } // 4MB Limit
+    limits: { fileSize: 4 * 1024 * 1024 } 
 });
 
-// Nodemailer Transporter
+// --- MongoDB Connection Management for Serverless ---
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Vercel-Admin-ease-interview-db:srRODOaoHwMOtY24@ease-interview-db.rfn442u.mongodb.net/interview-prep?retryWrites=true&w=majority';
+
+// Global cache to prevent multiple connections in serverless environment
+let cached = (global as any).mongoose;
+
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
+
+async function connectToDatabase() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+
+    console.log(`Connecting to MongoDB...`);
+    cached.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
+      console.log('✅ New MongoDB Connection Established');
+      return mongoose;
+    }).catch(err => {
+        console.error('❌ MongoDB Connection Error:', err);
+        throw err;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
+}
+
+// --- Email Configuration ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -43,30 +72,42 @@ const transporter = nodemailer.createTransport({
 
 // --- Routes ---
 
-app.get('/api/health', (req, res) => {
-    const readyState = mongoose.connection.readyState;
-    const status = readyState === 1 ? 'connected' : 'disconnected';
-    res.json({ status: 'ok', db: status });
+app.get('/api/health', async (req: any, res: any) => {
+    try {
+        await connectToDatabase();
+        res.json({ status: 'ok', db: 'connected' });
+    } catch (e: any) {
+        res.status(500).json({ status: 'error', error: e.message });
+    }
 });
 
-// --- Feature: Contribution (Email) ---
-app.post('/api/contribute', upload.single('file'), async (req, res) => {
+interface MulterRequest extends Request {
+    file?: any;
+    body: any;
+}
+
+// Contribute Endpoint
+app.post('/api/contribute', upload.single('file') as any, async (req: any, res: any): Promise<any> => {
     try {
+        await connectToDatabase();
+        
         const { type } = req.body;
         const file = req.file;
 
         let subject = '';
         let textContent = '';
-        let attachments = [];
+        let attachments: { filename: string; content: Buffer }[] = [];
+        let dbData: any = {};
 
         if (type === 'multiple') {
             const questions = JSON.parse(req.body.questions || '[]');
+            dbData = { questions };
             const count = questions.length;
             
             subject = `New Contribution: ${count} Question${count > 1 ? 's' : ''}`;
             textContent = `User submitted ${count} questions:\n\n`;
             
-            questions.forEach((q, index) => {
+            questions.forEach((q: any, index: number) => {
                 textContent += `--- QUESTION ${index + 1} ---\n`;
                 textContent += `Category: ${q.category}\n`;
                 textContent += `Difficulty: ${q.difficulty}\n`;
@@ -80,6 +121,8 @@ app.post('/api/contribute', upload.single('file'), async (req, res) => {
 
         } else if (type === 'single') {
             const { category, difficulty, question, answer, codeSnippet } = req.body;
+            dbData = { category, difficulty, question, answer, codeSnippet };
+            
             subject = `New Contribution: ${category} (${difficulty})`;
             textContent = `
 New Question Contribution
@@ -101,6 +144,12 @@ ${codeSnippet || 'None'}
             textContent = `A bulk file upload has been submitted. See attachment.`;
             
             if (file) {
+                 dbData = {
+                    filename: file.originalname,
+                    mimetype: file.mimetype,
+                    size: file.size,
+                    contentBase64: file.buffer.toString('base64')
+                };
                 attachments.push({
                     filename: file.originalname,
                     content: file.buffer
@@ -110,6 +159,15 @@ ${codeSnippet || 'None'}
             }
         }
 
+        // Save to DB
+        const newContribution = new Contribution({
+            type,
+            data: dbData,
+            status: 'pending'
+        });
+        await newContribution.save();
+
+        // Send Email
         const mailOptions = {
             from: process.env.EMAIL_USER || 'chethansg4@gmail.com', 
             to: 'chethansg4@gmail.com',
@@ -122,21 +180,20 @@ ${codeSnippet || 'None'}
             await transporter.sendMail(mailOptions);
             res.json({ message: 'Contribution submitted successfully' });
         } else {
-            console.log("Mock Email Sent (No password configured):", subject);
-            res.json({ message: 'Contribution submitted successfully (Mock)' });
+            console.log("Mock Email Sent:", mailOptions);
+            res.json({ message: 'Contribution submitted successfully (Saved to DB)' });
         }
 
-    } catch (error) {
-        console.error('Email send error:', error);
-        res.status(500).json({ message: 'Failed to submit contribution. Please try again later.' });
+    } catch (error: any) {
+        console.error('Contribution Error:', error);
+        res.status(500).json({ message: 'Failed to submit contribution. ' + error.message });
     }
 });
 
-// --- Feature: Authentication & User Data (MongoDB) ---
-
 // Register
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', async (req: any, res: any): Promise<any> => {
     try {
+        await connectToDatabase();
         const { email, password, name } = req.body;
         
         const existingUser = await User.findOne({ email });
@@ -145,18 +202,19 @@ app.post('/api/register', async (req, res) => {
         }
 
         const newUser = new User({
-            id: Date.now().toString(), // Custom ID for frontend compatibility
+            id: Date.now().toString(),
             email,
-            password, // Note: Use bcrypt in production!
+            password, 
             name,
             isPremium: false
         });
 
         await newUser.save();
 
-        // Remove sensitive data before sending back
         const userObj = newUser.toObject();
+        // @ts-ignore
         delete userObj.password;
+        // @ts-ignore
         delete userObj._id;
         
         res.json(userObj);
@@ -167,11 +225,10 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Login
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', async (req: any, res: any): Promise<any> => {
     try {
+        await connectToDatabase();
         const { email, password } = req.body;
-        
-        // Simple plain text check (Use bcrypt.compare in production)
         const user = await User.findOne({ email, password });
 
         if (!user) {
@@ -179,7 +236,9 @@ app.post('/api/login', async (req, res) => {
         }
         
         const userObj = user.toObject();
+        // @ts-ignore
         delete userObj.password;
+        // @ts-ignore
         delete userObj._id;
 
         res.json(userObj);
@@ -190,13 +249,14 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Mark Mastered
-app.post('/api/user/progress/mastered', async (req, res) => {
+app.post('/api/user/progress/mastered', async (req: any, res: any): Promise<any> => {
     try {
+        await connectToDatabase();
         const { userId, masteredId } = req.body;
         
         const user = await User.findOneAndUpdate(
             { id: userId },
-            { $addToSet: { masteredIds: masteredId } }, // $addToSet prevents duplicates
+            { $addToSet: { masteredIds: masteredId } },
             { new: true }
         );
 
@@ -205,7 +265,9 @@ app.post('/api/user/progress/mastered', async (req, res) => {
         }
 
         const userObj = user.toObject();
+        // @ts-ignore
         delete userObj.password;
+        // @ts-ignore
         delete userObj._id;
         res.json(userObj);
     } catch (err) {
@@ -215,8 +277,9 @@ app.post('/api/user/progress/mastered', async (req, res) => {
 });
 
 // Mark Reviewed
-app.post('/api/user/progress/reviewed', async (req, res) => {
+app.post('/api/user/progress/reviewed', async (req: any, res: any): Promise<any> => {
     try {
+        await connectToDatabase();
         const { userId, reviewedId } = req.body;
         
         const user = await User.findOneAndUpdate(
@@ -230,7 +293,9 @@ app.post('/api/user/progress/reviewed', async (req, res) => {
         }
 
         const userObj = user.toObject();
+        // @ts-ignore
         delete userObj.password;
+        // @ts-ignore
         delete userObj._id;
         res.json(userObj);
     } catch (err) {
@@ -240,8 +305,9 @@ app.post('/api/user/progress/reviewed', async (req, res) => {
 });
 
 // Process Payment
-app.post('/api/payment/success', async (req, res) => {
+app.post('/api/payment/success', async (req: any, res: any): Promise<any> => {
     try {
+        await connectToDatabase();
         const { userId } = req.body;
         
         const user = await User.findOneAndUpdate(
@@ -255,7 +321,9 @@ app.post('/api/payment/success', async (req, res) => {
         }
 
         const userObj = user.toObject();
+        // @ts-ignore
         delete userObj.password;
+        // @ts-ignore
         delete userObj._id;
         res.json(userObj);
     } catch (err) {
@@ -264,6 +332,4 @@ app.post('/api/payment/success', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-});
+export default app;
