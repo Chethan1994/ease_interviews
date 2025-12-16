@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { UserProgress, Question, Category } from '../types';
 import { StatsChart } from '../components/StatsChart';
 import { AdBanner } from '../components/AdBanner';
-import { PlayCircle, Award, Target, X, Shuffle } from 'lucide-react';
+import { PlayCircle, Award, Target, X, Shuffle, Share2, Check } from 'lucide-react';
 import { analytics } from '../utils/analytics';
 
 interface DashboardProps {
@@ -14,6 +14,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ progress, questions, onStartStudy }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
   const categories = Object.values(Category);
   
   useEffect(() => {
@@ -32,11 +33,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ progress, questions, onSta
     return Math.round((mastered / catQuestions.length) * 100);
   };
 
+  const handleShare = async () => {
+      const text = `I've mastered ${progress.masteredIds.length} interview questions on InterviewPrep! 🚀\n\nPrepare for your next frontend interview here: https://ease-interviews.vercel.app`;
+      
+      if (navigator.share) {
+          try {
+              await navigator.share({
+                  title: 'Interview Prep Progress',
+                  text: text,
+                  url: 'https://ease-interviews.vercel.app'
+              });
+          } catch (err) {
+              console.error('Error sharing:', err);
+          }
+      } else {
+          navigator.clipboard.writeText(text);
+          setShowShareTooltip(true);
+          setTimeout(() => setShowShareTooltip(false), 2000);
+      }
+      analytics.logEvent('share_progress');
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Welcome back, Developer</h1>
-        <p className="text-slate-500 mt-2">Track your progress and master your next interview.</p>
+      <div className="mb-8 flex justify-between items-end">
+        <div>
+            <h1 className="text-3xl font-bold text-slate-900">Welcome back, Developer</h1>
+            <p className="text-slate-500 mt-2">Track your progress and master your next interview.</p>
+        </div>
+        <div className="relative">
+            <button 
+                onClick={handleShare}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium text-sm shadow-md"
+            >
+                {showShareTooltip ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                {showShareTooltip ? 'Copied!' : 'Share Progress'}
+            </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

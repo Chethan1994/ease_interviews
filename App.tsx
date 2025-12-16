@@ -9,6 +9,7 @@ import { StudyMode } from './pages/StudyMode';
 import { AuthPage } from './pages/AuthPage';
 import { Contributor } from './pages/Contributor';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Promo } from './pages/Promo';
 import { ALL_QUESTIONS as STATIC_QUESTIONS } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { api } from './services/api';
@@ -121,6 +122,15 @@ const MainContent: React.FC = () => {
     }
   };
 
+  // If in Promo mode, hide Navbar and other elements (Promo page handles its own layout)
+  if (location.pathname === '/promo') {
+      return (
+          <Routes>
+              <Route path="/promo" element={<Promo />} />
+          </Routes>
+      );
+  }
+
   const questionBankElement = (
       <QuestionBank 
           questions={questions} 
@@ -191,6 +201,8 @@ const MainContent: React.FC = () => {
             <Route path="/admin" element={
                 user?.isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" replace />
             } />
+            
+            <Route path="/promo" element={<Promo />} />
 
             {/* Redirect root to browse */}
             <Route path="*" element={<Navigate to="/browse" replace />} />

@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
-import { AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { AlertCircle, ArrowRight, Sparkles, PlayCircle } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface AuthPageProps {
     onSuccess: () => void;
@@ -134,6 +134,7 @@ const OwlMascot = ({ isPasswordFocused, mousePosition }: { isPasswordFocused: bo
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     
     // Auth State
@@ -249,9 +250,17 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                         <p className="text-lg text-slate-600 font-medium leading-relaxed">
                             Master your interviews with interactive challenges and AI-powered insights.
                         </p>
-                        <div className="flex items-center justify-center gap-2 text-sm font-bold text-purple-600 bg-purple-50 py-2 px-4 rounded-full w-fit mx-auto border border-purple-100">
-                            <Sparkles className="w-4 h-4" /> 
-                            <span>1000+ Questions Available</span>
+                        <div className="flex flex-col gap-3 items-center">
+                            <div className="flex items-center justify-center gap-2 text-sm font-bold text-purple-600 bg-purple-50 py-2 px-4 rounded-full w-fit mx-auto border border-purple-100">
+                                <Sparkles className="w-4 h-4" /> 
+                                <span>1000+ Questions Available</span>
+                            </div>
+                            <button 
+                                onClick={() => navigate('/promo')}
+                                className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors py-2 px-4 hover:bg-slate-100 rounded-full"
+                            >
+                                <PlayCircle className="w-4 h-4" /> Watch App Trailer
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -259,10 +268,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                 {/* --- Right Column: Form Card --- */}
                 <div className="w-full">
                     {/* Mobile Mascot (Smaller) */}
-                    <div className="md:hidden flex justify-center mb-6">
+                    <div className="md:hidden flex flex-col items-center justify-center mb-6 gap-4">
                         <div className="w-32 h-32">
                             <OwlMascot isPasswordFocused={isPasswordFocused} mousePosition={mousePosition} />
                         </div>
+                        <button 
+                            onClick={() => navigate('/promo')}
+                            className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors py-2 px-4 bg-white border border-slate-200 rounded-full shadow-sm"
+                        >
+                            <PlayCircle className="w-4 h-4" /> Watch Trailer
+                        </button>
                     </div>
 
                     <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">

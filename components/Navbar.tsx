@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { BookOpen, BarChart2, Layers, Code2, Menu, X, Lock, HeartHandshake, LogOut, User as UserIcon, Shield } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, NavLink, Link } from 'react-router-dom';
 
 interface NavbarProps {}
 
@@ -12,41 +12,23 @@ export const Navbar: React.FC<NavbarProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Helper for tooltip
-  const PremiumTooltip = () => (
-      <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold py-1.5 px-3 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none flex items-center gap-1.5">
-          <Lock className="w-3 h-3 text-yellow-400" /> 
-          <span>Coming Soon (Premium)</span>
-          {/* Little arrow */}
-          <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-900"></div>
-      </div>
-  );
-
-  const isActive = (path: string) => location.pathname === path;
-
-  const navItemClass = (path: string, disabled = false) =>
+  const getNavItemClass = (isActive: boolean, disabled = false) =>
     `flex items-center gap-2 px-3 py-2 rounded-lg transition-all font-medium relative group text-sm ${
       disabled 
-        ? 'text-slate-400 cursor-not-allowed hover:bg-transparent' 
-        : isActive(path)
+        ? 'text-slate-400 cursor-not-allowed hover:bg-transparent pointer-events-none' 
+        : isActive
             ? 'bg-primary-50 text-primary-700'
             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
   
-  const mobileNavItemClass = (path: string, disabled = false) =>
+  const getMobileNavItemClass = (isActive: boolean, disabled = false) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium w-full ${
         disabled
-        ? 'text-slate-400 cursor-not-allowed bg-slate-50/50'
-        : isActive(path)
+        ? 'text-slate-400 cursor-not-allowed bg-slate-50/50 pointer-events-none'
+        : isActive
             ? 'bg-primary-50 text-primary-700'
             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
     }`;
-
-  const handleNavClick = (path: string, resetKey?: string, state?: any) => {
-    const navState = resetKey ? { reset: Date.now(), ...state } : state;
-    navigate(path, { state: navState });
-    setIsMobileMenuOpen(false);
-  };
 
   const handleLogout = () => {
       logout();
@@ -58,46 +40,65 @@ export const Navbar: React.FC<NavbarProps> = () => {
     <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo - Redirects to Question Bank (browse) */}
-          <div className="flex items-center gap-2 cursor-pointer group flex-shrink-0" onClick={() => handleNavClick('/browse', 'reset')}>
+          {/* Logo */}
+          <Link 
+            to="/browse" 
+            state={{ reset: Date.now() }}
+            className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
             <div className="bg-primary-600 p-2 rounded-lg group-hover:bg-primary-700 transition-colors">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold text-slate-900 tracking-tight hidden sm:block">InterviewPrep</span>
-          </div>
+          </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1 ml-6 flex-1">
-                <button 
-                    onClick={() => handleNavClick('/dashboard')} 
-                    className={navItemClass('/dashboard', !user)} 
-                    disabled={!user}
+                <NavLink 
+                    to="/dashboard"
+                    className={({ isActive }) => getNavItemClass(isActive, !user)}
+                    onClick={(e) => !user && e.preventDefault()}
                     title={!user ? "Login to access dashboard" : ""}
                 >
                     <BarChart2 className="w-4 h-4" />
                     <span>Dashboard</span>
-                </button>
+                </NavLink>
 
-                <button onClick={() => handleNavClick('/browse', 'reset')} className={navItemClass('/browse')}>
+                <NavLink 
+                    to="/browse" 
+                    state={{ reset: Date.now() }}
+                    className={({ isActive }) => getNavItemClass(isActive)}
+                >
                     <Layers className="w-4 h-4" />
                     <span>Question Bank</span>
-                </button>
+                </NavLink>
 
-                <button onClick={() => handleNavClick('/coding-challenges', 'reset')} className={navItemClass('/coding-challenges')}>
+                <NavLink 
+                    to="/coding-challenges" 
+                    state={{ reset: Date.now() }}
+                    className={({ isActive }) => getNavItemClass(isActive)}
+                >
                     <Code2 className="w-4 h-4" />
                     <span>Coding</span>
-                </button>
+                </NavLink>
                 
-                <button onClick={() => handleNavClick('/contribute')} className={navItemClass('/contribute')}>
+                <NavLink 
+                    to="/contribute" 
+                    className={({ isActive }) => getNavItemClass(isActive)}
+                >
                     <HeartHandshake className="w-4 h-4" />
                     <span>Contribute</span>
-                </button>
+                </NavLink>
 
                 {user?.isAdmin && (
-                    <button onClick={() => handleNavClick('/admin')} className={navItemClass('/admin')}>
+                    <NavLink 
+                        to="/admin" 
+                        className={({ isActive }) => getNavItemClass(isActive)}
+                    >
                         <Shield className="w-4 h-4" />
                         <span>Admin</span>
-                    </button>
+                    </NavLink>
                 )}
           </div>
 
@@ -129,18 +130,19 @@ export const Navbar: React.FC<NavbarProps> = () => {
                 </>
             ) : (
                 <>
-                    <button 
-                        onClick={() => handleNavClick('/auth')}
+                    <Link 
+                        to="/auth"
                         className="text-slate-600 hover:text-slate-900 font-medium text-sm px-4 py-2 transition-colors"
                     >
                         Sign In
-                    </button>
-                    <button 
-                        onClick={() => handleNavClick('/auth', undefined, { mode: 'signup' })}
+                    </Link>
+                    <Link 
+                        to="/auth"
+                        state={{ mode: 'signup' }}
                         className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30 active:scale-95"
                     >
                         Sign Up
-                    </button>
+                    </Link>
                 </>
             )}
           </div>
@@ -166,35 +168,53 @@ export const Navbar: React.FC<NavbarProps> = () => {
       {isMobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top-2 duration-200 overflow-hidden h-[calc(100vh-64px)] flex flex-col">
               <div className="p-4 space-y-2 flex-1 overflow-y-auto">
-                  <button 
-                      onClick={() => handleNavClick('/dashboard')} 
-                      className={mobileNavItemClass('/dashboard', !user)}
-                      disabled={!user}
+                  <NavLink 
+                      to="/dashboard"
+                      className={({ isActive }) => getMobileNavItemClass(isActive, !user)}
+                      onClick={(e) => { if(!user) e.preventDefault(); else setIsMobileMenuOpen(false); }}
                   >
                       <BarChart2 className="w-5 h-5" />
                       Dashboard 
-                  </button>
+                  </NavLink>
 
-                  <button onClick={() => handleNavClick('/browse', 'reset')} className={mobileNavItemClass('/browse')}>
+                  <NavLink 
+                      to="/browse" 
+                      state={{ reset: Date.now() }}
+                      className={({ isActive }) => getMobileNavItemClass(isActive)}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                  >
                       <Layers className="w-5 h-5" />
                       Question Bank
-                  </button>
+                  </NavLink>
                   
-                  <button onClick={() => handleNavClick('/coding-challenges', 'reset')} className={mobileNavItemClass('/coding-challenges')}>
+                  <NavLink 
+                      to="/coding-challenges" 
+                      state={{ reset: Date.now() }}
+                      className={({ isActive }) => getMobileNavItemClass(isActive)}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                  >
                       <Code2 className="w-5 h-5" />
                       Coding Challenges
-                  </button>
+                  </NavLink>
 
-                  <button onClick={() => handleNavClick('/contribute')} className={mobileNavItemClass('/contribute')}>
+                  <NavLink 
+                      to="/contribute" 
+                      className={({ isActive }) => getMobileNavItemClass(isActive)}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                  >
                       <HeartHandshake className="w-5 h-5" />
                       Contribute
-                  </button>
+                  </NavLink>
 
                   {user?.isAdmin && (
-                      <button onClick={() => handleNavClick('/admin')} className={mobileNavItemClass('/admin')}>
+                      <NavLink 
+                          to="/admin" 
+                          className={({ isActive }) => getMobileNavItemClass(isActive)}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                      >
                           <Shield className="w-5 h-5" />
                           Admin
-                      </button>
+                      </NavLink>
                   )}
 
                   <div className="border-t border-slate-100 my-4 pt-4">
@@ -219,18 +239,21 @@ export const Navbar: React.FC<NavbarProps> = () => {
                         </>
                       ) : (
                         <div className="grid grid-cols-2 gap-3 px-2">
-                             <button 
-                                onClick={() => handleNavClick('/auth')}
+                             <Link 
+                                to="/auth"
                                 className="flex justify-center items-center py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                                onClick={() => setIsMobileMenuOpen(false)}
                              >
                                 Sign In
-                             </button>
-                             <button 
-                                onClick={() => handleNavClick('/auth', undefined, { mode: 'signup' })}
+                             </Link>
+                             <Link 
+                                to="/auth"
+                                state={{ mode: 'signup' }}
                                 className="flex justify-center items-center py-3 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 shadow-md shadow-primary-500/20"
+                                onClick={() => setIsMobileMenuOpen(false)}
                              >
                                 Sign Up
-                             </button>
+                             </Link>
                         </div>
                       )}
                   </div>

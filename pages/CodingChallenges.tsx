@@ -7,7 +7,7 @@ import { AdBanner } from '../components/AdBanner';
 import { CopyButton } from '../components/ui/CopyButton';
 import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { Code2, Play, ExternalLink, Box, CheckCircle2, RefreshCw, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, FileCode, Monitor } from 'lucide-react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
 
 const CATEGORY_ICONS: Record<Category, React.ElementType> = {
   [Category.React]: Code2,
@@ -143,10 +143,6 @@ export const CodingChallenges: React.FC = () => {
     `;
   };
 
-  const handleCategorySelect = (cat: Category) => {
-      navigate(`/coding-challenges/${encodeURIComponent(cat)}`);
-  };
-
   const handleBackToBlocks = () => {
       navigate('/coding-challenges');
   };
@@ -174,10 +170,10 @@ export const CodingChallenges: React.FC = () => {
                     const count = CODING_CHALLENGES.filter(c => c.category === cat).length;
                     
                     return (
-                        <button
+                        <Link
                             key={cat}
-                            onClick={() => handleCategorySelect(cat)}
-                            className="group relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 text-left overflow-hidden"
+                            to={`/coding-challenges/${encodeURIComponent(cat)}`}
+                            className="group relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 text-left overflow-hidden block"
                         >
                             <div className="absolute top-4 right-4 text-slate-100 font-black text-6xl opacity-20 group-hover:opacity-10 transition-opacity">
                                 {cat.charAt(0)}
@@ -190,7 +186,7 @@ export const CodingChallenges: React.FC = () => {
                                 <h3 className="text-2xl font-bold text-slate-900 mb-2">{cat}</h3>
                                 <p className="text-slate-500 font-medium">{count} Challenges</p>
                             </div>
-                        </button>
+                        </Link>
                     );
                 })}
             </div>
@@ -208,12 +204,12 @@ export const CodingChallenges: React.FC = () => {
     <>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in slide-in-from-right-8 duration-300">
         <div className="flex items-center gap-4 mb-8">
-            <button 
-                onClick={handleBackToBlocks}
+            <Link 
+                to="/coding-challenges"
                 className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-slate-900"
             >
                 <ArrowLeft className="w-6 h-6" />
-            </button>
+            </Link>
             <div>
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                     {selectedCategory} <span className="text-slate-300">/</span> Challenges

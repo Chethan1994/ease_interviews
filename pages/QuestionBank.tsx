@@ -7,7 +7,7 @@ import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { AdBanner } from '../components/AdBanner';
 import { analytics } from '../utils/analytics';
 import { Search, CheckCircle, Code, Terminal, Layout, Hash, ArrowLeft, Clock, Server, Zap, ArrowUpDown, FileCode, FileText, Filter, Check, X } from 'lucide-react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
 
 interface QuestionBankProps {
   questions: Question[];
@@ -51,7 +51,6 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
         setSelectedDifficulties([]);
         setShowMastered(true);
         setSortOrder('default');
-        // We don't need to force navigate here because Navbar links already point to /browse
     }
   }, [location.state]);
   
@@ -114,16 +113,6 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
 
   const visibleQuestions = sortedQuestions;
 
-  // Handler for category selection
-  const handleCategorySelect = (cat: Category) => {
-      navigate(`/browse/${encodeURIComponent(cat)}`);
-  };
-
-  // Handler for back button
-  const handleBackToBlocks = () => {
-      navigate('/browse');
-  };
-
   // If no category selected (and no valid URL param), show Category Selection View
   if (!selectedCategory) {
     return (
@@ -145,17 +134,17 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
             const displayCount = Math.min(count, 30);
             
             return (
-              <button
+              <Link
                 key={cat}
-                onClick={() => handleCategorySelect(cat)}
-                className="group p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary-200 transition-all duration-300 text-left"
+                to={`/browse/${encodeURIComponent(cat)}`}
+                className="group p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary-200 transition-all duration-300 text-left block"
               >
                 <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-50 transition-colors">
                   <Icon className="w-6 h-6 text-slate-600 group-hover:text-primary-600" />
                 </div>
                 <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-primary-700 transition-colors">{cat}</h3>
                 <p className="text-slate-500 text-sm">{displayCount}+ questions</p>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -172,12 +161,12 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({ questions = [], mast
       {/* Header Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={handleBackToBlocks}
+          <Link 
+            to="/browse"
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-slate-900"
           >
             <ArrowLeft className="w-6 h-6" />
-          </button>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
               {selectedCategory}
