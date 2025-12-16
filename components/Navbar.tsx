@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, BarChart2, Layers, Sparkles, Code2, Menu, X, Lock } from 'lucide-react';
+import { BookOpen, BarChart2, Layers, Sparkles, Code2, Menu, X, Lock, HeartHandshake } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NavbarProps {}
@@ -91,6 +92,12 @@ export const Navbar: React.FC<NavbarProps> = () => {
                     </button>
                     <PremiumTooltip />
                 </div>
+
+                {/* Contribute */}
+                <button onClick={() => handleNavClick('/contribute')} className={navItemClass('/contribute')}>
+                    <HeartHandshake className="w-4 h-4" />
+                    <span>Contribute</span>
+                </button>
             </div>
           </div>
 
@@ -145,6 +152,11 @@ export const Navbar: React.FC<NavbarProps> = () => {
                           </div>
                       </button>
                   </div>
+
+                  <button onClick={() => handleNavClick('/contribute')} className={mobileNavItemClass('/contribute')}>
+                      <HeartHandshake className="w-5 h-5" />
+                      Contribute
+                  </button>
               </div>
           </div>
       )}
