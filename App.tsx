@@ -135,8 +135,9 @@ const MainContent: React.FC = () => {
   const questionBankElement = (
       <>
         <SEO 
-            title="Question Bank - 1000+ Interview Questions" 
-            description="Browse our extensive collection of technical interview questions for React, Node.js, TypeScript, and more."
+            title="Interview Question Bank | React, Node, Frontend & Backend" 
+            description="Browse 1000+ technical interview questions covering React, Node.js, TypeScript, Next.js, and System Design for frontend and backend roles."
+            keywords="Question Bank, Interview Questions, React, Node.js, TypeScript, Frontend Interview, Backend Interview, Coding Round"
         />
         <QuestionBank 
             questions={questions} 
@@ -175,7 +176,10 @@ const MainContent: React.FC = () => {
         <Routes>
             <Route path="/dashboard" element={
                 <>
-                    <SEO title="Dashboard - Track Your Progress" />
+                    <SEO 
+                        title="Dashboard | Track Frontend & Backend Progress" 
+                        keywords="Interview Progress, Mastery Tracking, Frontend Goals, Backend Goals"
+                    />
                     <Dashboard 
                         progress={progressAdapter} 
                         questions={questions} 
@@ -195,8 +199,9 @@ const MainContent: React.FC = () => {
             <Route path="/coding-challenges" element={
                 <>
                     <SEO 
-                        title="Coding Challenges - Interactive Practice" 
-                        description="Solve real-world frontend coding challenges directly in your browser. Practice React, JavaScript hooks, and algorithms."
+                        title="Coding Challenges | React, JS, Node & Coding Round" 
+                        description="Solve real-world coding round challenges. Practice React hooks, JavaScript algorithms, Node.js APIs, and Frontend Machine Coding."
+                        keywords="Coding Challenges, Coding Round, React Machine Coding, JavaScript Algorithms, Node.js Challenges, Frontend Coding, Backend Coding"
                     />
                     <CodingChallenges />
                 </>
@@ -204,8 +209,9 @@ const MainContent: React.FC = () => {
             <Route path="/coding-challenges/:categoryId" element={
                 <>
                     <SEO 
-                        title="Coding Challenges - Interactive Practice" 
-                        description="Solve real-world frontend coding challenges directly in your browser. Practice React, JavaScript hooks, and algorithms."
+                        title="Coding Challenges | React, JS, Node & Coding Round" 
+                        description="Solve real-world coding round challenges. Practice React hooks, JavaScript algorithms, Node.js APIs, and Frontend Machine Coding."
+                        keywords="Coding Challenges, Coding Round, React Machine Coding, JavaScript Algorithms, Node.js Challenges, Frontend Coding, Backend Coding"
                     />
                     <CodingChallenges />
                 </>

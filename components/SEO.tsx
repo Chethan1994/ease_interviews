@@ -5,11 +5,13 @@ import { useLocation } from 'react-router-dom';
 interface SEOProps {
   title?: string;
   description?: string;
+  keywords?: string;
 }
 
 export const SEO: React.FC<SEOProps> = ({ 
-  title = "Interview Prep Hub | Master Full Stack & Frontend Interviews", 
-  description = "Ace your technical interview with our comprehensive Full Stack Question Bank, interactive Coding Challenges, and AI-powered Mock Interviews."
+  title = "Interview Prep Hub | React, Node, JS & Frontend Coding Round Questions", 
+  description = "Master your Frontend and Backend interview. Comprehensive Question Bank and Coding Rounds for React, Node.js, Next.js, JavaScript, and TypeScript.",
+  keywords = "Interview Preparation, React, Node.js, Next.js, JavaScript, TypeScript, Coding Round, Frontend, Backend, Full Stack Interview"
 }) => {
   const location = useLocation();
 
@@ -26,6 +28,15 @@ export const SEO: React.FC<SEOProps> = ({
     }
     metaDescription.setAttribute('content', description);
 
+    // Update Meta Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords);
+
     // Update Canonical Link
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -35,7 +46,7 @@ export const SEO: React.FC<SEOProps> = ({
     }
     canonical.setAttribute('href', window.location.href);
 
-  }, [title, description, location]);
+  }, [title, description, keywords, location]);
 
   return null;
 };
