@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
@@ -13,6 +14,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { api } from './services/api';
 import { analytics } from './utils/analytics';
 import { Question } from './types';
+import { AlertTriangle, X } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const location = useLocation();
@@ -25,6 +27,9 @@ const MainContent: React.FC = () => {
   
   // Combined Questions (Static + DB)
   const [questions, setQuestions] = useState<Question[]>(STATIC_QUESTIONS);
+  
+  // Debug State
+  const [backendError, setBackendError] = useState<string | null>(null);
 
   useEffect(() => {
     // Track page views
@@ -40,11 +45,14 @@ const MainContent: React.FC = () => {
               // Merge, favoring DB if there were duplicates (though ID collision unlikely with current scheme)
               // We append DB questions to static ones
               if (dbQuestions && dbQuestions.length > 0) {
-                  // Transform DB _id or structure if necessary, though Type matches
                   setQuestions([...STATIC_QUESTIONS, ...dbQuestions]);
               }
-          } catch (e) {
-              console.error("Failed to load dynamic questions", e);
+              // If successful, ensure no error is showing
+              setBackendError(null);
+          } catch (e: any) {
+              // Silently fail for initial data fetch to allow "Offline Mode"
+              // We log to console for developer awareness but don't disrupt user experience
+              console.warn("Backend not reachable. App running in static/offline mode.", e.message);
           }
       };
       fetchQuestions();
@@ -83,8 +91,9 @@ const MainContent: React.FC = () => {
                 updateUser({ ...user, masteredIds: newMastered });
                 await api.markMastered(user.id, id);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
+            // Optionally show toast for action failure
         }
     } else {
         if (!guestMasteredIds.includes(id)) {
@@ -124,6 +133,27 @@ const MainContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <Navbar />
+      
+      {/* Backend Error Banner - Only show for critical errors manually set, not initial fetch */}
+      {backendError && (
+        <div className="bg-red-600 text-white px-4 py-3 shadow-lg fixed bottom-0 w-full z-[100] animate-in slide-in-from-bottom-2">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                    <div>
+                        <p className="text-sm font-bold">Connection Issue</p>
+                        <p className="text-xs text-red-100 opacity-90 font-mono mt-0.5 max-w-2xl truncate">{backendError}</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4">
+                    <button onClick={() => setBackendError(null)} className="text-white/60 hover:text-white transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
       <main className="pb-12">
         <Routes>
             <Route path="/dashboard" element={

@@ -9,101 +9,84 @@ interface AuthPageProps {
     onSuccess: () => void;
 }
 
-// --- Study Owl Mascot Component ---
-const StudyOwl = ({ isPasswordFocused, mousePosition }: { isPasswordFocused: boolean, mousePosition: { x: number, y: number } }) => {
-    // Calculate look direction (limited range)
-    const lookX = Math.max(-15, Math.min(15, mousePosition.x / 15));
-    const lookY = Math.max(-10, Math.min(10, mousePosition.y / 15));
+// --- Paper Man Mascot Component ---
+const PaperMan = ({ isPasswordFocused, mousePosition }: { isPasswordFocused: boolean, mousePosition: { x: number, y: number } }) => {
+    // Calculate look direction limited to a small range
+    const lookX = Math.max(-10, Math.min(10, mousePosition.x / 20));
+    const lookY = Math.max(-10, Math.min(10, mousePosition.y / 20));
 
     return (
         <div className="w-64 h-64 relative transition-all duration-300 ease-out">
             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
                 <defs>
-                    <filter id="owl-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <filter id="paper-shadow" x="-20%" y="-20%" width="140%" height="140%">
                         <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="#000000" floodOpacity="0.1"/>
                     </filter>
                 </defs>
 
-                {/* --- Stack of Books (Base) --- */}
-                <g transform="translate(40, 140)">
-                    {/* Bottom Book */}
-                    <rect x="0" y="25" width="120" height="25" rx="2" fill="#3b82f6" stroke="#1e3a8a" strokeWidth="2" />
-                    <rect x="5" y="40" width="110" height="3" fill="#60a5fa" opacity="0.3" />
-                    <text x="60" y="42" textAnchor="middle" fontSize="8" fill="#1e3a8a" fontFamily="sans-serif" fontWeight="bold">ALGORITHMS</text>
+                {/* --- Body Group (Slight movement) --- */}
+                <g transform={`translate(${lookX * 0.2}, ${lookY * 0.2 + 10})`}>
+                    {/* Legs */}
+                    <path d="M 85 140 L 85 180" stroke="#334155" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M 115 140 L 115 180" stroke="#334155" strokeWidth="4" strokeLinecap="round" />
                     
-                    {/* Top Book */}
-                    <rect x="10" y="0" width="100" height="25" rx="2" fill="#ef4444" stroke="#7f1d1d" strokeWidth="2" />
-                    <rect x="15" y="15" width="90" height="3" fill="#f87171" opacity="0.3" />
-                    <text x="60" y="17" textAnchor="middle" fontSize="8" fill="#7f1d1d" fontFamily="sans-serif" fontWeight="bold">REACT</text>
+                    {/* Torso (Paper Sheet) */}
+                    <rect x="70" y="90" width="60" height="60" rx="2" fill="#fff" stroke="#cbd5e1" strokeWidth="2" filter="url(#paper-shadow)" />
+                    {/* Tie / decoration */}
+                    <path d="M 100 90 L 100 130" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 2" />
                 </g>
-
-                {/* --- Body --- */}
-                <ellipse cx="100" cy="110" rx="45" ry="50" fill="#cbd5e1" stroke="#475569" strokeWidth="2" filter="url(#owl-shadow)" />
-                {/* Belly feathers */}
-                <path d="M 80 130 Q 100 140 120 130" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" />
-                <path d="M 85 140 Q 100 150 115 140" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" />
 
                 {/* --- Head Group (Follows mouse) --- */}
-                <g style={{ 
-                    transform: `translate(${lookX}px, ${lookY}px)`, 
-                    transition: 'transform 0.1s ease-out' 
-                }}>
-                    {/* Head Shape */}
-                    <ellipse cx="100" cy="70" rx="40" ry="35" fill="#e2e8f0" stroke="#475569" strokeWidth="2" filter="url(#owl-shadow)" />
+                <g transform={`translate(${lookX}, ${lookY})`}>
+                    {/* Head Shape (Paper) */}
+                    <rect x="50" y="30" width="100" height="80" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2" filter="url(#paper-shadow)" />
                     
-                    {/* Ears/Tufts */}
-                    <path d="M 70 45 L 60 25 L 85 40" fill="#cbd5e1" stroke="#475569" strokeWidth="2" strokeLinejoin="round" />
-                    <path d="M 130 45 L 140 25 L 115 40" fill="#cbd5e1" stroke="#475569" strokeWidth="2" strokeLinejoin="round" />
+                    {/* Face Details */}
+                    {/* Cheeks */}
+                    <circle cx="65" cy="75" r="5" fill="#fecaca" opacity="0.6" />
+                    <circle cx="135" cy="75" r="5" fill="#fecaca" opacity="0.6" />
 
-                    {/* Eyes Background */}
-                    <circle cx="82" cy="70" r="14" fill="#ffffff" stroke="#475569" strokeWidth="2" />
-                    <circle cx="118" cy="70" r="14" fill="#ffffff" stroke="#475569" strokeWidth="2" />
-
-                    {/* Pupils (Move slightly more for depth) */}
-                    <g style={{ transform: `translate(${lookX * 0.5}px, ${lookY * 0.5}px)` }}>
-                        <circle cx="82" cy="70" r="6" fill="#1e293b" />
-                        <circle cx="84" cy="68" r="2" fill="white" />
+                    {/* Eyes */}
+                    <g className="transition-all duration-200">
+                        {/* Left Eye */}
+                        <circle cx="75" cy="60" r="6" fill="#1e293b" />
+                        <circle cx="77" cy="58" r="2" fill="white" />
                         
-                        <circle cx="118" cy="70" r="6" fill="#1e293b" />
-                        <circle cx="120" cy="68" r="2" fill="white" />
+                        {/* Right Eye */}
+                        <circle cx="125" cy="60" r="6" fill="#1e293b" />
+                        <circle cx="127" cy="58" r="2" fill="white" />
                     </g>
 
-                    {/* Beak */}
-                    <path d="M 100 80 L 95 90 L 105 90 Z" fill="#f59e0b" stroke="#b45309" strokeWidth="1" />
+                    {/* Mouth */}
+                    <path 
+                        d="M 90 80 Q 100 85 110 80" 
+                        fill="none" 
+                        stroke="#334155" 
+                        strokeWidth="3" 
+                        strokeLinecap="round"
+                        style={{ transition: 'd 0.3s' }}
+                    />
                 </g>
 
-                {/* --- Wings / Hands (Interactive Privacy Mode) --- */}
-                {/* Left Wing */}
-                <path 
-                    d="M 55 110 Q 30 130 55 150" 
-                    fill="#94a3b8" 
-                    stroke="#475569" 
-                    strokeWidth="2"
-                    style={{
-                        transformOrigin: '55px 110px',
-                        transform: isPasswordFocused ? 'rotate(-30deg) translate(25px, -45px) scale(1.2)' : 'rotate(0deg)',
-                        transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                    }}
-                />
-                
-                {/* Right Wing */}
-                <path 
-                    d="M 145 110 Q 170 130 145 150" 
-                    fill="#94a3b8" 
-                    stroke="#475569" 
-                    strokeWidth="2"
-                    style={{
-                        transformOrigin: '145px 110px',
-                        transform: isPasswordFocused ? 'rotate(30deg) translate(-25px, -45px) scale(1.2)' : 'rotate(0deg)',
-                        transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                    }}
-                />
+                {/* --- Arms (Interactive) --- */}
+                {/* Left Arm */}
+                <g style={{ 
+                    transformOrigin: '70px 100px',
+                    transform: isPasswordFocused ? 'rotate(-140deg) translate(10px, -20px)' : `rotate(${lookY * 2}deg)`,
+                    transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' 
+                }}>
+                    <path d="M 70 100 L 40 130" stroke="#334155" strokeWidth="4" strokeLinecap="round" />
+                    <circle cx="40" cy="130" r="8" fill="#fff" stroke="#334155" strokeWidth="2" />
+                </g>
 
-                {/* Graduation Cap (Optional Flair) */}
-                <g transform={`translate(${lookX * 0.8}, ${lookY * 0.8 - 10})`}>
-                    <path d="M 100 20 L 130 35 L 100 50 L 70 35 Z" fill="#1e293b" stroke="#0f172a" strokeWidth="2" />
-                    <path d="M 130 35 L 130 45" stroke="#f59e0b" strokeWidth="2" />
-                    <circle cx="130" cy="48" r="3" fill="#f59e0b" />
+                {/* Right Arm */}
+                <g style={{ 
+                    transformOrigin: '130px 100px',
+                    transform: isPasswordFocused ? 'rotate(140deg) translate(-10px, -20px)' : `rotate(${-lookY * 2}deg)`,
+                    transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' 
+                }}>
+                    <path d="M 130 100 L 160 130" stroke="#334155" strokeWidth="4" strokeLinecap="round" />
+                    <circle cx="160" cy="130" r="8" fill="#fff" stroke="#334155" strokeWidth="2" />
                 </g>
 
             </svg>
@@ -206,10 +189,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                 {/* --- Left Column: Mascot & Branding --- */}
                 <div className="hidden md:flex flex-col items-center justify-center relative">
                     {/* Decorative Blob */}
-                    <div className="absolute w-96 h-96 bg-blue-200/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
+                    <div className="absolute w-96 h-96 bg-purple-200/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
                     
                     <div className="mb-8">
-                        <StudyOwl isPasswordFocused={isPasswordFocused} mousePosition={mousePosition} />
+                        <PaperMan isPasswordFocused={isPasswordFocused} mousePosition={mousePosition} />
                     </div>
                     
                     <div className="text-center space-y-4 max-w-sm">
@@ -217,11 +200,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                             {isLogin ? 'Welcome Back!' : 'Join the Hub'}
                         </h1>
                         <p className="text-lg text-slate-600 font-medium leading-relaxed">
-                            Your personal study companion. Master your interviews with interactive challenges.
+                            Master your interviews with interactive challenges and AI-powered insights.
                         </p>
-                        <div className="flex items-center justify-center gap-2 text-sm font-bold text-blue-600 bg-blue-50 py-2 px-4 rounded-full w-fit mx-auto border border-blue-100">
+                        <div className="flex items-center justify-center gap-2 text-sm font-bold text-purple-600 bg-purple-50 py-2 px-4 rounded-full w-fit mx-auto border border-purple-100">
                             <Sparkles className="w-4 h-4" /> 
-                            <span>Smart Progress Tracking</span>
+                            <span>1000+ Questions Available</span>
                         </div>
                     </div>
                 </div>
@@ -231,7 +214,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                     {/* Mobile Mascot (Smaller) */}
                     <div className="md:hidden flex justify-center mb-6">
                         <div className="w-32 h-32">
-                            <StudyOwl isPasswordFocused={isPasswordFocused} mousePosition={mousePosition} />
+                            <PaperMan isPasswordFocused={isPasswordFocused} mousePosition={mousePosition} />
                         </div>
                     </div>
 

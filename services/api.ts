@@ -1,3 +1,4 @@
+
 import { User, Question, Contribution } from '../types';
 
 // Use relative path for API calls. 
@@ -10,7 +11,9 @@ const handleResponse = async (res: Response) => {
          const text = await res.text();
          // If it's a 404 HTML response, it likely means backend is down or route is wrong.
          // We throw a specific error that can be caught gracefully.
-         throw new Error(`Server error: ${res.status} ${res.statusText} (${text.substring(0, 100)})`);
+         // Truncate HTML to keep error message readable in UI
+         const snippet = text.replace(/<[^>]*>?/gm, '').substring(0, 100); 
+         throw new Error(`API Error ${res.status} (${res.statusText}): ${snippet || 'Non-JSON response received'}`);
     }
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Request failed');
@@ -75,18 +78,9 @@ export const api = {
     // --- Admin & Content ---
 
     async getDBQuestions(): Promise<Question[]> {
-        try {
-            const res = await fetch(`${API_BASE}/questions`);
-            // Gracefully handle if backend is not running or route is missing (404)
-            if (res.status === 404 || res.status === 502 || res.status === 504) {
-                console.warn("Backend questions not available, using static only.");
-                return [];
-            }
-            return await handleResponse(res);
-        } catch (e) {
-            console.warn("Could not fetch DB questions (Backend might be down):", e);
-            return []; // Return empty array so app continues with static questions
-        }
+        // We propagate errors now so the UI can show them for debugging
+        const res = await fetch(`${API_BASE}/questions`);
+        return await handleResponse(res);
     },
 
     async addAdmin(email: string): Promise<void> {
