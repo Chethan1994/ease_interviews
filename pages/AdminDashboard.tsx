@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
-import { Contribution } from '../types';
-import { Users, FileText, Check, X, ShieldAlert, Edit3, Trash2, Send, Download, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Contribution, User } from '../types';
+import { Users, FileText, Check, X, ShieldAlert, Edit3, Trash2, Send, Download, ChevronDown, ChevronUp, Plus, ShieldOff } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -13,6 +13,9 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'contributions'>(isSuperAdmin ? 'users' : 'contributions');
   const [adminEmail, setAdminEmail] = useState('');
   const [message, setMessage] = useState('');
+  
+  // Admin Management State
+  const [admins, setAdmins] = useState<User[]>([]);
   
   // Contribution State
   const [contributions, setContributions] = useState<Contribution[]>([]);
@@ -24,8 +27,22 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'contributions') {
         fetchContributions();
+    } else if (activeTab === 'users') {
+        fetchAdmins();
     }
   }, [activeTab]);
+
+  const fetchAdmins = async () => {
+      setLoading(true);
+      try {
+          const data = await api.getAdmins();
+          setAdmins(data);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoading(false);
+      }
+  };
 
   const fetchContributions = async () => {
       setLoading(true);
@@ -45,8 +62,19 @@ export const AdminDashboard: React.FC = () => {
           await api.addAdmin(adminEmail);
           setMessage(`Successfully granted admin access to ${adminEmail}`);
           setAdminEmail('');
+          fetchAdmins(); // Refresh list
       } catch (err: any) {
           setMessage('Error: ' + err.message);
+      }
+  };
+
+  const handleRevokeAdmin = async (email: string) => {
+      if (!window.confirm(`Are you sure you want to revoke admin access for ${email}?`)) return;
+      try {
+          await api.revokeAdmin(email);
+          fetchAdmins(); // Refresh list
+      } catch (err: any) {
+          alert('Error: ' + err.message);
       }
   };
 
@@ -172,8 +200,9 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {activeTab === 'users' && isSuperAdmin && (
-            <div className="max-w-xl">
-                <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Grant Admin Panel */}
+                <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm h-fit">
                     <h3 className="text-xl font-bold text-slate-800 mb-4">Grant Admin Privileges</h3>
                     <p className="text-slate-500 mb-6 text-sm">
                         Enter an email address to grant full administrative access to that user. 
@@ -206,6 +235,55 @@ export const AdminDashboard: React.FC = () => {
                             Grant Access
                         </button>
                     </form>
+                </div>
+
+                {/* List Admins Panel */}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-fit">
+                    <div className="p-6 border-b border-slate-100 bg-slate-50">
+                        <h3 className="text-xl font-bold text-slate-800">Current Administrators</h3>
+                    </div>
+                    
+                    <div className="p-0">
+                        {loading ? (
+                            <div className="p-8 text-center text-slate-500">Loading users...</div>
+                        ) : admins.length === 0 ? (
+                            <div className="p-8 text-center text-slate-500">No admins found.</div>
+                        ) : (
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+                                    <tr>
+                                        <th className="px-6 py-3">Name</th>
+                                        <th className="px-6 py-3">Email</th>
+                                        <th className="px-6 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {admins.map(admin => (
+                                        <tr key={admin.id} className="border-b border-slate-100 hover:bg-slate-50">
+                                            <td className="px-6 py-4 font-medium text-slate-900">
+                                                {admin.name}
+                                                {admin.email === 'chethansg4@gmail.com' && (
+                                                    <span className="ml-2 text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">SUPER</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-500">{admin.email}</td>
+                                            <td className="px-6 py-4 text-right">
+                                                {admin.email !== 'chethansg4@gmail.com' && admin.email !== user.email && (
+                                                    <button 
+                                                        onClick={() => handleRevokeAdmin(admin.email)}
+                                                        className="text-red-500 hover:text-red-700 font-medium text-xs flex items-center gap-1 ml-auto"
+                                                        title="Revoke Admin Access"
+                                                    >
+                                                        <ShieldOff className="w-3 h-3" /> Revoke
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
                 </div>
             </div>
         )}

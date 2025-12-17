@@ -87,8 +87,22 @@ export const api = {
         return await handleResponse(res);
     },
 
+    async getAdmins(): Promise<User[]> {
+        const res = await fetch(`${API_BASE}/admin/users`);
+        return handleResponse(res);
+    },
+
     async addAdmin(email: string): Promise<void> {
         const res = await fetch(`${API_BASE}/admin/promote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        return handleResponse(res);
+    },
+
+    async revokeAdmin(email: string): Promise<void> {
+        const res = await fetch(`${API_BASE}/admin/revoke`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),

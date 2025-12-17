@@ -115,6 +115,17 @@ app.get('/api/questions', async (req: any, res: any) => {
 
 // --- Admin Routes ---
 
+// Get Admin Users
+app.get('/api/admin/users', async (req: any, res: any) => {
+    try {
+        const admins = await User.find({ isAdmin: true }).select('name email id isAdmin');
+        res.json(admins);
+    } catch (err) {
+        console.error('Error fetching admins:', err);
+        res.status(500).json({ message: 'Error fetching admins' });
+    }
+});
+
 // Promote to Admin
 app.post('/api/admin/promote', async (req: any, res: any) => {
     try {
@@ -124,6 +135,24 @@ app.post('/api/admin/promote', async (req: any, res: any) => {
         res.json({ message: 'User promoted to admin' });
     } catch (err) {
         res.status(500).json({ message: 'Error promoting user' });
+    }
+});
+
+// Revoke Admin Access
+app.post('/api/admin/revoke', async (req: any, res: any) => {
+    try {
+        const { email } = req.body;
+        
+        // Super Admin Protection
+        if (email === 'chethansg4@gmail.com') {
+            return res.status(403).json({ message: 'Cannot revoke super admin privileges' });
+        }
+
+        const user = await User.findOneAndUpdate({ email }, { isAdmin: false });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json({ message: 'Admin privileges revoked' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error revoking admin' });
     }
 });
 
