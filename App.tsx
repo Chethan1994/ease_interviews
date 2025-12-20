@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { Dashboard } from './pages/Dashboard';
 import { QuestionBank } from './pages/QuestionBank';
 import { CodingChallenges } from './pages/CodingChallenges';
@@ -10,6 +11,8 @@ import { AuthPage } from './pages/AuthPage';
 import { Contributor } from './pages/Contributor';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Promo } from './pages/Promo';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsOfService } from './pages/TermsOfService';
 import { SEO } from './components/SEO';
 import { ALL_QUESTIONS as STATIC_QUESTIONS } from './data/questions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -23,53 +26,31 @@ const MainContent: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   
-  // Local state for Release 1 "Guest" progress
   const [guestMasteredIds, setGuestMasteredIds] = useState<string[]>([]);
   const [guestReviewedIds, setGuestReviewedIds] = useState<string[]>([]);
-  
-  // Combined Questions (Static + DB)
   const [questions, setQuestions] = useState<Question[]>(STATIC_QUESTIONS);
-  
-  // Debug State
   const [backendError, setBackendError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Track page views
     analytics.logPageView(location.pathname);
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Fetch extra questions from DB
   useEffect(() => {
       const fetchQuestions = async () => {
           try {
               const dbQuestions = await api.getDBQuestions();
-              // Merge, favoring DB if there were duplicates (though ID collision unlikely with current scheme)
-              // We append DB questions to static ones
               if (dbQuestions && dbQuestions.length > 0) {
                   setQuestions([...STATIC_QUESTIONS, ...dbQuestions]);
               }
-              // If successful, ensure no error is showing
               setBackendError(null);
           } catch (e: any) {
-              // Silently fail for initial data fetch to allow "Offline Mode"
-              // We log to console for developer awareness but don't disrupt user experience
               console.warn("Backend not reachable. App running in static/offline mode.", e.message);
           }
       };
       fetchQuestions();
   }, []);
 
-  // Enable Debug Mode for specific user
-  useEffect(() => {
-    if (user?.email === 'chethansg4@gmail.com') {
-      console.log('🐞 Debug Mode Enabled for Admin');
-      // @ts-ignore
-      window.DEBUG_MODE = true;
-    }
-  }, [user]);
-
-  // Adapter to switch between real user data and guest local state
   const masteredIds = user ? user.masteredIds : guestMasteredIds;
   const reviewedIds = user ? (user.reviewedIds || []) : guestReviewedIds;
   
@@ -81,9 +62,7 @@ const MainContent: React.FC = () => {
 
   const handleMarkMastered = async (id: string) => {
     const question = questions.find(q => q.id === id);
-    if (question) {
-        analytics.logMastery(id, question.category);
-    }
+    if (question) analytics.logMastery(id, question.category);
 
     if (user) {
         try {
@@ -93,37 +72,26 @@ const MainContent: React.FC = () => {
                 updateUser({ ...user, masteredIds: newMastered });
                 await api.markMastered(user.id, id);
             }
-        } catch (e: any) {
-            console.error(e);
-            // Optionally show toast for action failure
-        }
+        } catch (e: any) { console.error(e); }
     } else {
-        if (!guestMasteredIds.includes(id)) {
-            setGuestMasteredIds(prev => [...prev, id]);
-        }
+        if (!guestMasteredIds.includes(id)) setGuestMasteredIds(prev => [...prev, id]);
     }
   };
 
   const handleMarkReviewed = async (id: string) => {
     const isAlreadyReviewed = reviewedIds.includes(id);
-
     if (user) {
         if (!isAlreadyReviewed) {
              const newReviewed = [...(user.reviewedIds || [])];
              newReviewed.push(id);
              updateUser({ ...user, reviewedIds: newReviewed });
-             try {
-                await api.markReviewed(user.id, id);
-             } catch(e) { console.error(e); }
+             try { await api.markReviewed(user.id, id); } catch(e) { console.error(e); }
         }
     } else {
-        if (!isAlreadyReviewed) {
-            setGuestReviewedIds(prev => [...prev, id]);
-        }
+        if (!isAlreadyReviewed) setGuestReviewedIds(prev => [...prev, id]);
     }
   };
 
-  // If in Promo mode, hide Navbar and other elements (Promo page handles its own layout)
   if (location.pathname === '/promo') {
       return (
           <Routes>
@@ -137,7 +105,6 @@ const MainContent: React.FC = () => {
         <SEO 
             title="Interview Question Bank | React, Node, Frontend & Backend" 
             description="Browse 1000+ technical interview questions covering React, Node.js, TypeScript, Next.js, and System Design for frontend and backend roles."
-            keywords="Question Bank, Interview Questions, React, Node.js, TypeScript, Frontend Interview, Backend Interview, Coding Round"
         />
         <QuestionBank 
             questions={questions} 
@@ -149,108 +116,58 @@ const MainContent: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
       <Navbar />
       
-      {/* Backend Error Banner - Only show for critical errors manually set, not initial fetch */}
       {backendError && (
         <div className="bg-red-600 text-white px-4 py-3 shadow-lg fixed bottom-0 w-full z-[100] animate-in slide-in-from-bottom-2">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-                    <div>
-                        <p className="text-sm font-bold">Connection Issue</p>
-                        <p className="text-xs text-red-100 opacity-90 font-mono mt-0.5 max-w-2xl truncate">{backendError}</p>
-                    </div>
+                    <p className="text-xs text-red-100 opacity-90 font-mono max-w-2xl truncate">{backendError}</p>
                 </div>
-                <div className="flex items-center gap-4">
-                    <button onClick={() => setBackendError(null)} className="text-white/60 hover:text-white transition-colors">
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+                <button onClick={() => setBackendError(null)} className="text-white/60 hover:text-white transition-colors">
+                    <X className="w-5 h-5" />
+                </button>
             </div>
         </div>
       )}
 
-      <main className="pb-12">
+      <main className="flex-grow pb-12">
         <Routes>
             <Route path="/dashboard" element={
-                <>
-                    <SEO 
-                        title="Dashboard | Track Frontend & Backend Progress" 
-                        keywords="Interview Progress, Mastery Tracking, Frontend Goals, Backend Goals"
-                    />
-                    <Dashboard 
-                        progress={progressAdapter} 
-                        questions={questions} 
-                        onStartStudy={(category?: string) => {
-                            if (category) {
-                                navigate(`/study?category=${encodeURIComponent(category)}`);
-                            } else {
-                                navigate('/study');
-                            }
-                        }}
-                    />
-                </>
+                <Dashboard 
+                    progress={progressAdapter} 
+                    questions={questions} 
+                    onStartStudy={(category?: string) => {
+                        if (category) navigate(`/study?category=${encodeURIComponent(category)}`);
+                        else navigate('/study');
+                    }}
+                />
             } />
             <Route path="/browse" element={questionBankElement} />
             <Route path="/browse/:categoryId" element={questionBankElement} />
-            
-            <Route path="/coding-challenges" element={
-                <>
-                    <SEO 
-                        title="Coding Challenges | React, JS, Node & Coding Round" 
-                        description="Solve real-world coding round challenges. Practice React hooks, JavaScript algorithms, Node.js APIs, and Frontend Machine Coding."
-                        keywords="Coding Challenges, Coding Round, React Machine Coding, JavaScript Algorithms, Node.js Challenges, Frontend Coding, Backend Coding"
-                    />
-                    <CodingChallenges />
-                </>
-            } />
-            <Route path="/coding-challenges/:categoryId" element={
-                <>
-                    <SEO 
-                        title="Coding Challenges | React, JS, Node & Coding Round" 
-                        description="Solve real-world coding round challenges. Practice React hooks, JavaScript algorithms, Node.js APIs, and Frontend Machine Coding."
-                        keywords="Coding Challenges, Coding Round, React Machine Coding, JavaScript Algorithms, Node.js Challenges, Frontend Coding, Backend Coding"
-                    />
-                    <CodingChallenges />
-                </>
-            } />
-
+            <Route path="/coding-challenges" element={<CodingChallenges />} />
+            <Route path="/coding-challenges/:categoryId" element={<CodingChallenges />} />
             <Route path="/study" element={
-                <>
-                    <SEO title="Study Mode - Flashcards" />
-                    <StudyMode 
-                        questions={questions} 
-                        masteredIds={progressAdapter.masteredIds}
-                        onMarkMastered={handleMarkMastered}
-                        onMarkReviewed={handleMarkReviewed}
-                    />
-                </>
+                <StudyMode 
+                    questions={questions} 
+                    masteredIds={progressAdapter.masteredIds}
+                    onMarkMastered={handleMarkMastered}
+                    onMarkReviewed={handleMarkReviewed}
+                />
             } />
-            <Route path="/contribute" element={
-                <>
-                    <SEO title="Contribute Question" description="Submit your own interview questions to help the community." />
-                    <Contributor />
-                </>
-            } />
-            <Route path="/auth" element={
-                <>
-                    <SEO title="Sign In - Interview Prep Hub" />
-                    <AuthPage onSuccess={() => navigate('/dashboard')} /> 
-                </>
-            } />
-            
-            <Route path="/admin" element={
-                user?.isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" replace />
-            } />
-            
+            <Route path="/contribute" element={<Contributor />} />
+            <Route path="/auth" element={<AuthPage onSuccess={() => navigate('/dashboard')} />} /> 
+            <Route path="/admin" element={user?.isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" replace />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route path="/promo" element={<Promo />} />
-
-            {/* Redirect root to browse */}
             <Route path="*" element={<Navigate to="/browse" replace />} />
         </Routes>
       </main>
+
+      <Footer />
     </div>
   );
 };

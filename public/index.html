@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -85,7 +86,6 @@
     <script>
       document.addEventListener('contextmenu', event => event.preventDefault());
       document.addEventListener('keydown', function(e) {
-        // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + Shift + C, Ctrl + U
         if(
           e.key === 'F12' ||
           (e.ctrlKey && e.shiftKey && e.key === 'I') ||
@@ -102,30 +102,14 @@
       body {
         background-color: #f8fafc;
       }
-      /* Fancy Scrollbar */
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-      
-      /* Hide scrollbar utility */
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-      }
-      .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-      }
+      .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      /* AdSense Bot Helper */
+      #bot-content { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
     </style>
   <script type="importmap">
 {
@@ -144,6 +128,19 @@
 </script>
 </head>
   <body>
+    <!-- Static content for crawlers to see meaningful text -->
+    <div id="bot-content">
+        <h1>Interview Prep Hub</h1>
+        <h2>Master your Frontend and Full Stack Technical Interviews</h2>
+        <p>Comprehensive collection of technical interview questions and coding challenges for React, JavaScript, Node.js, TypeScript, and System Design. Prepare with our hand-curated question bank, interactive code environment, and progress tracking dashboard.</p>
+        <nav>
+            <a href="/browse">Question Bank</a>
+            <a href="/coding-challenges">Coding Challenges</a>
+            <a href="/study">Study Mode</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+        </nav>
+    </div>
     <div id="root"></div>
   </body>
 </html>
