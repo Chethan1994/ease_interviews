@@ -1,8 +1,12 @@
 
 {
+  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/((?!assets/.*).*)",
+      "handle": "filesystem"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
