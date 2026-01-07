@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Question, Difficulty, Category } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { CopyButton } from '../components/ui/CopyButton';
+import { AdBanner } from '../components/AdBanner';
 import { RefreshCw, Check, X, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { analytics } from '../utils/analytics';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -107,7 +108,8 @@ export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered,
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Session Complete!</h2>
             <p className="text-slate-500 mb-8">You've cycled through all {queue.length} questions in this stack.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <button 
                     onClick={restart}
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
@@ -122,6 +124,8 @@ export const StudyMode: React.FC<StudyModeProps> = ({ questions, onMarkMastered,
                     Back to Dashboard
                 </button>
             </div>
+
+            <AdBanner slotId="study-complete-footer" label="Keep learning with these resources" />
         </div>
       </div>
     );

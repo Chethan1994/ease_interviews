@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Sparkles, Code2, Crown, Zap, ArrowRight } from 'lucide-react';
 
 interface AdBannerProps {
@@ -16,30 +16,40 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   className = '',
   label = 'Advertisement'
 }) => {
+  const location = useLocation();
+  const adInitialized = useRef(false);
   
   // --- CONFIGURATION ---
-  // CHANGE THIS TO 'true' ONLY AFTER GOOGLE APPROVES YOUR ACCOUNT
-  const ADS_ENABLED = false; 
+  // Set to true to enable Google AdSense
+  const ADS_ENABLED = true; 
   // ---------------------
 
   useEffect(() => {
-    try {
-      // @ts-ignore
-      if (ADS_ENABLED && window.adsbygoogle && process.env.NODE_ENV === 'production') {
-         // @ts-ignore
-         (window.adsbygoogle = window.adsbygoogle || []).push({});
+    if (ADS_ENABLED && !adInitialized.current) {
+      try {
+        // @ts-ignore
+        if (typeof window !== 'undefined' && window.adsbygoogle) {
+           // @ts-ignore
+           (window.adsbygoogle = window.adsbygoogle || []).push({});
+           adInitialized.current = true;
+        }
+      } catch (err) {
+        console.warn("AdSense push failed - this is normal if ads are still pending approval", err);
       }
-    } catch (err) {
-      console.error("AdSense push error", err);
     }
-  }, [ADS_ENABLED]);
+  }, [ADS_ENABLED, location.pathname]);
 
-  // Fallback mode for AdSense Crawlers and Pending Approval
-  if (!ADS_ENABLED || process.env.NODE_ENV === 'development') {
+  // Fallback / Development / Pending Approval UI
+  // Note: Even when enabled, ads may take time to show. 
+  // We show our "House Ads" as fallbacks for better UX.
+  const isDev = process.env.NODE_ENV === 'development';
+
+  if (isDev) {
       const variant = (slotId.split('').reduce((a,b) => a + b.charCodeAt(0), 0) % 3);
 
       return (
         <div className={`w-full my-8 ${className}`}>
+             <div className="text-[10px] text-slate-400 font-bold uppercase mb-2 text-center tracking-widest opacity-50">[ Dev Ad Placeholder ]</div>
              {variant === 0 ? (
                  <Link to="/coding-challenges" className="block group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-xl border border-slate-700 hover:border-blue-500 transition-all">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -99,14 +109,15 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   }
 
   return (
-    <div className={`text-center my-8 ${className}`}>
-        <span className="text-[10px] text-slate-300 uppercase font-black tracking-tighter block mb-1">Sponsored Content</span>
+    <div className={`text-center my-8 overflow-hidden min-h-[100px] ${className}`}>
+        <span className="text-[10px] text-slate-300 uppercase font-black tracking-tighter block mb-2 opacity-50">{label}</span>
         <ins className="adsbygoogle"
              style={{ display: 'block' }}
              data-ad-client="ca-pub-5226596264390573"
              data-ad-slot={slotId}
              data-ad-format={format}
-             data-full-width-responsive="true"></ins>
+             data-full-width-responsive="true"
+             key={location.pathname + slotId} />
     </div>
   );
 };
