@@ -9,9 +9,9 @@ interface SEOProps {
 }
 
 export const SEO: React.FC<SEOProps> = ({ 
-  title = "Interview Prep Hub | React, Node, JS & Frontend Coding Round Questions", 
-  description = "Master your Frontend and Backend interview. Comprehensive Question Bank and Coding Rounds for React, Node.js, Next.js, JavaScript, and TypeScript.",
-  keywords = "Interview Preparation, React, Node.js, Next.js, JavaScript, TypeScript, Coding Round, Frontend, Backend, Full Stack Interview"
+  title = "Interview Prep Hub | React, Node, Javascript, TypeScript & Coding Practice", 
+  description = "Master your technical interview with curated questions and coding challenges. Expert prep for React, Node, Javascript, and TypeScript developers.",
+  keywords = "react, interview, node, javascript, typescript, code, coding, technical interview, frontend engineering, backend development"
 }) => {
   const location = useLocation();
 

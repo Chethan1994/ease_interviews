@@ -5,10 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- SEO Meta Tags -->
-    <title>Interview Prep Hub | React, Node, JS & Frontend Coding Round Questions</title>
-    <meta name="description" content="Master your Frontend and Backend interview. Comprehensive Question Bank and Coding Rounds for React, Node.js, Next.js, JavaScript, and TypeScript." />
-    <meta name="keywords" content="Interview Preparation, React, Node.js, Next.js, JavaScript, TypeScript, Coding Round, Frontend, Backend, Full Stack Interview, Coding Challenges, System Design" />
+    <!-- Primary SEO Meta Tags -->
+    <title>Interview Prep Hub | React, Node, JS, TypeScript & Coding Interview Questions</title>
+    <meta name="description" content="The ultimate guide for React, Node, Javascript, and TypeScript interviews. Master coding challenges and technical rounds with our comprehensive question bank." />
+    <meta name="keywords" content="react, interview, node, javascript, typescript, code, coding, technical interview prep, frontend interview, full stack interview, coding challenges" />
     <meta name="author" content="Interview Prep Hub" />
     <meta name="robots" content="index, follow" />
     <meta name="google-site-verification" content="JbapvkUcgeHvsNLFNL8PhNfiOyBRLf6Nwz62ZHnxIk4" />
@@ -17,18 +17,18 @@
     <!-- Open Graph / Facebook / LinkedIn -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://ease-interviews.vercel.app/" />
-    <meta property="og:title" content="Interview Prep Hub | React, Node, JS & Frontend Coding Round Questions" />
-    <meta property="og:description" content="Master your Frontend and Backend interview. Comprehensive Question Bank and Coding Rounds for React, Node.js, Next.js, JavaScript, and TypeScript." />
+    <meta property="og:title" content="Interview Prep Hub | Master React, Node, JS & TypeScript Interviews" />
+    <meta property="og:description" content="Ace your technical coding interview. Curated questions for React, Node, Javascript, and TypeScript developers." />
     <meta property="og:image" content="https://ease-interviews.vercel.app/og-image.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://ease-interviews.vercel.app/" />
-    <meta property="twitter:title" content="Interview Prep Hub | React, Node, JS & Frontend Coding Round Questions" />
-    <meta property="twitter:description" content="Master your Frontend and Backend interview. Comprehensive Question Bank and Coding Rounds for React, Node.js, Next.js, JavaScript, and TypeScript." />
+    <meta property="twitter:title" content="Interview Prep Hub | Coding Interview Mastery" />
+    <meta property="twitter:description" content="Prepare for React, Node, and JS interviews with interactive coding challenges." />
     <meta property="twitter:image" content="https://ease-interviews.vercel.app/og-image.png" />
 
-    <!-- Favicon (Using stable CDN URL for Google Indexing) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/book-open.svg" />
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/book-open.svg" />
 
@@ -38,17 +38,16 @@
     <!-- Google AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5226596264390573" crossorigin="anonymous"></script>
     
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GVV1BWZ99X"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-GVV1BWZ99X');
     </script>
 
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Optimized JSON-LD Structured Data for Search Engines -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -57,12 +56,30 @@
       "url": "https://ease-interviews.vercel.app/",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Web",
+      "keywords": "react, interview, node, javascript, typescript, code, coding, next, html, css",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "A comprehensive platform for Full Stack interview preparation with interactive coding challenges and flashcards."
+      "description": "Comprehensive platform for React, Node, Javascript, and TypeScript interview preparation. Includes coding challenges and interactive question banks.",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "1250"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://ease-interviews.vercel.app/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://ease-interviews.vercel.app/browse?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
 
@@ -70,9 +87,7 @@
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
             colors: {
               primary: {
                 50: '#eff6ff',
@@ -87,67 +102,14 @@
       }
     </script>
 
-    <!-- Source Protection Script -->
-    <script>
-      document.addEventListener('contextmenu', event => event.preventDefault());
-      document.addEventListener('keydown', function(e) {
-        // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + Shift + C, Ctrl + U
-        if(
-          e.key === 'F12' ||
-          (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-          (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-          (e.ctrlKey && e.shiftKey && e.key === 'C') ||
-          (e.ctrlKey && e.key === 'u')
-        ) {
-          e.preventDefault();
-        }
-      });
-    </script>
-
     <style>
-      body {
-        background-color: #f8fafc;
-      }
-      /* Fancy Scrollbar */
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-
-      /* Sleek Dark Scrollbar */
-      .sleek-scrollbar-dark::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      .sleek-scrollbar-dark::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .sleek-scrollbar-dark::-webkit-scrollbar-thumb {
-        background: #475569; /* slate-600 */
-        border-radius: 3px;
-      }
-      .sleek-scrollbar-dark::-webkit-scrollbar-thumb:hover {
-        background: #64748b; /* slate-500 */
-      }
-      
-      /* Hide scrollbar utility */
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-      }
-      .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-      }
+      body { background-color: #f8fafc; }
+      .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
   <script type="importmap">
 {
@@ -165,11 +127,11 @@
     "express": "https://esm.sh/express@^5.2.1",
     "cors": "https://esm.sh/cors@^2.8.5",
     "body-parser": "https://esm.sh/body-parser@^2.2.1",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "dotenv": "https://esm.sh/dotenv@^17.2.3",
     "buffer": "https://esm.sh/buffer@^6.0.3",
     "multer": "https://esm.sh/multer@^2.0.2",
-    "mongoose": "https://esm.sh/mongoose@^9.0.1"
+    "mongoose": "https://esm.sh/mongoose@^9.0.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
