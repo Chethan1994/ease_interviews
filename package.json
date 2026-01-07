@@ -1,8 +1,8 @@
+
 {
   "name": "devprep-interview-master",
   "version": "1.0.0",
   "description": "Interview preparation platform",
-  "main": "index.tsx",
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production",
